@@ -1,0 +1,122 @@
+\documentclass[9pt,letterpaper]{article}
+% Some useful packages for including images, colored font, etc.
+\usepackage{url}
+\usepackage[yyyymmdd,hhmmss]{datetime}
+\usepackage{pdfsync}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{outline}
+\usepackage{dsfont}
+\usepackage{comment}
+\usepackage{lmodern}
+\usepackage{cite}
+\usepackage{float}
+\usepackage{appendix}
+
+\usepackage{listings,xcolor}
+\usepackage{courier}
+\usepackage{textcomp}
+
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\graphicspath{{figures/}}
+
+\bibliographystyle{unsrt}
+\usepackage{fancyhdr}
+\usepackage{datetime}
+\fancyhf{}
+\fancyhead[C]{\today\ DRAFT}
+\pagestyle{fancy}
+
+\begin{document}
+\title{Draft OAGi Interoperable Mapping Specification}
+\author{OAGi Members}
+\maketitle
+
+\section{Introduction}
+This document describes a data mapping language designed to serve as an \textit{interoperable exchange form} for expressing the intent of many mapping needs.
+As an interoperable exchange form, it is intended that the language can be translated (by humans and machine translation) into mapping specification in other languages.
+For example, it should be possible to translate statements in the exchange form into mapping specification of commercial mapping tools.
+
+The document is a draft and as of this writing (\today) is likely to be updated often.
+OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under "Mapping Doc").
+
+The mapping language described borrows predominantly from the JSONata mapping language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.
+These forms include tables (e.g. Excel) XML, and networks of data.
+To support networks of data, the mapping language borrows ideas from the Object Management Group's Queries, Views and Transformation relational (QVT-r)~\cite{ObjectManagementGroup2016b} mapping language.
+
+\section{Quick start: example mapping problems}
+
+In order to give you a sense of things, the next subsections describe the basics and how some common mapping challenges are addressed by the language.
+
+\subsection{Simple operations}
+
+\subsection{Vectors and Iteration}
+
+\subsubsection{Mapping over a vector}
+% POD "vector" or "collection"?
+Iteration is performed implicitly in the sense that when the argument to an operation is a vector, the operation is applied to each element of the collection.
+The result returned is a vector of the result of applying the operator to each element.
+Thus in Figure~\ref{code:simple-map}, \texttt{.zipcode} is applied to the vector \texttt{\$ADDRS} returning  a vector \texttt{["20898", "07010-35445", "10878"]}.
+
+% https://tex.stackexchange.com/questions/336919/simple-coloring-of-json-attributes
+\lstset{
+    string=[s]{"}{"},
+    stringstyle=\color{blue},
+    comment=[l]{:},
+    commentstyle=\color{black},
+    basicstyle=\small\ttfamily
+  }
+
+  % M-x eval-expression (local-unset-key "\"") to work on this! (avoids ``...'').
+\begin{figure}[H]
+    \caption{Map over a vector of entities collecting zipcode.}
+    \label{code:simple-map}
+\begin{lstlisting}
+
+(
+  $ADDRS :=
+     [{"name"     : "Peter",
+       "street"   : "123 Mockingbird Lane",
+       "zipcode"  : "20898"},
+       
+       {"name"    : "Bill",
+        "street"  : "23 Main Street",
+        "zipcode" : "07010-3545"},
+        
+       {"name"    : "Lisa",
+        "street"  : "903 Forest Road",
+        "zipcode" : "10878"}];
+
+   $ADDRS.zipcode
+)
+
+\end{lstlisting}
+\end{figure}    
+
+% I checked: This is what JSONata does too!  
+  In the case that the operator returns null for elements of the vector, no value is collected.
+  For example, if ``Bill'' in the above didn't have a zipcode, \texttt{\$ADDRS.zipcode} would have returned \texttt{["20898", "10878"]}.
+  \textbf{That's JSONata behavior. I don't particularly like it. It would be better IMO to return 'null' and then if you'd like, filter out the nulls.
+    Very easy. Thoughts?}
+
+\subsubsection{Filtering  a vector}
+Suppose, for some odd reason, we didn't like 9-digit zip codes (what the US Postal Service calls ``Zip+4'') and that we simply want to exclude them from the collection.
+There are a few simple ways to do this.
+One of those is to append a test expression to the end of the previous expression. This ``filtering'' test expression needs to be enclosed in square brackets to indicate that it is filtering.
+\texttt{\$ADDRS.zipcode[]}.
+  
+
+\subsection{Working with tabular data}
+
+\section{Specification}
+
+%
+\bibliography{/Users/pdenno/Documents/bibtex/library}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "interop-mapping"
+%%% End:

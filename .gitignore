@@ -1,0 +1,11 @@
+*.blg
+*.fls
+*.pdf
+*.log
+*.pdfsync
+*.fdb_latexmk
+*.bbl
+*.aux
+/auto
+*~
+*.gz
