@@ -124,14 +124,15 @@ One of those is to append a test expression to the end of the previous expressio
 \stt{\$ADDRS.zipcode[\$match(/\^{}\textbackslash d[5,5]\$/)]}. Regular expression syntax is arcane but what is shown is typical of JavaScript, Java and many other regex libraries.
 The above matches on strings that are exactly 5 number characters, thus excluding the Zip+4 Zip Codes.
 
-\subsubsection{Index variables}
-Index variables are things such as \stt{i} that you find code and pseudocode such as \stt{for i in [1..9] \{\ldots \}}.
+\subsubsection{Index variables} % Move this to "Challenge problems"???
+Index variables are variables used to iterate through arrays.
+They are common in procedural code, for example the variable \stt{i} in the pseudocode \stt{for i in [1..9] \{\ldots \}} is an index variable..
 A goal of interoperable exchange is to allow the expression of individual mapping statements that can be defined independent of larger program context.
-This kind of independence is useful in conventional  \textit{mapping tables}, spreadsheet used to describe to programmers the intent of proposed mapping.
+This kind of independence is useful in conventional \textit{mapping tables}, spreadsheet used to describe to programmers the intent of proposed mapping.
 The problem with index variables in this regard is that they would add meandering procedural expression where concise, independent, declarative expression is desired.
 %This is why the functional programming features known as \textit{map}, \textit{filter}, and \textit{reduce} are used. 
 But what if you needed to enumerate the things you were working with, for example, to put an index number in front of them?
-In cases like this you can avoid the need for an index variable by using the language's \stt{\$map} higher-order function; it is like JavaScript's \stt{map}. 
+In cases like this, you can avoid the need for an index variable by using the language's \stt{\$map} higher-order function; it is like JavaScript's \stt{map}. 
 See Figure~\ref{code:index-in-map} below.
 
 \begin{figure}[H]
@@ -213,21 +214,22 @@ For example, Table~\ref{table:simple} can be viewed as the structure shown in Fi
 \end{lstlisting}
 \end{figure}
 
-Though you might not need to know such things if your target usage is mapping tables, making reference to such a table could be achieve by a statement such as: \\
+The built-in function \stt{\$readSpreadsheet} reads spreadsheets. 
+An example usage is:\\
 \vspace{3mm}
 \stt{\$readSpreadsheet("data/spreadsheets/ExampleInvoiceInfo.xlsx", "Sales Info")} \\
 \vspace{3mm}
 where the first argument names an Excel file and the second names a sheet in that spreadsheet.
-
-If the table is transposed (so that all the properties are in its first column), a third argument with value \stt{true} can be specified.
+If the table is transposed (so that all the properties are in its first column, and each row concerns a different object), a third argument with value \stt{true} can be specified to access the data in the more useful orientation.
 
 \subsection{Working with data having complex interrelations}
 %[This section will introduce provisions for expressing maps to/from relational DBs, where schema are assumed.]
 
 Some situations call for more complex query and restructuring functionality than what has been illustrated above. 
 Everything to this point in the discussion could be performed easily with JSONata~\cite{Jsonata.org2021}, a language for querying and restructuring JSON-like data.
-JSONata is used, for example, in NodeRed~\cite{Node-Red2021} the Open Integration Hub~\cite{OIH2021}, an open software platform that received its initial funding in 2017 from the German Federal Government,
+JSONata is used, for example, in the Open Integration Hub~\cite{OIH2021}, an open software platform that received its initial funding in 2017 from the German Federal Government,
 Federal Ministry for Economic Affairs and Energy. % https://www.elastic.io/pressroom/open-integration-hub-data-synchronisation/
+JSONata is also used in NodeRed~\cite{Node-Red2021}. 
 
 The JSONata viewpoint could be described as one where a tree (or equivalently, a JSON object) is navigated from the root.
 Decades of experience, dating back to the early days of EDI, has shown that tree-based organization such as JSON objects is a quite reasonable choice where the communication of document-like information (e.g. ``messaging'') is needed.
@@ -242,7 +244,13 @@ With this data, you\ldots. [Later]
 
 \subsubsection{Data organized as triples}
 Relational and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity identifier, $y$ is data (string, number, object, array etc.)\footnote{What  additional atomic data
-  types shall we provide? Dates? URIs? UUIDs? etc.}~\footnote{Triples can maintain the normalization inherent in the base form; in fact, the normalization to such triples can be 5th-normal form.}
+  types shall we provide? Dates? URIs? UUIDs? etc.}~\footnote{Triples provide 5th-normal form relational data. Recomposing a concept from 5-th normal form typically requires as many joins as
+  there are attributes to recompose.
+  The upside of using triples are that
+  (1) substantial amounts of data are already in triples (e.g. RDF etc.),
+  (2) some query engines helpfully index triples in multiple ways entity-attribute-value, attribute-entity-value, and attribute-value-entity, and
+  (3) mapping engines can use triples effectively.
+  The challenge in using triples with this language is in preserving the abstraction of a functional pipeline owed to JSONata-like language features.}
   and $rel$ is a relationship (predicate) holding between $x$ and $y$.
   
 $rel$ might be implemented as a string.
@@ -279,12 +287,12 @@ Thus, the above might be normalized to triples (datoms) as follows:
  [12, "name" "Bob"]
  [12, "phoneNumbers" "123-456-1111"]
  [12, "phoneNumbers" "123-456-2222"]
-
 \end{lstlisting}
 
 In the following, an array of objects is used for phone numbers.
 Consequently, the \stt{PhoneNumberObjs} datoms on entity 13 reference additional entities, not data.
 
+% This is kind of a screwed up example. There should be {phone/type: "cell", phone/num: "123-455-3424"}
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 {"name" : "Bob", "phoneNumberObjs" : [{"cell" : "123-456-1111"}, {"work" : "123-456-2222"}]}
 \end{lstlisting}
@@ -306,7 +314,7 @@ Consequently, the \stt{PhoneNumberObjs} datoms on entity 13 reference additional
 
 Queries on triples are achieved using Datalog-like functionality.\footnote{There are many implementations of Datalog, includes ones for Java and JavaScript, so what is being proposed here should not be hard to implement.}
 Queries are specified using the same square-bracket-form triples as illustrated in the data above;
-for example, you can imagine \stt{[^^3fe "name" "Bob"]} being part of a query to get the entity identifier for the \stt{Bob} object (where \stt{^^3fe} is a \textit{query variable}).
+for example, you can imagine \stt{[?e "name" "Bob"]} being part of a query to get the entity identifier for the \stt{Bob} object (where \stt{?e} is a \textit{query variable}).
 But why would you want the entity identifier; it isn't domain data?
 The typical answer is that you will need it to perform a sort of join on triples.
 For example, if we want to get the \stt{cell} number for \stt{Bob}, we could use the following interrelation of triples.
@@ -320,11 +328,11 @@ For example, if we want to get the \stt{cell} number for \stt{Bob}, we could use
 If the datoms\footnote{Triples used in this context are sometimes called \textit{datoms}. I am glossing over some detail here. In fact, datoms in some implementations include a transaction time;
   data is never destroyed; instead, on query, you get the most recent value for a datom unless you specifically direct the query to look at the state of the DB at an earlier date.
   Such DB are sometimes called immutable databases. I mention this only in case someone thinks they might have a use for that functionality. If you do, let me know!} queried are just the ones of
-Figure~\ref{code:bob-phone}, then the datom on Line 1 matches the query pattern \stt{[^^3fe "name" "Bob"]}, binding \stt{?e} to the entity id 13.
+Figure~\ref{code:bob-phone}, then the datom on Line 1 matches the query pattern \stt{[?e "name" "Bob"]}, binding \stt{?e} to the entity id 13.
 The second query pattern, \stt{[?e "phoneNumberObjs" ?pn]}, matches two datoms, those on Lines 2 and 3, binding \stt{?pn} to either entity 14 or 15. 
 Owing to specifying \stt{"cell"} as the attribute, however, the third datom pattern, \stt{[?pn "cell" ?cellNum]}, only matches the datom on Line 4.
 The result of this query can be thought of as an object that looks like this: \stt{\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}}.
-Such a structure is called a \textit{binding set}. 
+Such an object is called a \textit{binding set}. 
 
 There are a few thing to note about working with Datalog-like languages like this one.
 First, it does not matter what order you list the query forms.
@@ -361,13 +369,13 @@ For example, \stt{\$queryCellByName := query(\$name)\textbf{(?cellNum)}\{[?e "na
 Used alone in code, \stt{query} does not fit the pattern of a JSONata-like capability.
 JSONata is effective and concise because it allow one to thread data through a pipeline of primitive transformations.
 If you place a \stt{query} call anywhere in that pipeline, you lose all the data except what is specifically captured by \stt{query}.
-There are certainly instances where that is useful, but is \stt{query} any easier than pure JSONata in these circumstances?\footnote{Stakeholder, do you have 
+There are certainly instances where that is useful, but is \stt{query} any easier than pure JSONata in these circumstances?\footnote{Stakeholders, do you have 
   examples where you think \stt{query} might be better?
   Nothing comes to me, at the moment.
   There is also the matter of getting back an object keyed by binding variables.
   Thus far we haven't defined ways to manipulate that.}
-The unique value of \stt{query} is as an argument to higher-level functions to do tasks such as in-place and bi-directional updating.
-Therefore, discussed next is (1) a new construct called \stt{enforce} and (2) how \stt{query} and \stt{enforce} can be used as arguments to a higher-order function \stt{transform}.
+Perhaps the unique value of \stt{query} is as an argument to higher-level functions to do tasks such as in-place and bi-directional updating.
+Therefore, discussed next is (1) a new construct called \stt{enforce} and (2) how \stt{query} and \stt{enforce} can be used as arguments to a higher-order function \stt{transform} to do in-place updating.
 
 \subsection{Working with multiple sources}
 

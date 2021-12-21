@@ -1,6 +1,5 @@
 *.blg
 *.fls
-*.pdf
 *.log
 *.pdfsync
 *.fdb_latexmk
