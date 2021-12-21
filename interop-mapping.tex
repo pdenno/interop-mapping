@@ -325,9 +325,7 @@ For example, if we want to get the \stt{cell} number for \stt{Bob}, we could use
  [?pn "cell" ?cellNum]
 \end{lstlisting}
 
-If the datoms\footnote{Triples used in this context are sometimes called \textit{datoms}. I am glossing over some detail here. In fact, datoms in some implementations include a transaction time;
-  data is never destroyed; instead, on query, you get the most recent value for a datom unless you specifically direct the query to look at the state of the DB at an earlier date.
-  Such DB are sometimes called immutable databases. I mention this only in case someone thinks they might have a use for that functionality. If you do, let me know!} queried are just the ones of
+If the datoms\footnote{Triples used in this context are sometimes called \textit{datoms}. I am glossing over some detail here.} queried are just the ones of
 Figure~\ref{code:bob-phone}, then the datom on Line 1 matches the query pattern \stt{[?e "name" "Bob"]}, binding \stt{?e} to the entity id 13.
 The second query pattern, \stt{[?e "phoneNumberObjs" ?pn]}, matches two datoms, those on Lines 2 and 3, binding \stt{?pn} to either entity 14 or 15. 
 Owing to specifying \stt{"cell"} as the attribute, however, the third datom pattern, \stt{[?pn "cell" ?cellNum]}, only matches the datom on Line 4.
