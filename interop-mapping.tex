@@ -257,7 +257,7 @@ $rel$ might be implemented as a string.
 The translation of structured data such as JSON objects into such triples is relatively straightforward:
 \begin{enumerate}
 \item A unique entity identifier is associated with each object; this identifier serves as the first element of triples about that object.
-      In JSON, for example, an object is a collection of name-value pairs delimited by curly brackets. 
+      In JSON, for example, an object is a collection of name-value pairs delimited by curly brackets.
 \item Each object attribute is represented by the string naming it\footnote{I suppose we'll only support strings, though namespaced symbols would be nice!}; these supply the second element of the triple, the $rel$.
 \item The third element of the triple provides an atomic datum (string, number, entity identifier, etc.) associated with the subject attribute of the subject object.
 \end{enumerate}
@@ -312,7 +312,7 @@ Consequently, the \stt{PhoneNumberObjs} datoms on entity 13 reference additional
 \end{figure}
 
 It is worth taking the time to comfortable with this idea of encoding information in triples;
-it is how we work with complex data in RADmapper. 
+it is how we work with complex data in RADmapper.
 
 \subsubsection{Queries on triples}
 
@@ -334,14 +334,14 @@ Figure~\ref{code:bob-phone}, then the datom on Line 1 matches the query pattern 
 The second query pattern, \stt{[?e "phoneNumberObjs" ?pn]}, matches two datoms, those on Lines 2 and 3, binding \stt{?pn} to either entity 14 or 15.
 Owing to specifying \stt{"cell"} as the attribute, however, the third datom pattern, \stt{[?pn "cell" ?cellNum]}, only matches the datom on Line 4.
 The result of this query can be thought of as an object that looks like this: \stt{\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}}.
-Such an object is called a \textit{binding set}.
+Such an object is called a \textit{binding object}, a collection of them that is the result of a query is a \textit{binding set}.
 
 There are a few thing to note about working with Datalog-like languages like this one.
 First, except for performance concerns, it does not matter what order you list the triple forms.
 Second, you can put query variables in any (or all) of the three positions.
 For example, \stt{[?e "cell" "123-456-1111"]} binds \stt{?e} to 14 in the above.
 Third, it is possible that there is in the data more than one match;
-for example, \stt{[?e ?a ?v]} returns an array of binding sets matching all data that is in context.
+for example, \stt{[?e ?a ?v]} returns an array of binding objects (a binding set) matching all data that is in context.
 It is possible, using query parameters not yet discussed, to limit what is return to the first match, etc.
 Finally, you can imagine that using attribute names like "name" and "qty" could get confusing. (Name of what? Quantity of what?)
 For this reason, where possible, best practice in Datalog-like languages uses namespaced attributes.
@@ -355,7 +355,7 @@ Where it helps reduce mistakes and the cognitive load on programmers, getting da
 
 The \stt{query} function is a higher-order function, it returns a function that can be used to execute a query.
 \stt{query} takes two kinds of information: a collection of triple forms, and (optional) parameters.
-In the example below there are three triples and one parameter,  \stt{\$name}. 
+In the example below there are three triples and one parameter,  \stt{\$name}.
 
 \begin{lstlisting}
  $queryCellByName := query($name)([?e "name" $name]
@@ -365,10 +365,10 @@ In the example below there are three triples and one parameter,  \stt{\$name}.
 
 If the context data is such as in Figure~\ref{code:bob-phone}, then \stt{\$.\$queryCellByName("Bob")} would return an array containing one binding set \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]}.\footnote{That
 example uses the JSONata convention that \stt{\$} is the \textit{context reference} always bound to whatever is the data at the time of reference.}
-There is a similar construct \stt{queryOne} that can be used to get a binding set for the first match found.
+There is a similar construct \stt{queryOne} that can be used to get a binding object for the first match found.
 
 Primarily for use in development and debugging, there is a shortcut to getting binding sets: the function \stt{query!}.
-\stt{query!} takes a collection of triple forms (and no parameters) and returns an array of binding sets matching the query.
+\stt{query!} takes a collection of triple forms (and no parameters) and returns a binding object for each match to the query (a binding set).
 For example:
 
 \begin{lstlisting}
@@ -394,12 +394,12 @@ The answer is that they are crucial to mapping networked data, and doing in-plac
 \item[in-place update] the idea that the mapping task involves updating an existing collection of data, rather than
   creating the target from scratch.
 \end{description}
-  
-However, before we can talk about mapping networked data, and in-place updating, it is important to recognize that these activities require 
+
+However, before we can talk about mapping networked data, and in-place updating, it is important to recognize that these activities require
 some additional knowledge about the (target) data.
 For example,
 (a) how do we know that an action is intended to update some data rather than add new additional information about the object, and
-(b) how do we know whether to use a pointer to reference some data rather than just put it where it is mentioned?
+(b) how do we know whether to use a pointer to reference some data rather than just put the data there?
 
 Thus to perform these more complex mapping tasks we have to know a few things:
 (1) the cardinality of each attribute,
@@ -409,7 +409,7 @@ Thus to perform these more complex mapping tasks we have to know a few things:
 % ToDo: This probably belongs somewhere else. (Getting into too much detail!)
 Notice that condition (3) mentions the idea of object type.
 It is not the case that objects need to have any inherent notion of type to use RADmapper mapping.
-It is enough that the programmer recognize the type by the attributes it possesses.
+It is enough that the programmer recognizes the type by the attributes it possesses.
 (This is the so called \textit{duck typing} --- if it walks like a duck and quacks like a duck it is a duck.)
 Thus, an object that has an email address and a cell phone might be recognized as a customer.
 That said, programmers are likely to have an easier time of it if they explicitly hint at the types of things using namespaced attributes.
@@ -423,10 +423,11 @@ to be addressed to do a thorough job of mapping RDF and OWL data.)
 The target data we'll be creating has three kinds of things in it, schema, tables, and columns.
 See Figure ~\ref{code:example-schema-1}.
 The object types define attributes (\stt{db/attrs}) and keys (\stt{db/key}).
-Each attribute has a type (\stt{db/type}) and a cardinality (\stt{db/cardinality}. 
-The \stt{db/type} can be any primitive type defined (e.g. strings, numbers, UUID, etc.) or ``ref'', meaning that
-the attribute is populated by references to other objects.
-In relational parlance the refs are foreign keys. 
+Each attribute has a type (\stt{db/type}) and a cardinality (\stt{db/cardinality}.
+The \stt{db/type} can be any primitive type defined (e.g. strings, numbers, UUID, etc.) or ``object'', meaning that
+the attribute is populated by either references to other objects or objects in-lined in the structure.
+In relational parlance the references are foreign keys.
+There is nothing quite like in-lining in relational technology, but we demonstrate its use in the example below nonetheless.
 %The top-level entries in this schema are identified
 %by the strings ``schema'', ``table'', and ``column'' which have no particular significance but might be used in
 %error reporting (or we'll get rid of them).
@@ -434,82 +435,110 @@ In relational parlance the refs are foreign keys.
 \begin{figure}[H]
   \caption{A schema for the target data}
   \label{code:example-schema-1}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]  
+\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
   [{"schema" : {"db/attrs"  : [{"schema/name"   : {"db/type" : "string", "db/cardinality" : "one"}}],
-		"db/key"    : ["schema/name"]}}
+                "db/key"    : ["schema/name"]}}
 
    {"table"  : {"db/attrs"  : [{"table/name"    : {"db/type" : "string", "db/cardinality" : "one" },
-				"table/schema"  : {"db/type" : "ref"   , "db/cardinality" : "one" },
-				"table/columns" : {"db/type" : "ref"   , "db/cardinality" : "many"}}],
-		"db/key"    : ["table/schema", "table/name"]}}
+                                "table/schema"  : {"db/type" : "object", "db/cardinality" : "one",
+                                                   "db/in-line?" : true},
+                                "table/columns" : {"db/type" : "object", "db/cardinality" : "many"}}],
+                "db/key"    : ["table/schema", "table/name"]}}
 
    {"column" : {"db/attrs"  : [{"column/name"   : {"db/type" : "string", "db/cardinality" : "one"}},
-			       {"column/type"   : {"db/type" : "string", "db/cardinality" : "one"}},
-			       {"column/table"  : {"db/type" : "ref",    "db/cardinality" : "one"}}],
-		"db/key"    : ["column/table", "column/name"]}}]
+                               {"column/type"   : {"db/type" : "string", "db/cardinality" : "one"}},
+                               {"column/table"  : {"db/type" : "object", "db/cardinality" : "one"}}],
+                "db/key"    : ["column/table", "column/name"]}}]
 \end{lstlisting}
 \end{figure}
 
-
 The \stt{db/cardinality} of the all the attributes in ``one'' except in the case of \stt{table/columns} which is ``many''.
-(See Line 6 of the figure.)
+(See Line 7 of the figure.)
 Cardinality of one means that actions on this attribute of an object either create the datom (triple) or update it.
 There will never be two triples about this attribute where the first two elements of the triple are identical.
 Cardinality of many means that that there could be multiple datoms for the attribute.
-Keep in mind that the elements of the elements of a triple are always atomic.
-To represent $n$ values there are $n$ triples having different values for the 3rd element of the triple.
+Keep in mind that the elements of a triple are always atomic.
+To represent $n$ values there are $n$ triples having different values for the third element of the triple.
 Also, the underlying datalog tool preserves the order of elements in arrays.
 
+Line 7 in the figure demonstrates the use of the optional, \stt{db/in-line?} schema feature.
+On Line7 \stt{db/in-line?} is set to true (the default is false).
+\stt{db/in-line?} true directs the mapper to create structures rather than references.
+In the example, schema are described by just their name; entire objects are serialized like this: \stt{\{schema/name ``some schema''\}}.
+It seems reasonable in these circumstances to in-line, much less so in the case of the back-pointer \stt{table/columns}.
+
 The OWL and RDF data that is the source of mapping consists of objects of two types,
-one are OWl classes; these have the value  "owl/Class" in their "rdf/type" attribute.
+one are OWL classes; these have the value  "owl/Class" in their "rdf/type" attribute.
 The other are OWL properties these have either the value "owl/ObjectProperty" or "owl/DatatypeProperty" as
-their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endurant}. 
+their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endurant}.
 
 \begin{figure}[H]
   \caption{An object in the source population}
   \label{code:endurant}
 \begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-{:owl/disjointWith [:dol/abstract :dol/quality :dol/perdurant],
+{:resource/iri :dol/endurant,
+ :resource/name "endurant",
+ :resource/namespace "dol",
+ :owl/disjointWith [:dol/abstract :dol/quality :dol/perdurant],
  :rdf/type :owl/Class,
  :rdfs/comment
  ["The main characteristic of endurants is that all of them are independent essential wholes..."],
  :rdfs/subClassOf
  [:dol/spatio-temporal-particular
   {:owl/onProperty :dol/participant-in, :owl/someValuesFrom [:dol/perdurant], :rdf/type :owl/Restriction}
-  {:owl/allValuesFrom [:dol/endurant], :owl/onProperty :dol/specific-constant-constituent, 
+  {:owl/allValuesFrom [:dol/endurant], :owl/onProperty :dol/specific-constant-constituent,
    :rdf/type :owl/Restriction}
-  {:owl/allValuesFrom [:dol/endurant], :owl/onProperty :dol/part, :rdf/type :owl/Restriction}],
- :resource/iri :dol/endurant,
- :resource/name "endurant",
- :resource/namespace "dol"}
+  {:owl/allValuesFrom [:dol/endurant], :owl/onProperty :dol/part, :rdf/type :owl/Restriction}]}
 \end{lstlisting}
 \end{figure}
 
 Figure \ref{code:mapping-owl-to-rdbms} depicts the complete code for performing the mapping to target schema, tables and columns.
 The \stt{where} clause sets up a query to produce a binding set for the source data.
-The section in curly brackets below the triple forms define how values from the binding sets are used in the target population.
-\textbf{[Note that...to be completed.]}
+The section in curly brackets below the triples defines how values from the binding set are used in the target population.
 
 \begin{figure}[H]
   \caption{Mapping OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
 \begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
   (where [?class rdf/type            "owl/Class"]
-	 [?class resource/iri        ?class-iri]
-	 [?class resource/namespace  ?ns]        
-	 [?class resource/name       ?class-name]
-	 [?rel   rdf/type            (or "owl/ObjectType" "owl/DataType")]
-	 [?rel   rdfs/domain         ?class-iri]
-	 [?rel   rdfs/range          ?rel-range] 
-	 [?rel   resource/name       ?rel-name]
+         [?class resource/iri        ?class-iri]
+         [?class resource/namespace  ?ns]
+         [?class resource/name       ?class-name]
+         [?rel   rdf/type            (or "owl/ObjectType" "owl/DataType")]
+         [?rel   rdfs/domain         ?class-iri]
+         [?rel   rdfs/range          ?rel-range]
+         [?rel   resource/name       ?rel-name]
      {"table/name"     : ?class-name,
-      "table/schema"   : {"schema/name"  : ?ns},      
-      "table/columns"  : {"column/name"  : ?rel-name,  
-			  "column/type"  : ?rel-range,
-			  "column/table" : ?table-ent}} as ?table-ent)
+      "table/schema"   : {"schema/name"  : ?ns},
+      "table/columns"  : {"column/name"  : ?rel-name,
+                          "column/type"  : ?rel-range,
+                          "column/table" : ?table-ent}} as ?table-ent)
 \end{lstlisting}
 \end{figure}
 
+We'll walk through the example line by line.
+On Line 1 we constrain the search to just those entities that have \stt{rdf/type} containing the string ``owl/Class''.
+On Lines 2, 3, and 4 we bind variables to attribute values of that entity.
+If instead of mapping every namespace in the source data we wanted to limit mapping to a single namespace,
+we could have specified a value or expression for \stt{resource/namespace} on Line 3 rather than the variable \stt{?ns}.
+For example, we could have specified ``dol'' here, that happens to refer to the DOLCE ontology namespace.
+(See the example data in Figure ~\ref{code:endurant}.)
+
+Lines 5, 6, 7 and 8 match and bind a second entity, one that according to Line 5 must have \stt{rdf/type}
+containing either ``owl/ObjectType'' or ``owl/DataType''.
+Line 6 uses the variable \stt{?class-iri} which was also bound on Line 2; thus a relational join is performed;
+we are looking for relations whose \stt{rdfs/domain} is the class bound in Lines 1 through 4.
+
+% ToDo: This needs work.
+The example dataset from DOLCE is fairly large.
+Let's suppose it contains 50 classes, each involved in 10 relations.
+That suggests a binding set of 500 binding objects.
+That does not necessarily entail 500 structures like Lines 9 through 13, however.
+In contrast to the JSONata-like operations, which maps physical structures to physical structures,
+the mapping engine here is mapping between logical structures.
+Specifically, a triple represents a fact and the database of triples need only represent a fact once.
+It is the knowledge of keys and references provided by the schema that allows the mapping engine to construct physical structure
+from the logical relationship defined by the mapping specification.
 
 
 %Since it is likely that we do not have use for the bindings of the entity identifiers bound to \stt{?e} and \stt{?pn}, there is optional syntax in the definition to avoid returning them.
