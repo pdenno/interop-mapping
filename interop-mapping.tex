@@ -492,48 +492,56 @@ their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endura
 \end{lstlisting}
 \end{figure}
 
-Figure \ref{code:mapping-owl-to-rdbms} depicts the complete code for performing the mapping to target schema, tables and columns.
-The \stt{where} clause sets up a query to produce a binding set for the source data.
-The section in curly brackets below the triples defines how values from the binding set are used in the target population.
+Figure \ref{code:mapping-owl-to-rdbms} depicts the complete specification of a transformation of the source. 
+\stt{transform} is a side-effecting function that takes three arguments, a data context, a binding set, and an enforce function;
+it returns a connection to resulting data.
+(Returning the data itself might not be reasonable in the case that it is very large and managed by a database.)
+When the binding set argument is a literal call to \stt{query!} it is possible for the parser to do syntax checking between
+the \stt{query!} and \stt{enforce}. 
+
+The \stt{query!} produces a binding set for the source data.
+The \stt{enforce} defines how values from the binding set are used in the target population.
 
 \begin{figure}[H]
   \caption{Mapping OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
 \begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-  (where [?class rdf/type            "owl/Class"]
-         [?class resource/iri        ?class-iri]
-         [?class resource/namespace  ?ns]
-         [?class resource/name       ?class-name]
-         [?rel   rdf/type            (or "owl/ObjectType" "owl/DataType")]
-         [?rel   rdfs/domain         ?class-iri]
-         [?rel   rdfs/range          ?rel-range]
-         [?rel   resource/name       ?rel-name]
-     {"table/name"     : ?class-name,
-      "table/schema"   : {"schema/name"  : ?ns},
-      "table/columns"  : {"column/name"  : ?rel-name,
-                          "column/type"  : ?rel-range,
-                          "column/table" : ?table-ent}} as ?table-ent)
+ $.transform( 
+     query!( [?class rdf/type            "owl/Class"]
+             [?class resource/iri        ?class-iri]
+             [?class resource/namespace  ?ns]
+             [?class resource/name       ?class-name]
+             [?rel   rdfs/domain         ?class-iri]
+             [?rel   rdf/type            ("owl/ObjectProperty" or "owl/DataProperty")]
+             [?rel   rdfs/range          ?rel-range]
+             [?rel   resource/name       ?rel-name])
+     enforce( {"table/name"     : ?class-name,
+               "table/schema"   : {"schema/name"  : ?ns},
+               "table/columns"  : {"column/name"  : ?rel-name,
+                                   "column/type"  : ?rel-range,
+                                   "column/table" : ?table-ent}} as ?table-ent))
 \end{lstlisting}
 \end{figure}
 
 We'll walk through the example line by line.
-On Line 1 we constrain the search to just those entities that have \stt{rdf/type} containing the string ``owl/Class''.
-On Lines 2, 3, and 4 we bind variables to attribute values of that entity.
+On Line 1 \stt{transform} receives data from the context variable. [Other methods will be defined.] % ToDo
+On Line 2 we constrain the search to just those entities that have \stt{rdf/type} containing the string ``owl/Class''.
+On Lines 3, 4, and 5 we bind variables to attribute values of that entity.
 If instead of mapping every namespace in the source data we wanted to limit mapping to a single namespace,
-we could have specified a value or expression for \stt{resource/namespace} on Line 3 rather than the variable \stt{?ns}.
+we could have specified a value or expression for \stt{resource/namespace} on Line 4 rather than the variable \stt{?ns}.
 For example, we could have specified ``dol'' here, that happens to refer to the DOLCE ontology namespace.
 (See the example data in Figure ~\ref{code:endurant}.)
 
-Lines 5, 6, 7 and 8 match and bind a second entity, one that according to Line 5 must have \stt{rdf/type}
-containing either ``owl/ObjectType'' or ``owl/DataType''.
-Line 6 uses the variable \stt{?class-iri} which was also bound on Line 2; thus a relational join is performed;
-we are looking for relations whose \stt{rdfs/domain} is the class bound in Lines 1 through 4.
+Lines 6, 7, 8 and 9 match and bind a second entity. 
+Line 6 uses the variable \stt{?class-iri} which was bound on Line 3; thus a relational join is performed. 
+According to Line 7 this entity must have \stt{rdf/type} of either ``owl/ObjectProperty'' or ``owl/DataProperty''.
+Lines 8 and 9 bind the \stt{rdfs/range} and \stt{resource/name} respectively. 
 
 % ToDo: This needs work.
 The example dataset from DOLCE is fairly large.
 Let's suppose it contains 50 classes, each involved in 10 relations.
 That suggests a binding set of 500 binding objects.
-That does not necessarily entail 500 structures like Lines 9 through 13, however.
+That does not necessarily entail 500 structures like Lines 10 through 14, however.
 In contrast to the JSONata-like operations, which maps physical structures to physical structures,
 the mapping engine here is mapping between logical structures.
 Specifically, a triple represents a fact and the database of triples need only represent a fact once.
