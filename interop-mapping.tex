@@ -535,7 +535,13 @@ For example, we could have specified ``dol'' here, that happens to refer to the 
 Lines 6, 7, 8 and 9 match and bind a second entity. 
 Line 6 uses the variable \stt{?class-iri} which was bound on Line 3; thus a relational join is performed. 
 According to Line 7 this entity must have \stt{rdf/type} of either ``owl/ObjectProperty'' or ``owl/DataProperty''.
-Lines 8 and 9 bind the \stt{rdfs/range} and \stt{resource/name} respectively. 
+Lines 8 and 9 bind the \stt{rdfs/range} and \stt{resource/name} respectively.
+
+% ToDo: Think about NOT calling it 'query!'
+With a call to \stt{enforce}, Line 10 defines the enforcement function, a higher-order function. 
+The design of \stt{transform}, \stt{query!} and \stt{enforce} were factored as they are to facilitate debugging.
+For example, \stt{query!} can be run on context data so that the resulting binding set may be verified;
+\stt{enforce} can be applied to a small hand-coded binding set to verify that the intended mapping is taking place. 
 
 % ToDo: This needs work.
 The example dataset from DOLCE is fairly large.
