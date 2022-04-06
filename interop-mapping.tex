@@ -60,32 +60,32 @@ For example, it should be possible to translate statements in the exchange form 
 The document is a draft and as of this writing (\today) is likely to be updated often.
 OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
-The mapping language  described (provisionally called RADmapper) borrows predominantly from the JSONata mapping language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
+The mapping language  described (provisionally called RADmapper) borrows predominantly from the JSONata language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
 These forms include tables (e.g. Excel) XML, and networks of data such as knowledge graphs.
-The RADmapper language also addresses additional use cases, including in-place updating of target data sources. 
+The RADmapper language also addresses additional use cases, including in-place updating of target data sources.
 To support networks of data, the mapping language borrows ideas from the Object Management Group's Queries, Views and Transformation relational (QVT-r)~\cite{ObjectManagementGroup2016b} mapping language, and Datalog~\cite{Abiteboul1995a}.
 
 The document describes both the interoperable exchange form and a software tool that executes it.
 The tool serves as a reference model to explore the operational semantics of the language.
-Whether or not the tool is useful in operational settings remains to be seen;
-we'll generate an OpenAPI Specification for it to test that idea.
-At the current state of development, it isn't clear whether the language being described is the interoperable exchange form itself or something derived from what is being developed.
+Whether or not the tool is useful for transforming information in real-world settings remains to be seen;
+we'll generate an OpenAPI Specification for the tool to test that idea.
+At the current state of development, it isn't clear whether the language being described is the interoperable exchange form itself or something derived from the executable language being developed.
 For example, it is possible that abstract syntax trees (ASTs) of content in the language being described could themselves be transformed
 into the actual exchange form.
 The same process could possibly be used to produce ``mapping tables'', spreadsheets provided to programmers to hand-code the transformations
 in their system's native programming language. %A diagram would help here.
-In this light the RADmapper tool can be thought of as means to get the intent of the mapping correct before handing it off to programmers.
+In this light, the RADmapper tool can be thought of as means to get the intent of the mapping correct before handing it off to programmers.
 But this discussion is getting ahead of itself; the next section surveys key aspects of the language.
 
-\section{Quick start: example mapping tasks}
+\section{Quick Start: Example Mapping Tasks}
 
 In order to give you a sense of things, the next subsections describe the basics and how some common query, data restructuring, and mapping challenges are addressed by the language.
 
-\subsection{Simple operations}
+\subsection{Simple Operations}
 
 \subsection{Vectors and Iteration}
 
-\subsubsection{Mapping over a vector}
+\subsubsection{Mapping Over a Vector}
 % POD "array" or "collection"?
 In the language, iteration is typically performed implicitly in the sense that when the argument to an operation is an array, the operation is applied to each element of the collection.
 The result returned is an array of the result of applying the operator to each element.
@@ -130,14 +130,14 @@ Thus in Figure~\ref{code:simple-map}, \stt{.zipcode} is applied to the array \st
   In the case that the operator returns null for elements of the array, no value is collected.
   For example, if ``Bill'' in the above didn't have a zipcode, \stt{\$ADDRS.zipcode} would have returned \stt{["20898", "10878"]}.
 
-\subsubsection{Filtering  an array}
+\subsubsection{Filtering  an Array}
 Suppose, for some odd reason, we didn't like 9-digit Zip codes (what the US Postal Service calls ``Zip+4'') and that we simply want to exclude them from the collection.
 There are a few simple ways to do this.
 One of those is to append a test expression to the end of the previous expression. This ``filtering'' test expression needs to be enclosed in square brackets to indicate that it is filtering.
 \stt{\$ADDRS.zipcode[\$match(/\^{}\textbackslash d[5,5]\$/)]}. Regular expression syntax is arcane but what is shown is typical of JavaScript, Java and many other regex libraries.
 The above matches on strings that are exactly 5 number characters, thus excluding the Zip+4 Zip Codes.
 
-\subsubsection{Index variables} % Move this to "Challenge problems"???
+\subsubsection{Index Variables} % Move this to "Challenge problems"???
 Index variables are variables used to iterate through arrays.
 They are common in procedural code, for example, the variable \stt{i} in the pseudocode \stt{for i in [1..9] \{\ldots \}} is an index variable..
 A goal of interoperable exchange is to allow the expression of individual mapping statements that can be defined independent of larger program context.
@@ -163,7 +163,7 @@ In \stt{\$map} (and \stt{\$filter}, and \stt{\$reduce} described later), the fun
 as the value bound to \stt{\$v}, and \stt{\$i} is bound in turn to successive integers in the sequence \stt{[1,2,3]}.
 This effectively eliminates the need for user-defined index variables.
 
-\subsection{Working with code lists}
+\subsection{Working with Code Lists}
 
 A mapping tasks commonly needed is translating a code list, or subsetting one to a set of code values that actually is used in your business processes.
 For example, there is a very large set of codes for transportation events in the code list \textbf{[don't recall the spec]}.
@@ -176,7 +176,7 @@ An example is shown in Figure~\ref{code:mapping-codes}.
     \caption{Mapping code values.}
     \label{code:mapping-codes}
 %\lstset{frame=tb,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true}
-\begin{lstlisting}[frame=tb,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
   $Codes2OurCodes := function($theirs)
    {switch $theirs {
        #{2, 5, 52, 66} : 'late';
@@ -196,7 +196,7 @@ For this reason, it might be reasonable to provide an alternative, whereby a loo
   Functions in the language do not have names.
   If you need to use a function in multiple places, assign it to a variable as shown in the figure, (use of \stt{\$Codes2OurCodes}).}
 
-\subsection{Working with tabular data}
+\subsection{Working with Tabular Data}
 
 Being able to read  and write spreadsheet information is a very handy capability in mapping.
 Of course, Excel-like spreadsheets can have multiple sheets and the content can be non-uniform, including merged cells and formula.
@@ -235,14 +235,14 @@ An example usage is:\\
 where the first argument names an Excel file and the second names a sheet in that spreadsheet.
 If the table is transposed (so that all the properties are in its first column, and each row concerns a different object), a third argument with value \stt{true} can be specified to access the data in the more useful orientation.
 
-\subsection{Working with data having complex interrelations}
+\section{Working with Data Having Complex Interrelations}
 %[This section will introduce provisions for expressing maps to/from relational DBs, where schema are assumed.]
 
 Some situations call for more complex query and restructuring functionality than what has been illustrated above.
 Everything to this point in the discussion could be performed easily with JSONata~\cite{Jsonata.org2021}, a language for querying and restructuring JSON-like data.
 JSONata is used, for example, in the Open Integration Hub~\cite{OIH2021}, an open software platform that received its initial funding in 2017 from the German Federal Government,
 Federal Ministry for Economic Affairs and Energy. % https://www.elastic.io/pressroom/open-integration-hub-data-synchronisation/
-JSONata is also used in NodeRed~\cite{Node-Red2021}.
+JSONata is also used in Node-RED~\cite{Node-Red2021}.
 
 The JSONata viewpoint could be described as one where a tree (or equivalently, a JSON object) is navigated from the root.
 Decades of experience, dating back to the early days of EDI, has shown that tree-based organization such as JSON objects is a quite reasonable choice where the communication of document-like information (e.g. ``messaging'') is needed.
@@ -255,7 +255,7 @@ we are not trying to replace a back-end system function, but to describe the rel
 To illustrate the challenge of using a JSONata-like engine for data having complex interrelations, suppose, for example that you have a body of data describing a large number of products produced by a small number of vendors.
 With this data, you\ldots. [Later]
 
-\subsubsection{Data organized as triples}
+\subsection{Data Organized as Triples}
 Relational and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity identifier, $y$ is data (string, number, object, array, another entity identifier, etc.)\footnote{What  additional atomic data
   types shall we provide? Dates? URIs? UUIDs? etc.}~\footnote{Triples provide 5th-normal form relational data. Recomposing a concept from 5-th normal form typically requires as many joins as
   there are attributes to recompose.
@@ -264,10 +264,10 @@ Relational and graph-based data can be described by triples $[x,rel,y]$ where $x
   (2) some query engines helpfully index triples in multiple ways entity-attribute-value, attribute-entity-value, and attribute-value-entity, and
   (3) mapping engines can use triples effectively.
   The challenge in using triples with this language is in preserving the abstraction of a functional pipeline owed to JSONata-like language features.}
-  and $rel$ is a relationship (predicate) holding between $x$ and $y$.
-
+and $rel$ is a relationship (predicate) holding between $x$ and $y$.
+The graph-based viewpoint on such data is that $x$ and $y$ are vertices, and $rel$ is an edge.
 $rel$ might be implemented as a string.
-The translation of structured data such as JSON objects into such triples is relatively straightforward:
+Thus, the translation of structured data such as JSON objects into such triples is relatively straightforward:
 \begin{enumerate}
 \item A unique entity identifier is associated with each object; this identifier serves as the first element of triples about that object.
       In JSON, for example, an object is a collection of name-value pairs delimited by curly brackets.
@@ -327,7 +327,7 @@ Consequently, the \stt{PhoneNumberObjs} datoms on entity 13 reference additional
 It is worth taking the time to get comfortable with this idea of encoding information in triples;
 it is how we work with complex data in RADmapper.
 
-\subsubsection{Queries on triples}
+\subsection{Queries on Triples}
 
 You can query triples using Datalog-like notation.\footnote{There are many implementations of Datalog, includes ones for Java and JavaScript, so what is being proposed here should not be hard to implement.}
 Queries are specified using the square-bracket-form triples illustrated in the data above.
@@ -348,7 +348,7 @@ The second query pattern, \stt{[?e "phoneNumberObjs" ?pn]}, matches two datoms, 
 Owing to specifying \stt{"cell"} as the attribute, however, the third datom pattern, \stt{[?pn "cell" ?cellNum]}, only matches the datom on Line 4.
 The result of this query can be thought of as an object that looks like this: \stt{\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}}.
 Such an object is called a \textit{binding object}, a collection of them that is the result of a query is a \textit{binding set}.
-The following example returns the binding set \stt{[\{'fname' : 'Bob', 'lname' : 'Clark'\}]}. 
+The following example returns the binding set \stt{[\{'fname' : 'Bob', 'lname' : 'Clark'\}]}.
 
 \begin{figure}[H]
   \caption{A simple query on in-line data}
@@ -358,7 +358,7 @@ The following example returns the binding set \stt{[\{'fname' : 'Bob', 'lname' :
                              $data.$query([?person :Person/firstname ?fname]
                                           [?person :Person/lastname  ?lname]) )"
 \end{lstlisting}
-\end{figure}  
+\end{figure}
 
 There are a few thing to note about working with Datalog-like languages like this one.
 First, except for performance concerns, it does not matter what order you list the triple forms.
@@ -373,10 +373,10 @@ We could use, for example, strings with a slash between the namespace name and t
 Thus perhaps, \stt{"Person/name"} and \stt{"Phone/cell"}.
 But since these identifiers serve the special purpose of \textit{roles}, the language uses a special syntax: a prefixed colon rather than string delimiters.
 Thus \stt{:Person/name} and \stt{:Phone/cell}.
-Figure \ref{code:bob-clark} above illustrates use of the role syntax on Lines 2 and 3. 
+Figure \ref{code:bob-clark} above illustrates use of the role syntax on Lines 2 and 3.
 Where it helps reduce mistakes and the cognitive load on programmers, getting data in that form can be done with JSONata-like pre-processing.
 
-\subsubsection{Query functions}
+\subsection{Query Functions}
 %We can now propose a language feature for querying data using the Datalog-like syntax.\footnote{Soon, we will need to demonstrate how this (and the \stt{\$enforce} and
 %  \stt{transform} language features discussed below) solve problems that are hard to address with strictly JSONata-like capabilities.
 %  I'll implement these features and create a Docker web app we can use to play with them. In the mean time, test cases from stakeholders are %\textbf{greatly appreciated!}}
@@ -393,7 +393,7 @@ In the example below there are three triples and one parameter,  \stt{\$name}.
 
 If the context data is such as in Figure~\ref{code:bob-phone}, then \stt{\$.\$queryCellByName("Bob")} would return an array containing one binding set \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]}.\footnote{That
 example uses the JSONata convention that \stt{\$} is the \textit{context reference} always bound to whatever is the data at the time of reference.}
-% ToDo: Investigate optional arguments or another way to do this. 
+% ToDo: Investigate optional arguments or another way to do this.
 % There is a similar construct \stt{\$queryOne} that can be used to get a binding object for the first match found.
 
 As described in detail below, there is a function \stt{\$query} that directly performs a query rather than produce a function.
@@ -408,30 +408,35 @@ For example:
 \end{lstlisting}
 
 returns \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]} when \stt{\$} is the data of Figure~\ref{code:bob-phone}.
-\stt{\$query} is very useful towards getting comfortable with triples.
 
 \subsection{Mapping  Networked Data}
 
 Binding sets, in themselves, are not too useful; you might be wondering why we even discuss them.
-The answer is that they are crucial to mapping networked data, and doing in-place updates in RADmapper.
+The answer is that they are crucial to mapping networked data and doing in-place updates.
+Once you have the binding sets, you are halfway there; what remains is to compose the triples back to some sort of objects.
+This section describes that process, beginning with definitions of some terms just used:
 
 \begin{description}
 \item[networked data] a collection of data that contains pointers to other parts of the same data collection.
-  For example, we could have a collection of data that includes information about Bob.
+
+  For example, we could have a data in triples that includes information about Bob.
   Instead of repeating everything we know about Bob each time he is referenced in the data,
   networked data can use references to that same data.
-  Resolving the reference (which might be implemented as a UUID, for example) brings you to the information about Bob.
-\item[in-place update] the idea that the mapping task involves updating an existing collection of data, rather than
-  creating the target from scratch.
+  Resolving the reference (which might be implemented as a UUID, for example) connects to the information about Bob.
+\item[in-place update] the idea that the mapping task might involve updating an existing collection of data, rather than
+  defining new data about it.
+
+  For example, on Bob's 30th birthday, we don't just add the fact \stt{\{'person/name' : 'Bob', 'person/age' : 30\}}, we
+  retract the fact that Bob is 29 and assert the new fact.
 \end{description}
 
-However, before we can talk about mapping networked data, and in-place updating, it is important to recognize that these activities require
+Before we can talk about mapping networked data and in-place updating, it is important to recognize that these activities require
 some additional knowledge about the (target) data.
-For example, without additional knowledge about the data, how do we know
-(a) that an action is intended to update some data rather than add new additional information about the object, and
+For example, how do we know
+(a) that an action is intended to update some referenced data rather than add new additional information about it, and
 (b) whether to use a pointer to reference some data rather than just put the data there?
-
-Thus to perform these more complex mapping tasks we have to know a few things:
+We need more information about the data.
+Specifically, to perform these more complex mapping tasks we have to know:
 (1) the cardinality of each attribute,
 (2) the type of each attribute (or at least the distinction between references and data types), and
 (3) attributes that provide keys (that is, uniquely identify an object of a given type).
@@ -446,6 +451,8 @@ Thus, an object that has an email address and a cell phone might be recognized a
 %That said, programmers are likely to have an easier time of it if they explicitly hint at the types of things using namespaced attributes.
 %By \textit{namespaced attributes} we mean the idea that the name of the attribute hints at the object type it appears in.
 %Thus the attribute for a customers email might be the name-value pair \stt{"customer/email" : "bob@example.com"}.
+
+\subsubsection{A complete example complex mapping task}
 
 The following example illustrates mapping of Resource Definition Framework (RDF) and Web Ontology Language (OWL) data to
 a ``sort of'' relational form. (We say ``sort of'' because the description elides discussion of some details that would need
@@ -470,13 +477,11 @@ their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endura
   {'owl/onProperty' : 'dol/participant-in', 'owl/someValuesFrom' : ['dol/perdurant'], 'rdf/type' : 'owl/Restriction'},
   {'owl/allValuesFrom' : ['dol/endurant'], 'owl/onProperty' : 'dol/specific-constant-constituent',
    'rdf/type' : 'owl/Restriction'}
-  {'owl/allValuesFrom' : ['dol/endurant'], 
-   'owl/onProperty' : 'dol/part', 
+  {'owl/allValuesFrom' : ['dol/endurant'],
+   'owl/onProperty' : 'dol/part',
    'rdf/type' : 'owl/Restriction'}]}
 \end{lstlisting}
 \end{figure}
-
-
 
 The target data we'll be creating has three kinds of things in it, schema, tables, and columns.
 See Figure ~\ref{code:example-schema-1}.
@@ -485,7 +490,7 @@ Each attribute has a type (\stt{db/type}) and a cardinality (\stt{db/cardinality
 The \stt{db/type} can be any primitive type defined (e.g. strings, numbers, UUID, etc.) or ``object'', meaning that
 the attribute is populated by either references to other objects or objects in-lined in the structure.
 In relational parlance the references are foreign keys.
-There is nothing quite like in-lining in relational technology, but we demonstrate its use in the example below nonetheless.
+Relation technology provides nothing quite like in-lining, but we demonstrate its use in the example below nonetheless.
 %The top-level entries in this schema are identified
 %by the strings ``schema'', ``table'', and ``column'' which have no particular significance but might be used in
 %error reporting (or we'll get rid of them).
@@ -525,12 +530,12 @@ On Line7 \stt{db/in-line?} is set to true (the default is false).
 In the example, schema are described by just their name; entire objects are serialized like this: \stt{\{schema/name ``some schema''\}}.
 It seems reasonable in these circumstances to in-line, much less so in the case of the back-pointer \stt{table/columns}.
 
-Figure \ref{code:mapping-owl-to-rdbms} depicts the complete specification of a transformation of the source. 
+Figure \ref{code:mapping-owl-to-rdbms} depicts the complete specification of a transformation of the source.
 \stt{\$transform} is a side-effecting function that takes three arguments, a data context, a binding set, and an enforce function;
 it returns a connection to resulting data.
 (Returning the data itself might not be reasonable in the case that it is very large and managed by a database.)
 When the binding set argument is a literal call to \stt{\$query} it is possible for the parser to do syntax checking between
-the \stt{\$query} and \stt{\$enforce}. 
+the \stt{\$query} and \stt{\$enforce}.
 
 The \stt{\$query} produces a binding set for the source data.
 The \stt{\$enforce} defines how values from the binding set are used in the target population.
@@ -539,7 +544,7 @@ The \stt{\$enforce} defines how values from the binding set are used in the targ
   \caption{Mapping OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
 \begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
- $.$transform( 
+ $.$transform(
      $query( [?class :rdf/type            "owl/Class"]
              [?class :resource/iri        ?class-iri]
              [?class :resource/namespace  ?ns]
@@ -565,15 +570,15 @@ we could have specified a value or expression for \stt{resource/namespace} on Li
 For example, we could have specified ``dol'' here, that happens to refer to the DOLCE ontology namespace.
 (See the example data in Figure ~\ref{code:endurant}.)
 
-Lines 6, 7, 8 and 9 match and bind a second entity. 
-Line 6 uses the variable \stt{?class-iri} which was bound on Line 3; thus a relational join is performed. 
+Lines 6, 7, 8 and 9 match and bind a second entity.
+Line 6 uses the variable \stt{?class-iri} which was bound on Line 3; thus a relational join is performed.
 According to Line 7 this entity must have \stt{rdf/type} of either ``owl/ObjectProperty'' or ``owl/DataProperty''.
 Lines 8 and 9 bind the \stt{rdfs/range} and \stt{resource/name} respectively.
 
-With a call to \stt{\$enforce}, Line 10 defines the enforcement function, a higher-order function. 
+With a call to \stt{\$enforce}, Line 10 defines the enforcement function, a higher-order function.
 The design of \stt{\$transform}, \stt{\$query} and \stt{\$enforce} were factored as they are to facilitate debugging.
 For example, \stt{\$query} can be run on context data so that the resulting binding set may be verified;
-\stt{\$enforce} can be applied to a small hand-coded binding set to verify that the intended mapping is taking place. 
+\stt{\$enforce} can be applied to a small hand-coded binding set to verify that the intended mapping is taking place.
 
 % ToDo: This needs work.
 The example dataset from DOLCE is fairly large.
@@ -586,10 +591,13 @@ Specifically, a triple represents a fact and the database of triples need only r
 It is the knowledge of keys and references provided by the schema that allows the mapping engine to construct physical structure
 from the logical relationship defined by the mapping specification.
 
+\subsubsection{Summary of the complex mapping work process}
+A good approach to complex mapping tasks might start with performing \stt{\$query} on the data.
+
 %Since it is likely that we do not have use for the bindings of the entity identifiers bound to \stt{?e} and \stt{?pn}, there is optional syntax in the definition to avoid returning them.
 %For example, \stt{\$queryCellByName := query(\$name)\textbf{(?cellNum)}\{[?e "name" \$name] \ldots\}} would return a binding set containing %only values for \stt{?cellNum}, if any.
 
-\subsubsection{In-place updates}
+\subsubsection{In-place Updates}
 
 \textbf{[This part needs to be updated.]} Used alone in code, \stt{\$query} does not fit the pattern of a JSONata-like capability.
 JSONata is effective and concise because it allow one to thread data through a pipeline of primitive transformations.
@@ -614,17 +622,17 @@ Therefore, discussed next is (1) a new construct called \stt{\$enforce} and (2) 
 % working with relational data, and exchange forms like EDI requires more functionality.
 % The language borrows from QVT-r to achieve these requirements.
 
-\section{Use cases}
+\section{Use Cases}
 
-\subsection{Interoperable mapping tables}
+\subsection{Interoperable Mapping Tables}
 
-\subsection{Integration flows}
+\subsection{Integration Flows}
 
-\subsection{Data catalogs and knowledge graphs}
+\subsection{Data Catalogs and Knowledge Graphs}
 
-\subsection{Data validation}
+\subsection{Data Validation}
 
-\subsection{Joint cognitive work / lo-code tools}
+\subsection{Joint Cognitive Work / Lo-Code Tools}
 
 \section{Specification}
 
@@ -633,7 +641,7 @@ Therefore, discussed next is (1) a new construct called \stt{\$enforce} and (2) 
 \subsection{Language Syntax}
 This section is apt to be rewritten several times as the features of the language emerge.
 
-\subsubsection{JSONata subset}
+\subsubsection{JSONata Subset}
 [I haven't found a formal definition (e.g. BNF) for JSONata, but the following \textit{seems to work}. Not yet complete.]
 
 \begin{Verbatim}[fontsize=\footnotesize]
@@ -725,32 +733,31 @@ Returning a substring               & substring()
 \end{tabular}
 \end{table}
 
-\subsection{Table of language features for use with collections}
-\begin{table}[H]
-\begin{tabular}{l | l }
-\textbf{Task}                       & \textbf{Example}               \\ \hhline{=|=}
-Check for inclusion                 & \$includes(col, x)             \\
-Check for exclusion                 & \$excludes(col, x)             \\
-Size of a collection                & \$size(x)                      \\
-Count elements                      & \$count(col, obj)              \\
-sum of  numbers                     & \$sum(x)                       \\
-Cartesian product                   & \$product(x, y)                \\
-union of collections                & \$union(x, y)                  \\
-symmetric difference of sets        & \$symmetricDifference(x, y)    \\
-coerce to ordered set               & \$asOrderedSet(col)            \\
-first element of ordered collection & \$first(col)                   \\
-last element of ordered collection  & \$last(col)                    \\
-intersection of collections         & \$intersection(x,y)            \\
-find one                            & \$any(col, predicate)          \\
-check for presence (return T/F)     & \$one(col, predicate)          \\
-filter collection                   & \$filter(col, predicate)       \\
-sort collection                     & \$sortedBy(predicate)          \\
-check every (return T/F)            & \$forAll(predicate)            \\
-add value to collection             & \$including(col, val)          \\
-flatten collection of collections   & \$flatten(x)
-\end{tabular}
-\end{table}
-
+% u20\subsection{Table of language features for use with collections}
+% \begin{table}[H]
+% \begin{tabular}{l | l }
+% \textbf{Task}                       & \textbf{Example}               \\ \hhline{=|=}
+% Check for inclusion                 & \$includes(col, x)             \\
+% Check for exclusion                 & \$excludes(col, x)             \\
+% Size of a collection                & \$size(x)                      \\
+% Count elements                      & \$count(col, obj)              \\
+% sum of  numbers                     & \$sum(x)                       \\
+% Cartesian product                   & \$product(x, y)                \\
+% union of collections                & \$union(x, y)                  \\
+% symmetric difference of sets        & \$symmetricDifference(x, y)    \\
+% coerce to ordered set               & \$asOrderedSet(col)            \\
+% first element of ordered collection & \$first(col)                   \\
+% last element of ordered collection  & \$last(col)                    \\
+% intersection of collections         & \$intersection(x,y)            \\
+% find one                            & \$any(col, predicate)          \\
+% check for presence (return T/F)     & \$one(col, predicate)          \\
+% filter collection                   & \$filter(col, predicate)       \\
+% sort collection                     & \$sortedBy(predicate)          \\
+% check every (return T/F)            & \$forAll(predicate)            \\
+% add value to collection             & \$including(col, val)          \\
+%flatten collection of collections   & \$flatten(x)
+% \end{tabular}
+% \end{table}
 
 \bibliography{/home/pdenno/Documents/bibtex/library}
 
