@@ -381,24 +381,20 @@ Where it helps reduce mistakes and the cognitive load on programmers, getting da
 %  \stt{transform} language features discussed below) solve problems that are hard to address with strictly JSONata-like capabilities.
 %  I'll implement these features and create a Docker web app we can use to play with them. In the mean time, test cases from stakeholders are %\textbf{greatly appreciated!}}
 
-\stt{\$queryFn} is a higher-order function that returns a function that can be used to execute a query.
-\stt{\$queryFn} takes two kinds of information: a collection of triple forms, and (optional) parameters.
+\stt{\$query} returns a function that can be applied to a collection of objects, returning a binding set. 
+\stt{\$query} takes two kinds of information: a collection of triple forms, and (optional) parameters.
 In the example below there are three triples and one parameter,  \stt{\$name}.
 
 \begin{lstlisting}
- $queryCellByName := $queryFn($name)([?e "name" $name]
-                                     [?e "phoneNumberObjs" ?pn]
-                                     [?pn "cell" ?cellNum])
+ $queryCellByName := $query($name)([?e "name" $name]
+                                   [?e "phoneNumberObjs" ?pn]
+                                   [?pn "cell" ?cellNum])
 \end{lstlisting}
 
 If the context data is such as in Figure~\ref{code:bob-phone}, then \stt{\$.\$queryCellByName("Bob")} would return an array containing one binding set \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]}.\footnote{That
 example uses the JSONata convention that \stt{\$} is the \textit{context reference} always bound to whatever is the data at the time of reference.}
 % ToDo: Investigate optional arguments or another way to do this.
 % There is a similar construct \stt{\$queryOne} that can be used to get a binding object for the first match found.
-
-As described in detail below, there is a function \stt{\$query} that directly performs a query rather than produce a function.
-Both \stt{\$query} and \stt{\$queryFn} can be used in transformations.
-\stt{\$query} takes a collection of triple forms (and no parameters) and returns a binding object for each match to the query (a binding set).
 For example:
 
 \begin{lstlisting}
@@ -446,7 +442,7 @@ Notice that condition (3) mentions the idea of object type.
 It is not the case that objects need to have any inherent notion of type to use RADmapper mapping.
 It is enough that the programmer recognizes the type by the attributes it possesses.
 (This is the so called \textit{duck typing} --- if it walks like a duck and quacks like a duck it is a duck.)
-Thus, an object that has an email address and a cell phone might be recognized as a customer.
+Thus, an object that has an email address and a phone number might be recognized as a customer.
 % You already covered this above!
 %That said, programmers are likely to have an easier time of it if they explicitly hint at the types of things using namespaced attributes.
 %By \textit{namespaced attributes} we mean the idea that the name of the attribute hints at the object type it appears in.
@@ -485,18 +481,30 @@ their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endura
 \end{lstlisting}
 \end{figure}
 
-The target data we'll be creating has three kinds of things in it: schema, tables, and columns.
-Even with this simple data, there are a few options for designing the relational database.
+The target data we'll be creating consists of three kinds of things: schema, tables, and columns.
+Even with this simple data, there are a few options for designing the relational schema.
 We'll assume that we want to support storage of individuals of the types defined by OWL classes and that all relations are conceptually binary.
-Thus for each \stt{owl/ObjectProperty} we will produce a two-column table to represent both a relation and its inverse (``inverse pairs'');
-the column values are resource IRIs.
+Thus for each \stt{owl/ObjectProperty} we will produce a two-column table to represent both a relation and its inverse (``inverse pairs'') where an inverse is defined.
 Note that, owing to the inverse pairs choice, we'll have to prevent creating a table for one member of each inverse pair. % Great use of a WHERE (or something!) Maybe I'll have TWO different mapping actions, one where there is an inverse, and one where there is not.
 We'll use \stt{resource/iri} as the keys of these tables. 
 To keep things simple, we'll omit some otherwise useful considerations like identifying what columns define keys; we'll assume \stt{rdfs/domain}
 and \stt{rdfs/range} are single-valued.
 %[This belongs elsewhere]: A table keyed by a class \stt{resource/iri} will be defined to store the \stt{resource/name} and \stt{resource/namespace}.
 %
-Schema for the target data (the table definitions, etc) is depicted in Figure ~\ref{code:example-schema-1}.
+For example, were the only data processed the data in Figure~\label{code:endurant}, the following might suffice.
+
+\begin{figure}[H]
+  \caption{Result of mapping data from Figure~\label{code:endurant}.
+    This relational design captures the OWL 'meta-data' and provides for storage of individuals.}
+  \label{code:table-instances}
+\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+
+\end{lstlisting}
+\end{figure}
+
+
+
+Schema for the target data (the table definitions, etc.) is depicted in Figure ~\ref{code:example-schema-1}.
 The object types define attributes (\stt{db/attrs}) and keys (\stt{db/key}).
 Each attribute has a type (\stt{db/type}) and a cardinality (\stt{db/cardinality}.
 The \stt{db/type} can be any primitive type defined (e.g. strings, numbers, UUID, etc.) or \stt{object}, meaning that
@@ -505,6 +513,8 @@ the attribute is populated by either references to other objects (foreign keys) 
 %by the strings ``schema'', ``table'', and ``column'' which have no particular significance but might be used in
 %error reporting (or we'll get rid of them).
 
+% ToDo: Did I decide to move :db/key ??? If so, do I really need the nested structure?
+% ToDo: Do I really want table/schema, or do I want schema/tables? 
 \begin{figure}[H]
   \caption{A schema for the target data}
   \label{code:example-schema-1}
