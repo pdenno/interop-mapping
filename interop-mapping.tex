@@ -381,7 +381,7 @@ Where it helps reduce mistakes and the cognitive load on programmers, getting da
 %  \stt{transform} language features discussed below) solve problems that are hard to address with strictly JSONata-like capabilities.
 %  I'll implement these features and create a Docker web app we can use to play with them. In the mean time, test cases from stakeholders are %\textbf{greatly appreciated!}}
 
-\stt{\$query} returns a function that can be applied to a collection of objects, returning a binding set. 
+\stt{\$query} returns a function that can be applied to a collection of objects, returning a binding set.
 \stt{\$query} takes two kinds of information: a collection of triple forms, and (optional) parameters.
 In the example below there are three triples and one parameter,  \stt{\$name}.
 
@@ -448,15 +448,14 @@ Thus, an object that has an email address and a phone number might be recognized
 %By \textit{namespaced attributes} we mean the idea that the name of the attribute hints at the object type it appears in.
 %Thus the attribute for a customers email might be the name-value pair \stt{"customer/email" : "bob@example.com"}.
 
-\subsubsection{A complete example complex mapping task}
+\subsubsection{Complex mapping task example}
 
-The following example illustrates mapping of Resource Definition Framework (RDF) and Web Ontology Language (OWL) data to
-a ``sort of'' relational form. (We say ``sort of'' because the description elides discussion of some details that would need
-to be addressed to do a thorough job of mapping RDF and OWL data.)
-The OWL and RDF data that is the source of mapping consists of objects of two types, one are OWL classes;
-these have the value  "owl/Class" in their "rdf/type" attribute.
-The other are OWL properties these have either the value "owl/ObjectProperty" or "owl/DatatypeProperty" as
-their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endurant}.
+The following example illustrates mapping of a network of Web Ontology Language (OWL) data to a relational form.
+The source OWL data used is simplified from actual OWL data to allow easier discussion.
+The data consists of objects of two types, one is OWL classes; these have the value  \stt{owl/Class} in their \stt{rdf/type} attribute.
+The other is OWL properties (\stt{owl/ObjectProperty}).
+The simplifications include using single values for \stt{rdfs/domain}, \stt{rdfs/range}, and \stt{rdfs/subClassOf}.
+An OWL class and property is depicted in Figure~\ref{code:endurant}.
 
 \begin{figure}[H]
   \caption{An object (\stt{owl/Class}) and a relation (\stt{owl/ObjectProperty}) in the source population.
@@ -467,7 +466,8 @@ their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endura
  'resource/name'      : 'endurant',
  'resource/namespace' : 'dol',
  'rdf/type'           : 'owl/Class',
- 'rdfs/comment        : ['The main characteristic of endurants is...'],
+ 'rdfs/comment'       : ['The main characteristic of endurants is...'],
+ 'rdfs/subClassOf     : :dol/spatio-temporal-particular,
  'owl/disjointWith'   : ['dol/abstract', 'dol/quality', 'dol/perdurant']}
 
 {'resource/iri'       : 'dol/participant',
@@ -483,56 +483,126 @@ their "rdf/type" attribute. An OWL class is depicted in Figure ~\ref{code:endura
 
 The target data we'll be creating consists of three kinds of things: schema, tables, and columns.
 Even with this simple data, there are a few options for designing the relational schema.
-The following are design choices that define the form of the target:
+The following are design choices that define the form of the mapping target:
 \begin{enumerate}
 \item Both \stt{owl/Class} and \stt{owl/ObjectProperty} can have \stt{rdfs/comment} and the relationship is one-to-many.
   A single table with keys consisting of the resource IRI and comment text will suffice.
+
 \item \stt{rdf/type} is one-to-one with the class. Though the possible values are limited to just a few such as \stt{owl/Class} and
   \stt{owl/ObjectProperty}, we will represent it with a string naming the type.
+
 \item \stt{resource/name} and \stt{resource/namespace} are also one-to-one and are just the two parts of \stt{resource/iri} and could be computed, but we will store these in the class table too.
+
+\item We will assume \stt{rdfs/domain},  \stt{rdfs/range}, and \stt{rdfs/subClassOf} are single-valued. Typically they are not in a real OWL ontology.
+
 \item We will assume that we want to support storage of individuals of the types defined by OWL classes.
-  Though our approach here is not at all reflective of description logic, where class subsumption is the primary kind of inference, 
-  we will define a two-column table where one column is the individual IRI and the other is the foreign key of a class to which it belongs.
-\item We Will assume that all relations are conceptually binary.
-  Thus storing individuals means that for each \stt{owl/ObjectProperty} we will produce a two-column table to represent both a relation and its inverse (``inverse pairs'') where an inverse is defined.
-Such a table works in both directions (the relation and its inverse), so we will have to prevent creating a table for one member of each inverse pair.
-We Will use the two \stt{resource/iri} as the keys of these tables.
-\item We will assume \stt{rdfs/domain} and \stt{rdfs/range} are single-valued.
+  Though our approach here is not at all reflective of description logic, where class subsumption is the primary kind of inference,
+  mapping will produce a two-column table where one column is the individual's IRI and the other is the foreign key of a class to which it belongs.
+
+\item We will assume that all relations are conceptually binary.
+  Thus storing individuals means that for each \stt{owl/ObjectProperty} mapping will produce a two-column table to represent both a relation and its inverse (``inverse pairs'') where an inverse is defined.
+  Such a table works in both directions (the relation and its inverse), so we will have to prevent creating a table for one member of each inverse pair.
+
 \end{enumerate}
 
-% To keep things simple, we'll omit some otherwise useful considerations like identifying what columns define keys; 
+% To keep things simple, we'll omit some otherwise useful considerations like identifying what columns define keys;
 %[This belongs elsewhere]: A table keyed by a class \stt{resource/iri} will be defined to store the \stt{resource/name} and \stt{resource/namespace}.
 %
-Were the only data mapped that shown in Figure~\ref{code:endurant}, the tables shown in Figure~\ref{code:table-instances} would be produced.  
+With the above considerations in mind, it becomes apparent that some of the work involves nothing more than storing class and property metadata into tables we can define ahead of time.
+The \stt{owl/ObjectProperty} definitions, however, entails one new table for each relation (or relation pair if an inverse is defined).
+The rows of these tables would be populated by instances of the classes specified by \stt{rdfs/domain} and \stt{rdfs/range}.
+This information is not in the ontology, but Figure~\ref{code:static-ddl} depicts the static tables in typical relational DDL.
+These are populated by the ontology \stt{owl/Class} content of the
+Figure~\ref{code:dynamic-ddl-dml} depicts tables that would be created.
 
 \begin{figure}[H]
-  \caption{Result of mapping data depicted in Figure~\ref{code:endurant}.
-    This relational design captures the OWL 'meta-data' and provides for storage of individuals.
-    Therefore, it specifies content equivalent to
-    (1) data definition language for the class and relation definitions, and
-    (2) data manipulation language for creating the specific class \stt{dol/perdurant} and the specific relation pair
-    \stt{(dol/participant, dol/participant-in)}}.
-  \label{code:table-instances}
+  \caption{Static DDL for storing class and object relation metadata.
+  The mapping will generate information equivalent to DML to populate this from the source data.}
+  \label{code:static-ddl}
 \begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-  {'instance-of'  : 'schema',
-   'schema/tables :  [{'instance-of'   : 'table-definition',
-                       'table/name'    : 'object-definition-table',
-                       'table/columns' : [{'instance-of'  : 'column-definition',
-                                           'column/name'  : 'resource-iri',
-                                           'column/dtype' : 'key-component'}
-                                          {'instance-of'  : 'column-definition',
-                                           'column/name'  : 'resource-label',
-                                           'column/dtype' : 'string-data'}
-                                          {'instance-of'  : 'column-definition',
-                                           'column/name'  : 'resource-namespace',
-                                           'column/dtype' : 'string-data'}]}
+  CREATE SCHEMA typicalOWL;
 
-                       {'instance-of'   : 'table-definition',
-                        'table/name'    : 'relation-definition-table',
-                        'table/columns' : [{'instance-of'  : 'column-definition',
- 
-                        
+  CREATE TABLE ObjectDefinition
+    (resourceIRI       VARCHAR(300) primary key,
+     resourceLabel     VARCHAR(300) not null,
+     resourceNamespace VARCHAR(300) not null);
 
+  CREATE TABLE ClassDefinition
+    (resourceIRI VARCHAR(300) primary key,
+     subClassOf  VARCHAR(300) references ClassDefinition);
+
+  CREATE TABLE ObjectClass
+    (resourceIRI VARCHAR(300) primary key,
+     class       VARCHAR(300) references ClassDefinition);
+
+  CREATE TABLE DisjointClass
+    (disjointID  INT primary key,
+     disjoint1   VARCHAR(300) not null references ObjectDefinition,
+     disjoint2   VARCHAR(300) not null references ObjectDefinition);
+
+  CREATE TABLE ResourceComment
+    (commentID    INT primary key,
+     resourceIRI  VARCHAR(300) not null references ObjectDefinition,
+     commentText  VARCHAR(900) not null);
+
+  CREATE TABLE PropertyDefinition
+    (resourceIRI    VARCHAR(300) primary key,
+     relationDomain VARCHAR(300) references ObjectDefinition,
+     relationRange  VARCHAR(300) references ObjectDefinition);
+\end{lstlisting}
+\end{figure}
+
+Figure~\ref{code:dynamic-ddl-dml} depicts the result of mapping data from Figure~\ref{code:endurant} using a mapping
+specification that will be described below.
+
+\begin{figure}[H]
+  \caption{Result of mapping the data depicted in Figure~\ref{code:endurant}.
+    This specifies content equivalent to
+    (1) DML to capture metadata for \stt{owl/Class} and \stt{owl/ObjectProperty} objects in the static tables defined above, and
+    (2) DDL to create tables for \stt{owl/ObjectProperty} objects.}
+  \label{code:dynamic-ddl-dml}
+\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+  {'instance-of'  : 'insert-row',
+   'table'        : 'ObjectDefinition',
+   'content'      : [{'resourceIRI'       : 'dol/endurant'},
+                     {'resourceLabel'     : 'endurant'},
+                     {'resourceNamespace' : 'dol'}]}
+
+  {'instance-of'  : 'insert-row',
+   'table'        : 'ClassDefinition',
+   'content'      : [{'resourceIRI'    : 'dol/endurant'},
+                     {'subClassOf'     : 'dol/spatio-temporal-particular'}]}
+
+  {'instance-of'  : 'insert-row',
+   'table'        : 'DisjointClass',
+   'content'      : [{'disjointID'   ; 1},
+                     {'disjoint1'    : 'dol/endurant'},
+                     {'disjoint2'    : 'dol/abstract'}]} // ... (Two more disjoints elided.)
+
+  {'instance-of'  : 'insert-row',
+   'table'        : 'ResourceComment',
+   'content'      : [{'commentID'   : 1},
+                     {'resourceIRI' : 'dol/endurant'},
+                     {'commentText' : 'The main characteristic of endurants is...'}]}
+
+  // Similar content for the ObjectPropery dol/participant is elided.
+
+  {'instance-of'  : 'insert-row',
+   'table'        : 'PropertyDefinition',
+   'content'      : [{'resourceIRI'    : 'dol/participant'},
+                     {'relationDomain' : 'dol/perdurant'},
+                     {'relationRange'  : 'dol/endurant'}]}
+
+  // The DDL for the participant table:
+
+  {'instance-of' : 'create-table',
+   'table'       : 'DOLparticipant',
+   'columns'     : [{'colName' : 'propertyID',
+                     'dtype'   : {'type' : 'varchar', 'size' : 300, 'key' : 'primary'}},
+                    {'colName' : 'role1',
+                     'dtype'   : {'type' : 'varchar', 'size' : 300, 'ref' : 'ObjectDefinition'}},
+                    {'colName' : 'role2',
+                     'dtype'   : {'type' : 'varchar', 'size' : 300, 'ref' : 'ObjectDefinition'}}]}
 \end{lstlisting}
 \end{figure}
 
@@ -547,42 +617,42 @@ Were the only data mapped that shown in Figure~\ref{code:endurant}, the tables s
 %error reporting (or we'll get rid of them).
 
 % ToDo: Did I decide to move :db/key ??? If so, do I really need the nested structure?
-% ToDo: Do I really want table/schema, or do I want schema/tables? 
-\begin{figure}[H]
-  \caption{A schema for the target data}
-  \label{code:example-schema-1}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-  [{'schema' : {'db/attrs'  : [{'schema/name'   : {'db/type' : 'string', 'db/cardinality' : 'one'}}],
-                'db/key'    : ['schema/name']}}
+% ToDo: Do I really want table/schema, or do I want schema/tables?
+% \begin{figure}[H]
+%   \caption{A schema for the target data}
+%   \label{code:example-schema-1}
+% \begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+%   [{'schema' : {'db/attrs'  : [{'schema/name'   : {'db/type' : 'string', 'db/cardinality' : 'one'}}],
+%                 'db/key'    : ['schema/name']}}
+%
+%    {'table'  : {'db/attrs'  : [{'table/name'    : {'db/type' : 'string', 'db/cardinality' : 'one' },
+%                                 'table/schema'  : {'db/type' : 'object', 'db/cardinality' : 'one',
+%                                                    'db/in-line?' : true},
+%                                 'table/columns' : {'db/type' : 'object', 'db/cardinality' : 'many'}}],
+%                 'db/key'    : ['table/schema', 'table/name']}}
+%
+%    {'column' : {'db/attrs'  : [{'column/name'   : {'db/type' : 'string', 'db/cardinality' : 'one'}},
+%                                {'column/type'   : {'db/type' : 'string', 'db/cardinality' : 'one'}},
+%                                {'column/table'  : {'db/type' : 'object', 'db/cardinality' : 'one'}}],
+%                 'db/key'    : ['column/table', 'column/name']}}]
+% \end{lstlisting}
+% \end{figure}
 
-   {'table'  : {'db/attrs'  : [{'table/name'    : {'db/type' : 'string', 'db/cardinality' : 'one' },
-                                'table/schema'  : {'db/type' : 'object', 'db/cardinality' : 'one',
-                                                   'db/in-line?' : true},
-                                'table/columns' : {'db/type' : 'object', 'db/cardinality' : 'many'}}],
-                'db/key'    : ['table/schema', 'table/name']}}
-
-   {'column' : {'db/attrs'  : [{'column/name'   : {'db/type' : 'string', 'db/cardinality' : 'one'}},
-                               {'column/type'   : {'db/type' : 'string', 'db/cardinality' : 'one'}},
-                               {'column/table'  : {'db/type' : 'object', 'db/cardinality' : 'one'}}],
-                'db/key'    : ['column/table', 'column/name']}}]
-\end{lstlisting}
-\end{figure}
-
-The \stt{db/cardinality} of all the attributes in ``one'' except in the case of \stt{table/columns} which is ``many''.
-(See Line 7 of the figure.)
-Cardinality of one means that actions on this attribute of an object necessarily either creates the datom (triple) or updates it.
-There will never be two triples about this attribute in the target population where the first two elements of the triple are identical.
-Cardinality of many means that that there could be multiple datoms for the attribute.
-Keep in mind that the elements of a triple are always atomic.
-To represent $n$ values there are $n$ triples having different values for the third element of the triple.
-Also, the underlying datalog tool preserves the order of elements in arrays.
-
-Line 7 in the figure demonstrates the use of the optional, \stt{db/in-line?} schema feature.
-On Line7 \stt{db/in-line?} is set to true (the default is false).
-\stt{db/in-line?} true directs the mapper to create structures rather than references.
-Relation technology provides nothing quite like in-lining, but we demonstrate its use in the example below nonetheless.
-In the example, schema are described by just their name; entire objects are serialized like this: \stt{\{schema/name ``some schema''\}}.
-It seems reasonable in these circumstances to in-line, much less so in the case of the back-pointer \stt{table/columns}.
+% The \stt{db/cardinality} of all the attributes in ``one'' except in the case of \stt{table/columns} which is ``many''.
+% (See Line 7 of the figure.)
+% Cardinality of one means that actions on this attribute of an object necessarily either creates the datom (triple) or updates it.
+% There will never be two triples about this attribute in the target population where the first two elements of the triple are identical.
+% Cardinality of many means that that there could be multiple datoms for the attribute.
+% Keep in mind that the elements of a triple are always atomic.
+% To represent $n$ values there are $n$ triples having different values for the third element of the triple.
+% Also, the underlying datalog tool preserves the order of elements in arrays.
+%
+% Line 7 in the figure demonstrates the use of the optional, \stt{db/in-line?} schema feature.
+% On Line7 \stt{db/in-line?} is set to true (the default is false).
+% \stt{db/in-line?} true directs the mapper to create structures rather than references.
+% Relation technology provides nothing quite like in-lining, but we demonstrate its use in the example below nonetheless.
+% In the example, schema are described by just their name; entire objects are serialized like this: \stt{\{schema/name ``some schema''\}}.
+% It seems reasonable in these circumstances to in-line, much less so in the case of the back-pointer \stt{table/columns}.
 
 Figure \ref{code:mapping-owl-to-rdbms} depicts the complete specification of a transformation of the source.
 \stt{\$transform} is a side-effecting function that takes three arguments, a data context, a binding set, and an enforce function;
