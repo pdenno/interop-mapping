@@ -47,6 +47,63 @@
 
  % ^^3f is a question mark (UTF-8)
 
+% Begin JavaScript listinglst --------------------------------
+
+\usepackage{color} %use color
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+ 
+%Customize a bit the look
+\lstset{ %
+backgroundcolor=\color{white}, % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+basicstyle=\footnotesize, % the size of the fonts that are used for the code
+breakatwhitespace=false, % sets if automatic breaks should only happen at whitespace
+breaklines=true, % sets automatic line breaking
+captionpos=b, % sets the caption-position to bottom
+commentstyle=\color{mygreen}, % comment style
+deletekeywords={...}, % if you want to delete keywords from the given language
+escapeinside={\%*}{*)}, % if you want to add LaTeX within your code
+extendedchars=true, % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+%pod frame=single, % adds a frame around the code
+keepspaces=true, % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+keywordstyle=\color{blue}, % keyword style
+% language=Octave, % the language of the code
+morekeywords={*,...}, % if you want to add more keywords to the set
+numbers=left, % where to put the line-numbers; possible values are (none, left, right)
+numbersep=5pt, % how far the line-numbers are from the code
+numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+rulecolor=\color{black}, % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+showspaces=false, % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+showstringspaces=false, % underline spaces within strings only
+showtabs=false, % show tabs within strings adding particular underscores
+stepnumber=1, % the step between two line-numbers. If it's 1, each line will be numbered
+stringstyle=\color{mymauve}, % string literal style
+tabsize=2, % sets default tabsize to 2 spaces
+title=\lstname % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+%END of listing package%
+ 
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+ 
+%define Javascript language (modified for  RADmapper)
+\lstdefinelanguage{JavaScript}{
+keywords={query, enforce, \$MCnewContext, \$MCaddSource, \$readFile, \$reduce, typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+keywordstyle=\color{blue}\bfseries,
+ndkeywords={class, export, boolean, throw, implements, import, this},
+ndkeywordstyle=\color{darkgray}\bfseries,
+identifierstyle=\color{black},
+sensitive=false,
+comment=[l]{//},
+morecomment=[s]{/*}{*/},
+commentstyle=\color{purple}\ttfamily,
+stringstyle=\color{red}\ttfamily,
+morestring=[b]',
+morestring=[b]"
+}
+% End JavaScript listinglst -------------------------------
+
 \begin{document}
 \title{Draft OAGi Interoperable Mapping Specification}
 \author{OAGi Members}
@@ -104,7 +161,7 @@ Thus in Figure~\ref{code:simple-map}, \stt{.zipcode} is applied to the array \st
 \begin{figure}[H]
 \caption{Map over an array of entities, collecting ZIP code.}
  \label{code:simple-map}
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize]
 
 (
   $ADDRS :=
@@ -176,7 +233,7 @@ An example is shown in Figure~\ref{code:mapping-codes}.
     \caption{Mapping code values.}
     \label{code:mapping-codes}
 %\lstset{frame=tb,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
   $Codes2OurCodes := function($theirs)
    {switch $theirs {
        #{2, 5, 52, 66} : 'late';
@@ -219,7 +276,7 @@ For example, Table~\ref{table:simple} can be viewed as the structure shown in Fi
 \begin{figure}[H]
     \caption{Table~\ref{table:simple} viewed as an array of map structures.}
     \label{code:simple}
-\begin{lstlisting}
+\begin{lstlisting}[language=JavaScript]
 
 [{"ShipDate":  "2021-06-15", "Item":  "Widget 123", "Qty": 1.0, "UnitPrice": 10.5},
  {:ShipDate":  "2021-06-15", "Item":  "Gadget 234", "Qty": 2.0, "UnitPrice": 12.8},
@@ -252,8 +309,11 @@ To argue that APIs to the back-end system already do this work is to miss the po
 we are not trying to replace a back-end system function, but to describe the relationships in ways that help business analysts, programmers, and machine agents.\footnote{Likewise we are going to try to address
   situations where there are multiple sources. There are tools to do this already, but again, we are trying to describe the relationships, not replace existing software.}
 
-To illustrate the challenge of using a JSONata-like engine for data having complex interrelations, suppose, for example that you have a body of data describing a large number of products produced by a small number of vendors.
-With this data, you\ldots. [Later]
+%========================================================
+%  Picture here of navigating a tree versus jumping around to find things in a network.
+%========================================================
+ 
+To illustrate the challenge of using a JSONata-like engine for data having complex interrelations, suppose, for example\ldots. [Discussion of the OWL example]
 
 \subsection{Data Organized as Triples}
 Relational and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity identifier, $y$ is data (string, number, object, array, another entity identifier, etc.)\footnote{What  additional atomic data
@@ -278,7 +338,7 @@ Thus, the translation of structured data such as JSON objects into such triples 
 For example, the first object in Figure~\ref{code:simple}, \stt{\{"ShipDate":  "2021-06-15", "Item":  "Widget 123", "Qty": 1.0, "UnitPrice": 10.5\}} can be encoded as
 the following four triples, where the integer 11 is the unique entity identifier for this object.
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize]
  [11, "ShipDate",  "2021-06-15"]
  [11, "Item",  "Widget 123"]
  [11, "Qty", 1.0,]
@@ -290,24 +350,24 @@ For example, a person can have multiple phone numbers.
 The way you'd typically handle cardinality greater than 1 in JSON and similar schemes is to simply provide the attribute with an array value.
 For example,
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize]
  {"name" : "Bob", "phoneNumbers" : ["123-456-1111", "123-456-2222"]}
 \end{lstlisting}
 
-In these cases, there would be a datom (as these triples are sometimes called in Datalog-like databases) for each of phone numbers.
-Thus, the above might be normalized to triples (datoms) as follows:
+In these cases, there would be a triple for each of phone numbers.
+Thus, the above might be normalized to triples as follows:
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize]
  [12, "name" "Bob"]
  [12, "phoneNumbers" "123-456-1111"]
  [12, "phoneNumbers" "123-456-2222"]
 \end{lstlisting}
 
 In the following, an array of objects is used for phone numbers.
-Consequently, the \stt{PhoneNumberObjs} datoms on entity 13 reference additional entities, not data.
+Consequently, the \stt{PhoneNumberObjs} triples on entity 13 reference additional entities, not data.
 
 % This is kind of a screwed up example. There should be {phone/type: "cell", phone/num: "123-455-3424"}
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize]
 {"name" : "Bob", "phoneNumberObjs" : [{"cell" : "123-456-1111"}, {"work" : "123-456-2222"}]}
 \end{lstlisting}
 
@@ -315,7 +375,7 @@ Consequently, the \stt{PhoneNumberObjs} datoms on entity 13 reference additional
   \caption{The object for Bob as triples}
   \label{code:bob-phone}
 %\lstset{numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
  [13, "name" "Bob"]
  [13, "phoneNumberObjs" 14]
  [13, "phoneNumberObjs" 15]
@@ -329,87 +389,95 @@ it is how we work with complex data in RADmapper.
 
 \subsection{Queries on Triples}
 
-You can query triples using Datalog-like notation.\footnote{There are many implementations of Datalog, includes ones for Java and JavaScript, so what is being proposed here should not be hard to implement.}
-Queries are specified using the square-bracket-form triples illustrated in the data above.
-For example, you can imagine \stt{[?e "name" "Bob"]} being part of a query to get the entity identifier for the \stt{Bob} object (where \stt{?e} is a \textit{query variable}).
-But why would you want the entity identifier; it isn't domain data?
+You can query triples using Datalog-like notation.\footnote{There are many implementations of Datalog, includes ones for Java and JavaScript, so what is being proposed here should not be hard to implement.} Queries have a square-bracket notation similar to triples illustrated above, but with \textit{query variables} substituted for some of the values.
+In JSONata, variables start with a \stt{\$}, in queries, query variables start with a \stt{?}.
+For example, \stt{[?e "name" "Bob"]} is a query that will bind the query variable \stt{?e} to the entity identifier of any entity that has "Bob" as its \stt{name} attribute.
+But why would you want the entity identifier, it isn't domain data?
 The typical answer is that you will need it to perform a sort of join on triples.
 For example, if we want to get the \stt{cell} number for \stt{Bob}, we could use the following interrelation of triples.
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize]
  [?e "name" "Bob"]
- [?e "phoneNumberObjs" ?pn]
+ [?e "phoneNumberObj" ?pn]
  [?pn "cell" ?cellNum]
 \end{lstlisting}
 
-If the datoms\footnote{Triples used in this context are sometimes called \textit{datoms}. I am glossing over some detail here.} queried are just the ones of
-Figure~\ref{code:bob-phone}, then the datom on Line 1 matches the query pattern \stt{[?e "name" "Bob"]}, binding \stt{?e} to the entity id 13.
-The second query pattern, \stt{[?e "phoneNumberObjs" ?pn]}, matches two datoms, those on Lines 2 and 3, binding \stt{?pn} to either entity 14 or 15.
-Owing to specifying \stt{"cell"} as the attribute, however, the third datom pattern, \stt{[?pn "cell" ?cellNum]}, only matches the datom on Line 4.
-The result of this query can be thought of as an object that looks like this: \stt{\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}}.
-Such an object is called a \textit{binding object}, a collection of them that is the result of a query is a \textit{binding set}.
-The following example returns the binding set \stt{[\{'fname' : 'Bob', 'lname' : 'Clark'\}]}.
+If the triples queried are just the ones of Figure~\ref{code:bob-phone}, then the triple on Line 1 matches the query pattern \stt{[?e "name" "Bob"]}, binding \stt{?e} to the entity id 13.
+The second query pattern, \stt{[?e "phoneNumberObjs" ?pn]}, matches two triples, those on Lines 2 and 3, binding \stt{?pn} to either entity 14 or 15.
+Owing to specifying \stt{"cell"} as the attribute, however, the third query pattern, \stt{[?pn "cell" ?cellNum]}, only matches the triple on Line 4.
+This result could be expressed in a JSON-like object notation as a collection of objects such as:
+\stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]}.
+Each such collection of bindings values that together consistently match the query variables in the data is called a \textit{binding set}.
+Note that binding sets can contain the database entity IDs, for example, binding \stt{?e} to entity 13 and \stt{?pn} to entity 14 in the above.
+Though entity IDs are not part of the domain data, they are part of how data is strung together by the triples and thereby they might be useful.
+%For example, the collection of query triples \stt{[?e "name" "Bob"]}, \stt{[?e "phoneNumberObjs" ?pn]}, and
+%\stt{[?pn "cell" ?cellNum]} used above could match against various entities where there is an entity whose \stt{name} attribute
+%has value "Bob", that entity has a \stt{phoneNumberObj} attribute, and the \stt{?pn} value matches an entity that
+%has a \stt{cell} attribute. Each of the binding sets produced would specify values for the three variables \stt{?e}, \stt{?pn} and %\stt{?cellNum}.
+Figure~\ref{code:simple-binding-set} depicts another example, the generation of two binding sets from in-line data.
 
 \begin{figure}[H]
-  \caption{A simple query on in-line data}
-  \label{code:bob-clark}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-                          "( $data := {'Person/firstname' : 'Bob', 'Person/lastname' : 'Clark'};
-                             $data.$query([?person :Person/firstname ?fname]
-                                          [?person :Person/lastname  ?lname]) )"
+  \caption{A simple query against in-line data.}
+  \label{code:simple-binding-set}
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+  ( $ := [{'Person/firstname' : 'Bob'  , 'Person/lastname' : 'Clark'},
+          {'Person/firstname' : 'Peter', 'Person/lastname' : 'Dee'}];
+    $.$query([?person :Person/firstname ?fname]
+             [?person :Person/lastname  ?lname]) )
+
+   // Returns the following binding set:
+   [{:person 4, :fname 'Peter', :lname 'Dee'} 
+    {:person 3, :fname 'Bob', :lname 'Clark'}]
 \end{lstlisting}
 \end{figure}
 
 There are a few thing to note about working with Datalog-like languages like this one.
-First, except for performance concerns, it does not matter what order you list the triple forms.
+First, except for performance concerns, it does not matter what order you list the query triples.
 Second, you can put query variables in any (or all) of the three positions.
 For example, \stt{[?e "cell" "123-456-1111"]} binds \stt{?e} to 14 in the above.
 Third, it is possible that there is in the data more than one match;
-for example, \stt{[?e ?a ?v]} returns an array of binding objects (a binding set) matching all data that is in context.
-It is possible, using query parameters not yet discussed, to limit what is return to the first match, etc.
+for example, \stt{[?e ?a ?v]} returns a collection binding set matching all data that is in context.
+%It is possible, using query parameters not yet discussed, to limit what is return to the first match, etc.
 Finally, you can imagine that using attribute names like "name" and "qty" could get confusing. (Name of what? Quantity of what?)
 For this reason, where possible, best practice in Datalog-like languages uses namespaced attributes.
 We could use, for example, strings with a slash between the namespace name and the property name.
 Thus perhaps, \stt{"Person/name"} and \stt{"Phone/cell"}.
 But since these identifiers serve the special purpose of \textit{roles}, the language uses a special syntax: a prefixed colon rather than string delimiters.
 Thus \stt{:Person/name} and \stt{:Phone/cell}.
-Figure \ref{code:bob-clark} above illustrates use of the role syntax on Lines 2 and 3.
-Where it helps reduce mistakes and the cognitive load on programmers, getting data in that form can be done with JSONata-like pre-processing.
+%Where it helps reduce mistakes and the cognitive load on programmers, getting data in that form can be done with JSONata-like pre-processing.
+Figure \ref{code:simple-binding-set} above illustrates use of the role syntax on Lines 3 and 4.
 
 \subsection{Query Functions}
 %We can now propose a language feature for querying data using the Datalog-like syntax.\footnote{Soon, we will need to demonstrate how this (and the \stt{\$enforce} and
 %  \stt{transform} language features discussed below) solve problems that are hard to address with strictly JSONata-like capabilities.
 %  I'll implement these features and create a Docker web app we can use to play with them. In the mean time, test cases from stakeholders are %\textbf{greatly appreciated!}}
 
-\stt{\$query} returns a function that can be applied to a collection of objects, returning a binding set.
-\stt{\$query} takes two kinds of information: a collection of triple forms, and (optional) parameters.
-In the example below there are three triples and one parameter,  \stt{\$name}.
-
-\begin{lstlisting}
- $queryCellByName := $query($name)([?e "name" $name]
-                                   [?e "phoneNumberObjs" ?pn]
-                                   [?pn "cell" ?cellNum])
-\end{lstlisting}
-
-If the context data is such as in Figure~\ref{code:bob-phone}, then \stt{\$.\$queryCellByName("Bob")} would return an array containing one binding set \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]}.\footnote{That
-example uses the JSONata convention that \stt{\$} is the \textit{context reference} always bound to whatever is the data at the time of reference.}
-% ToDo: Investigate optional arguments or another way to do this.
-% There is a similar construct \stt{\$queryOne} that can be used to get a binding object for the first match found.
+\stt{\$query} is a RADmapper language element that takes a collection of triple forms and (optional) parameters and returns a function that, when applied to data, returns a collection of binding sets.
 For example:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=JavaScript]
  $.$query([?e "name" "Bob"]
           [?e "phoneNumberObjs" ?pn]
           [?pn "cell" ?cellNum])
 \end{lstlisting}
 
 returns \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]} when \stt{\$} is the data of Figure~\ref{code:bob-phone}.
+The example below illustrates the use of an optional parameter \stt{\$name}:
 
+\begin{lstlisting}[language=JavaScript]
+ $queryCellByName := $query($name)([?e "name" $name]
+                                   [?e "phoneNumberObjs" ?pn]
+                                   [?pn "cell" ?cellNum])
+\end{lstlisting}
+
+Using the same data, \stt{\$.\$queryCellByName("Bob")} would return the same result as the previous query, where "Bob" is hard-coded. 
+
+%\footnote{That example uses the JSONata convention that \stt{\$} is the \textit{context reference} always bound to whatever is the data at the time of reference.}
 \subsection{Mapping  Networked Data}
 
 Binding sets, in themselves, are not too useful; you might be wondering why we even discuss them.
 The answer is that they are crucial to mapping networked data and doing in-place updates.
-Once you have the binding sets, you are halfway there; what remains is to compose the triples back to some sort of objects.
+Once you have the binding sets, you are halfway there; what remains is to use the binding sets to produce target data.
 This section describes that process, beginning with definitions of some terms just used:
 
 \begin{description}
@@ -515,6 +583,7 @@ This information is not in the ontology, but Figure~\ref{code:static-ddl} depict
 These are populated by the ontology \stt{owl/Class} content of the
 Figure~\ref{code:dynamic-ddl-dml} depicts tables that would be created.
 
+% ToDo: Get listinglst for SQL
 \begin{figure}[H]
   \caption{Static DDL for storing class and object relation metadata.
   The mapping will generate information equivalent to DML to populate this from the source data.}
@@ -561,7 +630,7 @@ specification that will be described below.
     (1) DML to capture metadata for \stt{owl/Class} and \stt{owl/ObjectProperty} objects in the static tables defined above, and
     (2) DDL to create tables for \stt{owl/ObjectProperty} objects.}
   \label{code:dynamic-ddl-dml}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
   {'instance-of'  : 'insert-row',
    'table'        : 'ObjectDefinition',
    'content'      : [{'resourceIRI'       : 'dol/endurant'},
@@ -640,9 +709,9 @@ specification that will be described below.
 
 % The \stt{db/cardinality} of all the attributes in ``one'' except in the case of \stt{table/columns} which is ``many''.
 % (See Line 7 of the figure.)
-% Cardinality of one means that actions on this attribute of an object necessarily either creates the datom (triple) or updates it.
+% Cardinality of one means that actions on this attribute of an object necessarily either creates the triple or updates it.
 % There will never be two triples about this attribute in the target population where the first two elements of the triple are identical.
-% Cardinality of many means that that there could be multiple datoms for the attribute.
+% Cardinality of many means that that there could be multiple triples for the attribute.
 % Keep in mind that the elements of a triple are always atomic.
 % To represent $n$ values there are $n$ triples having different values for the third element of the triple.
 % Also, the underlying datalog tool preserves the order of elements in arrays.
@@ -664,50 +733,80 @@ the \stt{\$query} and \stt{\$enforce}.
 The \stt{\$query} produces a binding set for the source data.
 The \stt{\$enforce} defines how values from the binding set are used in the target population.
 
+% ToDo: Check out the URL about better listing javascript
+% https://mysnippets443.wordpress.com/2015/11/28/latex-insert-javascript-code-with-lstlisting-package/
+
 \begin{figure}[H]
-  \caption{Mapping OWL to the relational database schema}
+  \caption{Mapping the example OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
- $.$transform(
-     $query( [?class :rdf/type            'owl/Class']
-             [?class :resource/iri        ?class-iri]
-             [?class :resource/namespace  ?ns]
-             [?class :resource/name       ?class-name]
-             [?rel   :rdfs/domain         ?class-iri]
-             [?rel   :rdf/type            ('owl/ObjectProperty' or 'owl/DataProperty')]
-             [?rel   :rdfs/range          ?rel-range]
-             [?rel   :resource/name       ?rel-name])
-     $enforce( {'table/name'     : ?class-name,
-                'table/schema'   : {'schema/name'  : ?ns},
-                'table/columns'  : {'column/name'  : ?rel-name,
-                                    'column/type'  : ?rel-range,
-                                    'column/table' : ?table-ent}} as ?table-ent))
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+  (   // $$$ is an object containing settings.
+      $$$ := $MCnewContext() ~> $MCaddSource($readFile('data/testing/owl-example.edn'));
+
+      $qtype  := query($type)
+                   { [?class :rdf/type            $type]
+                     [?class :resource/iri        ?class-iri]
+                     [?class :resource/namespace  ?class-ns]
+                     [?class :resource/name       ?class-name]
+                   };  // Defines a higher-order function
+
+      $qClass := $qtype('owl/Class');
+      $qProp  := $qtype('owl/ObjectProperty');
+
+      $bsets := $qClass($$$.sources[0]); // Run query; return a collection of binding sets.
+                                         // Could use ~> here; instead, I'm passing $bsets.
+      $reduce($bsets,
+              enforce($bs)
+                 {  {'instance-of'  : 'insert-row',
+                     'table'        : 'ObjectDefinition',
+                     'content'      : [{'resourceIRI'       : ?class-iri},
+                                       {'resourceNamespace' : ?class-ns},
+                                       {'resourceLabel'     : ?class-label}]}
+                 }
+              )
+   )
 \end{lstlisting}
 \end{figure}
 
-We'll walk through the example line by line.
-On Line 1 \stt{\$transform} receives data from the context variable. [Other methods will be defined.] % ToDo
-On Line 2 we constrain the search to just those entities that have \stt{rdf/type} containing the string ``owl/Class''.
-On Lines 3, 4, and 5 we bind variables to attribute values of that entity.
-If instead of mapping every namespace in the source data we wanted to limit mapping to a single namespace,
-we could have specified a value or expression for \stt{resource/namespace} on Line 4 rather than the variable \stt{?ns}.
-For example, we could have specified ``dol'' here, that happens to refer to the DOLCE ontology namespace.
-(See the example data in Figure ~\ref{code:endurant}.)
-
-Lines 6, 7, 8 and 9 match and bind a second entity.
-Line 6 uses the variable \stt{?class-iri} which was bound on Line 3; thus a relational join is performed.
-According to Line 7 this entity must have \stt{rdf/type} of either ``owl/ObjectProperty'' or ``owl/DataProperty''.
-Lines 8 and 9 bind the \stt{rdfs/range} and \stt{resource/name} respectively.
-
-With a call to \stt{\$enforce}, Line 10 defines the enforcement function, a higher-order function.
-The design of \stt{\$transform}, \stt{\$query} and \stt{\$enforce} were factored as they are to facilitate debugging.
-For example, \stt{\$query} can be run on context data so that the resulting binding set may be verified;
-\stt{\$enforce} can be applied to a small hand-coded binding set to verify that the intended mapping is taking place.
+% $.$transform(
+%     $query( [?class :rdf/type            'owl/Class']
+%             [?class :resource/iri        ?class-iri]
+%             [?class :resource/namespace  ?ns]
+%             [?class :resource/name       ?class-name]
+%             [?rel   :rdfs/domain         ?class-iri]
+%             [?rel   :rdf/type            ('owl/ObjectProperty' or 'owl/DataProperty')]
+%             [?rel   :rdfs/range          ?rel-range]
+%             [?rel   :resource/name       ?rel-name])
+%     $enforce( {'table/name'     : ?class-name,
+%                'table/schema'   : {'schema/name'  : ?ns},
+%                'table/columns'  : {'column/name'  : ?rel-name,
+%                                    'column/type'  : ?rel-range,
+%                                    'column/table' : ?table-ent}} as ?table-ent))
+%
+%We'll walk through the example line by line.
+%On Line 1 \stt{\$transform} receives data from the context variable. [Other methods will be defined.] % ToDo
+%On Line 2 we constrain the search to just those entities that have \stt{rdf/type} containing the string ``owl/Class''.
+%On Lines 3, 4, and 5 we bind variables to attribute values of that entity.
+%If instead of mapping every namespace in the source data we wanted to limit mapping to a single namespace,
+%we could have specified a value or expression for \stt{resource/namespace} on Line 4 rather than the variable \stt{?ns}.
+%For example, we could have specified ``dol'' here, that happens to refer to the DOLCE ontology namespace.
+%(See the example data in Figure ~\ref{code:endurant}.)
+%
+%Lines 6, 7, 8 and 9 match and bind a second entity.
+%Line 6 uses the variable \stt{?class-iri} which was bound on Line 3; thus a relational join is performed.
+%According to Line 7 this entity must have \stt{rdf/type} of either ``owl/ObjectProperty'' or ``owl/DataProperty''.
+%Lines 8 and 9 bind the \stt{rdfs/range} and \stt{resource/name} respectively.
+%
+%With a call to \stt{\$enforce}, Line 10 defines the enforcement function, a higher-order function.
+%The design of \stt{\$transform}, \stt{\$query} and \stt{\$enforce} were factored as they are to facilitate debugging.
+%For example, \stt{\$query} can be run on context data so that the resulting binding set may be verified;
+%\stt{\$enforce} can be applied to a small hand-coded binding set to verify that the intended mapping is taking place.
+%
 
 % ToDo: This needs work.
 The example dataset from DOLCE is fairly large.
 Let's suppose it contains 50 classes, each involved in 10 relations.
-That suggests a binding set of 500 binding objects.
+That suggests a collection of 500 binding sets.
 That does not necessarily entail 500 structures like Lines 10 through 14, however.
 In contrast to the JSONata-like operations, which maps physical structures to physical structures,
 the mapping engine here is mapping between logical structures.
