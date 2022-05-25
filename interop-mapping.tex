@@ -740,43 +740,43 @@ The \stt{\$enforce} defines how values from the binding set are used in the targ
   \caption{Mapping the example OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-( $mc := $MCnewContext() ~> $MCaddSource($readFile('data/testing/owl-example.edn'), 'owl-source');
+( $data := $readFile('data/testing/owl-example.edn');
 
-  $qtype  := query($type)
-               { [?class :rdf/type            $type]
+  $qtype  := query($rdfType, $extraTrips)
+               { [?class :rdf/type            $rdfType]
                  [?class :resource/iri        ?class-iri]
                  [?class :resource/namespace  ?class-ns]
                  [?class :resource/name       ?class-name]
+                 // ToDo: $extraTrips
                };  // Defines a higher-order function, a template of sorts.
 
-  $qClass := $qtype('owl/Class');            // Use the 'template', here..
-  $qProp  := $qtype('owl/ObjectProperty');   // ...and here.
+  $etype  := enforce($tableType)
+              {  {'instance-of'  : 'insert-row',
+                  'table'        : $tableType,
+                  'content'      : {'resourceIRI'       : ?class-iri,
+                                    'resourceNamespace' : ?class-ns,
+                                    'resourceLabel'     : ?class-name}}
+                           }; // Likewise, for an enforce template.
+                              // The target tables for objects and relations a very similar.
 
-  // Run the clas query; return a collection of binding sets.
-  $bsets := $qClass($MCgetSource($mc, 'owl-source')); 
+  $quClass := $qtype('owl/Class');     // Use the template, here and the next three assignments.
 
-  $tar_data := $reduce($bsets,
-                        enforce($bs)
-                           {  {'instance-of'  : 'insert-row',
-                               'table'        : 'ObjectDefinition',
-                               'content'      : [{'resourceIRI'       : ?class-iri},
-                                                 {'resourceNamespace' : ?class-ns},
-                                                 {'resourceLabel'     : ?class-name}]}
-                           },
-                       [] // In updating the target, there would be data here.
-                      )
-   $bsets := $qProp($MCgetSource($mc, 'owl-source'));
+  // This one doesn't just specify a value for $rdfType, but for $extraTrips.
+  $quProp       := $qtype('owl/ObjectProperty'); // ToDo: ,queryTriples{[?class :rdfs/domain ?domain] [?class :rdfs/range ?range]});
+  $enClassTable := $etype('ClassDefinition');
+  $enPropTable  := $etype('PropertyDefinition');
 
-   $reduce($bsets,
-           enforce($bs)
-             {  {'instance-of'  : 'insert-row',
-                 'table'        : 'ObjectDefinition',
-                 'content'      : [{'resourceIRI'       : ?class-iri},
-                                   {'resourceNamespace' : ?class-ns},
-                                   {'resourceLabel'     : ?class-name}]}
-             },
-           $tar_data   // This time, we're updating the target data.
-          )
+  // Run the class query; return a collection of binding sets about classes.
+  $clasBsets := $quClass($data);
+
+  // We start enforcing with no data, thus the third argument is [].
+  $tar_data := $reduce($clasBsets, $enClassTable, []);
+
+  // Get bindings sets for the ObjectProperties and make similar tables.
+  $propBsets := $quProp($data);
+
+  // We pass in the target data created so far.
+  $reduce($propBsets, $enPropTable, $tar_data) // The code block returns the target data.
 )
 \end{lstlisting}
 \end{figure}
