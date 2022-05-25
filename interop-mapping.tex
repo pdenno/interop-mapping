@@ -740,31 +740,44 @@ The \stt{\$enforce} defines how values from the binding set are used in the targ
   \caption{Mapping the example OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-  (   // $$$ is an object containing settings.
-      $$$ := $MCnewContext() ~> $MCaddSource($readFile('data/testing/owl-example.edn'));
+( $mc := $MCnewContext() ~> $MCaddSource($readFile('data/testing/owl-example.edn'), 'owl-source');
 
-      $qtype  := query($type)
-                   { [?class :rdf/type            $type]
-                     [?class :resource/iri        ?class-iri]
-                     [?class :resource/namespace  ?class-ns]
-                     [?class :resource/name       ?class-name]
-                   };  // Defines a higher-order function
+  $qtype  := query($type)
+               { [?class :rdf/type            $type]
+                 [?class :resource/iri        ?class-iri]
+                 [?class :resource/namespace  ?class-ns]
+                 [?class :resource/name       ?class-name]
+               };  // Defines a higher-order function, a template of sorts.
 
-      $qClass := $qtype('owl/Class');
-      $qProp  := $qtype('owl/ObjectProperty');
+  $qClass := $qtype('owl/Class');            // Use the 'template', here..
+  $qProp  := $qtype('owl/ObjectProperty');   // ...and here.
 
-      $bsets := $qClass($$$.sources[0]); // Run query; return a collection of binding sets.
-                                         // Could use ~> here; instead, I'm passing $bsets.
-      $reduce($bsets,
-              enforce($bs)
-                 {  {'instance-of'  : 'insert-row',
-                     'table'        : 'ObjectDefinition',
-                     'content'      : [{'resourceIRI'       : ?class-iri},
-                                       {'resourceNamespace' : ?class-ns},
-                                       {'resourceLabel'     : ?class-name}]}
-                 }
-              )
-   )
+  // Run the clas query; return a collection of binding sets.
+  $bsets := $qClass($MCgetSource($mc, 'owl-source')); 
+
+  $tar_data := $reduce($bsets,
+                        enforce($bs)
+                           {  {'instance-of'  : 'insert-row',
+                               'table'        : 'ObjectDefinition',
+                               'content'      : [{'resourceIRI'       : ?class-iri},
+                                                 {'resourceNamespace' : ?class-ns},
+                                                 {'resourceLabel'     : ?class-name}]}
+                           },
+                       [] // In updating the target, there would be data here.
+                      )
+   $bsets := $qProp($MCgetSource($mc, 'owl-source'));
+
+   $reduce($bsets,
+           enforce($bs)
+             {  {'instance-of'  : 'insert-row',
+                 'table'        : 'ObjectDefinition',
+                 'content'      : [{'resourceIRI'       : ?class-iri},
+                                   {'resourceNamespace' : ?class-ns},
+                                   {'resourceLabel'     : ?class-name}]}
+             },
+           $tar_data   // This time, we're updating the target data.
+          )
+)
 \end{lstlisting}
 \end{figure}
 
