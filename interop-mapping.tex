@@ -52,9 +52,10 @@
 
 \usepackage{color} %use color
 \definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{myred}{rgb}{0.8,0.2,0.2}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
- 
+
 %Customize a bit the look
 \lstset{ %
 backgroundcolor=\color{white}, % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
@@ -84,22 +85,21 @@ tabsize=2, % sets default tabsize to 2 spaces
 title=\lstname % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 %END of listing package%
- 
+
 \definecolor{darkgray}{rgb}{.4,.4,.4}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
- 
+
 %define Javascript language (modified for  RADmapper)
 \lstdefinelanguage{JavaScript}{
-keywords={query, express, \$read, \$reduce, typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-keywordstyle=\color{blue}\bfseries,
-ndkeywords={class, export, boolean, throw, implements, import, this},
+  keywords={\$abs, \$append, \$assert, \$average, \$base64decode, \$base64encode, \$boolean, \$ceil, \$contains, \$count, \$decodeUrl, \$decodeUrlComponent, \$distinct, \$each, \$encodeUrl, \$encodeUrlComponent, \$error, \$eval, \$exists, \$filter, \$floor, \$formatBase, \$formatInteger, \$formatNumber, \$fromMillis, \$join, \$keys, \$length, \$lookup, \$lowercase, \$map, \$match, \$max, \$merge, \$millis, \$min, \$not, \$now, \$number, \$pad, \$parseInteger, \$power, \$random,,\$read, \$readSpreadsheet, \$reduce, \$replace, \$reverse, \$round, \$shuffle, \$sift, \$single, \$sort, \$split, \$spread, \$sqrt, \$string, \$substring, \$substringAfter, \$substringBefore, \$sum, \$toMillis, \$trim, \$type,,\$uppercase, \$zip},
+keywordstyle=\color{darkgray}\bfseries,
+ndkeywords={false, function, express, query, true}
 ndkeywordstyle=\color{darkgray}\bfseries,
 identifierstyle=\color{black},
 sensitive=false,
-comment=[l]{//},
-morecomment=[s]{/*}{*/},
+morecomment=\bfseries[s]{/*}{*/},
 commentstyle=\color{purple}\ttfamily,
-stringstyle=\color{red}\ttfamily,
+stringstyle=\color{myred}\ttfamily,
 morestring=[b]',
 morestring=[b]"
 }
@@ -114,9 +114,7 @@ morestring=[b]"
 This document describes a data mapping language designed to serve as an \textit{interoperable exchange form} for expressing the intent of many mapping and data restructuring needs.
 As an interoperable exchange form, it is intended that the language can be translated (by humans and machine agents) into mapping specification in other languages.
 For example, it should be possible to translate statements in the exchange form into mapping specification used by commercial mapping tools.
-
-The document is a draft and as of this writing (\today) is likely to be updated often.
-OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
+%OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
 The mapping language  described (provisionally called RADmapper) borrows predominantly from the JSONata language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
 These forms include tables (e.g. Excel) XML, and networks of data such as knowledge graphs.
@@ -125,7 +123,8 @@ To support networks of data, the mapping language borrows ideas from the Object 
 
 The document describes the RADmapper language and the concept behind how it is can be transformed to an interoperable exchange form.
 As of this writing, the canonical form of the interoperable exchange form is under development.
-A reference implementation of the RADmapper language can be found in \href{https://github.com/pdenno/RADmapper}{this Git repository}.  % \href{<url>}{text} did not work!
+A reference implementation of the RADmapper language can be found in \href{https://github.com/pdenno/RADmapper}{this GitHub repository}.
+The document is a draft and as of this writing (\today) is likely to be updated often.
 %Whether or not the tool is useful for transforming information in real-world settings remains to be seen;
 %we'll generate an OpenAPI Specification for the tool to test that idea.
 
@@ -141,27 +140,25 @@ A reference implementation of the RADmapper language can be found in \href{https
 
 \section{Quick Start: Example Mapping Tasks}
 
-In order to give you a sense of things, this section describe the basics and how some common query, data restructuring, and mapping challenges are addressed by the language.
-RADmapper provides the complete expression language and all the built-in functions of JSONata, and therefore the examples focus on the differences.
-Examples of JSONata can be found with the \href{https://jsonata.org/}{JSONata specification}.
+This section uses examples to describe the basic features of the RADmapper language.
+RADmapper provides the complete expression language and all the built-in functions of JSONata; therefore the examples focus on the new concepts not in JSONata.
+Examples of JSONata can be found in the \href{https://jsonata.org/}{JSONata specification}.
 
 \subsection{Simple Restructuring}
 
 This example illustrates simple restructuring of a data structure.
 The example is based on a discussion on the JSONata Slack channel.
-The goal of the example is to swap the nesting 
-
-% I might have this wrong; is there supposed to be a "systems"?
+The goal of the example is to swap the nesting of \stt{owners} and \stt{systems} as shown in Figure~\ref{data:simple-restructuring}.
 
 \begin{figure}[H]
-  \caption{The goal is to swap the nesting of 'owners' and 'systems' in the data on lines 1--9
-  so that it looks lines 13--21.}
+  \caption{The goal is to swap the nesting of 'owners' and 'systems' in the data on Lines 1--9
+  so that it looks Lines 13--21.}
  \label{data:simple-restructuring}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
 { "systems":
    { "system1": { "owners": { "owner1": { "device1": { "id": 100, "status": "Ok" },
-      	                                  "device2": { "id": 200, "status": "Ok" }},
-       	                      "owner2": { "device3": { "id": 300, "status": "Ok" },
+                                          "device2": { "id": 200, "status": "Ok" }},
+                              "owner2": { "device3": { "id": 300, "status": "Ok" },
                                           "device4": { "id": 400, "status": "Ok" }}}},
      "system2": { "owners": { "owner1": { "device5": { "id": 500, "status": "Ok" },
                                           "device6": { "id": 600, "status": "Ok" }},
@@ -183,9 +180,14 @@ The goal of the example is to swap the nesting
 \end{lstlisting}
 \end{figure}
 
-Though these structures may look odd (for example, there are no arrays used despite apparent value in having them)
-this is not relevant to the discussion.
+Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner. Instead of arrays, the developer used meaningful names as keys, "device1","device2" etc.}) this is not relevant to the discussion.
 A solution to this problem in pure JSONata is shown in Figure~\ref{code:jsonata-sTPDRs}.
+Typical of a restructuring task, the goal data on Lines 13--21 does not contradict any of the facts evident in the original data on Lines 1--9.
+For example, there is owner called owner1, and owner1 still the same devices associated.
+The idea that mapping is about how facts are viewed is a key concept in RADmapper.
+What has changed in restructuring the example data is not a fact but the sort of forward navigation that is possible in the two structures.
+In the original structure it is possible to navigate forward from a system to an owner (such as on Line 1, from system1 to owner1).
+In the restructured data it is possible only to navigate forward from owner to system (such as owner1 to system1 on Line 14).
 
 \begin{figure}[H]
 \caption{Using JSONata to restructure the data.}
@@ -200,8 +202,10 @@ A solution to this problem in pure JSONata is shown in Figure~\ref{code:jsonata-
 \end{lstlisting}
 \end{figure}
 
-Though the RADmapper solution to this problems involves more lines of code (see Figure~\ref{code:simple-restructuring}), it is arguably easier to understand once the basics of Datalog are understood.
+Though the RADmapper solution to this problems involves more Lines of code (see Figure~\ref{code:simple-restructuring} below), it is arguably easier to understand once the basics of Datalog are understood.
 The RADmapper solution is also a better candidate for \textit{interoperable} exchange of mappings, as will be discussed in subsequent sections of this document.
+
+\textbf{[Figure showing forward navigation through the data on query.]} % <========================================
 
 \begin{figure}[H]
 \caption{Using query and express to restructure data.}
@@ -233,7 +237,9 @@ The RADmapper solution is also a better candidate for \textit{interoperable} exc
 \end{lstlisting}
 \end{figure}
 
-
+To get started on understanding the above RADmapper code, note that the syntax, outside of the \stt{query} and \stt{express} constructs is valid JSONata.
+\stt{query} and \stt{express} are function-like declarations, \stt{\$reduce} on Line 14 is essentially the JSONata's \stt{\$reduce}, and \stt{\$read} is a RADmapper built-in function.
+\stt{\$match}\ldots % <==============================================================
 
 %\subsection{Vectors and Iteration}
 %
@@ -374,8 +380,8 @@ For example, Table~\ref{table:simple} can be viewed as the structure shown in Fi
 \begin{lstlisting}[language=JavaScript]
 
 [{"ShipDate":  "2021-06-15", "Item":  "Widget 123", "Qty": 1.0, "UnitPrice": 10.5},
- {:ShipDate":  "2021-06-15", "Item":  "Gadget 234", "Qty": 2.0, "UnitPrice": 12.8},
- {:ShipDate":  "2021-06-15", "Item":  "Foobar 344", "Qty": 1.0, "UnitPrice": 100.0}]
+ {"ShipDate":  "2021-06-15", "Item":  "Gadget 234", "Qty": 2.0, "UnitPrice": 12.8},
+ {"ShipDate":  "2021-06-15", "Item":  "Foobar 344", "Qty": 1.0, "UnitPrice": 100.0}]
 \end{lstlisting}
 \end{figure}
 
@@ -407,7 +413,7 @@ we are not trying to replace a back-end system function, but to describe the rel
 %========================================================
 %  Picture here of navigating a tree versus jumping around to find things in a network.
 %========================================================
- 
+
 To illustrate the challenge of using a JSONata-like engine for data having complex interrelations, suppose, for example\ldots. [Discussion of the OWL example]
 
 \subsection{Data Organized as Triples}
@@ -520,8 +526,8 @@ Figure~\ref{code:simple-binding-set} depicts another example, the generation of 
     $.query([?person :Person/firstname ?fname]
              [?person :Person/lastname  ?lname]) )
 
-   // Returns the following binding set:
-   [{:person 4, :fname 'Peter', :lname 'Dee'} 
+   /* Returns the following binding set: */
+   [{:person 4, :fname 'Peter', :lname 'Dee'}
     {:person 3, :fname 'Bob', :lname 'Clark'}]
 \end{lstlisting}
 \end{figure}
@@ -565,7 +571,7 @@ The example below illustrates the use of an optional parameter \stt{\$name}:
                                    [?pn "cell" ?cellNum])
 \end{lstlisting}
 
-Using the same data, \stt{\$.queryCellByName("Bob")} would return the same result as the previous query, where "Bob" is hard-coded. 
+Using the same data, \stt{\$.queryCellByName("Bob")} would return the same result as the previous query, where "Bob" is hard-coded.
 
 %\footnote{That example uses the JSONata convention that \stt{\$} is the \textit{context reference} always bound to whatever is the data at the time of reference.}
 \subsection{Mapping  Networked Data}
@@ -741,7 +747,7 @@ specification that will be described below.
    'table'        : 'DisjointClass',
    'content'      : [{'disjointID'   ; 1},
                      {'disjoint1'    : 'dol/endurant'},
-                     {'disjoint2'    : 'dol/abstract'}]} // ... (Two more disjoints elided.)
+                     {'disjoint2'    : 'dol/abstract'}]} /* ... (Two more disjoints elided.) */
 
   {'instance-of'  : 'insert-row',
    'table'        : 'ResourceComment',
@@ -749,7 +755,7 @@ specification that will be described below.
                      {'resourceIRI' : 'dol/endurant'},
                      {'commentText' : 'The main characteristic of endurants is...'}]}
 
-  // Similar content for the ObjectPropery dol/participant is elided.
+  /* Similar content for the ObjectPropery dol/participant is elided. */
 
   {'instance-of'  : 'insert-row',
    'table'        : 'PropertyDefinition',
@@ -757,7 +763,7 @@ specification that will be described below.
                      {'relationDomain' : 'dol/perdurant'},
                      {'relationRange'  : 'dol/endurant'}]}
 
-  // The DDL for the participant table:
+  /* The DDL for the participant table: */
 
   {'instance-of' : 'create-table',
    'table'       : 'DOLparticipant',
@@ -842,8 +848,8 @@ The \stt{express} defines how values from the binding set are used in the target
                  [?class :resource/iri        ?class-iri]
                  [?class :resource/namespace  ?class-ns]
                  [?class :resource/name       ?class-name]
-                 // ToDo: $extraTrips
-               };  // Defines a higher-order function, a template of sorts.
+                 /* ToDo: $extraTrips */
+               };  /* Defines a higher-order function, a template of sorts. */
 
   $etype  := enforce($tableType)
               {  {'instance-of'  : 'insert-row',
@@ -851,27 +857,27 @@ The \stt{express} defines how values from the binding set are used in the target
                   'content'      : {'resourceIRI'       : ?class-iri,
                                     'resourceNamespace' : ?class-ns,
                                     'resourceLabel'     : ?class-name}}
-                           }; // Likewise, for an enforce template.
-                              // The target tables for objects and relations a very similar.
+                           }; /* Likewise, for an enforce template. */
+                              /* The target tables for objects and relations a very similar. */
 
-  $quClass := $qtype('owl/Class');     // Use the template, here and the next three assignments.
+  $quClass := $qtype('owl/Class');     /* Use the template, here and the next three assignments. */
 
-  // This one doesn't just specify a value for $rdfType, but for $extraTrips.
-  $quProp       := $qtype('owl/ObjectProperty'); // ToDo: ,queryTriples{[?class :rdfs/domain ?domain] [?class :rdfs/range ?range]});
+  /* This one doesn't just specify a value for $rdfType, but for $extraTrips. */
+  $quProp       := $qtype('owl/ObjectProperty'); /* ToDo: ,queryTriples{[?class :rdfs/domain ?domain] [?class :rdfs/range ?range]}); */
   $enClassTable := $etype('ClassDefinition');
   $enPropTable  := $etype('PropertyDefinition');
 
-  // Run the class query; return a collection of binding sets about classes.
+  /* Run the class query; return a collection of binding sets about classes. */
   $clasBsets := $quClass($data);
 
-  // We start enforcing with no data, thus the third argument is [].
+  /* We start enforcing with no data, thus the third argument is []. */
   $tar_data := $reduce($clasBsets, $enClassTable, []);
 
-  // Get bindings sets for the ObjectProperties and make similar tables.
+  /* Get bindings sets for the ObjectProperties and make similar tables. */
   $propBsets := $quProp($data);
 
-  // We pass in the target data created so far.
-  $reduce($propBsets, $enPropTable, $tar_data) // The code block returns the target data.
+  /* We pass in the target data created so far. */
+  $reduce($propBsets, $enPropTable, $tar_data) /* The code block returns the target data. */
 )
 \end{lstlisting}
 \end{figure}
