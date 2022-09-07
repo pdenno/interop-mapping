@@ -482,8 +482,8 @@ Consequently, the \stt{PhoneNumberObjs} triples on entity 13 reference additiona
 It is worth taking the time to get comfortable with this idea of encoding information in triples;
 it is how we work with complex data in RADmapper.
 
-\subsection{Queries on Triples}
 
+\subsection{Queries on Triples}
 You can query triples using Datalog-like notation.\footnote{There are many implementations of Datalog, includes ones for Java and JavaScript, so what is being proposed here should not be hard to implement.} Queries have a square-bracket notation similar to triples illustrated above, but with \textit{query variables} substituted for some of the values.
 In JSONata, variables start with a \stt{\$}, in queries, query variables start with a \stt{?}.
 For example, \stt{[?e "name" "Bob"]} is a query that will bind the query variable \stt{?e} to the entity identifier of any entity that has "Bob" as its \stt{name} attribute.
@@ -876,6 +876,7 @@ The \stt{express} defines how values from the binding set are used in the target
 \end{lstlisting}
 \end{figure}
 
+
 % $.$transform(
 %     query( [?class :rdf/type            'owl/Class']
 %             [?class :resource/iri        ?class-iri]
@@ -1063,7 +1064,6 @@ This section is apt to be rewritten several times as the features of the languag
 %Returning a substring               & substring()
 %\end{tabular}
 %\end{table}
-
 \bibliography{/Users/pdenno/Documents/bibtex/library}
 
 \end{document}
