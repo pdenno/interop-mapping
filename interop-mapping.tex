@@ -202,23 +202,23 @@ In the restructured data it is possible only to navigate forward from owner to s
 \end{lstlisting}
 \end{figure}
 
-Though the RADmapper solution to this problems involves more Lines of code (see Figure~\ref{code:simple-restructuring} below), it is arguably easier to understand once the basics of Datalog are understood.
+Though the RADmapper solution to this problems involves more lines of code (see Figure~\ref{code:simple-restructuring} below), it is arguably easier to understand once the basics of Datalog are understood.
 The RADmapper solution is also a better candidate for \textit{interoperable} exchange of mappings, as will be discussed in subsequent sections of this document.
 
 \textbf{[Figure showing forward navigation through the data on query.]} % <========================================
 
 \begin{figure}[H]
-\caption{Using query and express to restructure data.}
+\caption{RADmapper query and express used to restructure data.}
  \label{code:simple-restructuring}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
   (   $data := $read('data/testing/jsonata/sTPDRs--6.json');
          $q := query(){ [?s ?systemName ?x]
-                        [($match(?systemName, /system\\d/))]
+                        [($match(?systemName, /system\d/))]
                         [?x :owners ?y]
                         [?y ?ownerName ?z]
-                        [($match(?ownerName, /owner\\d/))]
+                        [($match(?ownerName, /owner\d/))]
                         [?z ?deviceName ?d]
-                        [($match(?deviceName, /device\\d/))]
+                        [($match(?deviceName, /device\d/))]
                         [?d :id ?id]
                         [?d :status ?status] };
 
@@ -237,9 +237,30 @@ The RADmapper solution is also a better candidate for \textit{interoperable} exc
 \end{lstlisting}
 \end{figure}
 
-To get started on understanding the above RADmapper code, note that the syntax, outside of the \stt{query} and \stt{express} constructs is valid JSONata.
-\stt{query} and \stt{express} are function-like declarations, \stt{\$reduce} on Line 14 is essentially the JSONata's \stt{\$reduce}, and \stt{\$read} is a RADmapper built-in function.
-\stt{\$match}\ldots % <==============================================================
+Regarding this code, first note that the syntax, excepting of the \stt{query} and \stt{express} constructs, is valid JSONata.
+\stt{query} and \stt{express} are function-like declarations, \stt{\$reduce} on Line 14 is essentially JSONata's \stt{\$reduce}, and \stt{\$read} is a RADmapper built-in function.
+\stt{\$match} used on Lines 3, 6 and 8 is a JSONata built-in Boolean function that returns true if the first argument, a string, matches the second argument a regular expression.
+An introduction of the \stt{query} construct defined on Lines 2--10 of Figure~\ref{code:simple-restructuring} is provided in the following paragraphs with the help of Figure~\ref{fig:hairpin}.
+
+\stt{query} is used to define a Datalog-like query.
+Datalog has the query power of SQL but does queries statement-at-a-time versus SQL's entity-at-a-time.
+For example, that distinction entails that in Datalog "\stt{device1} \stt{id} is \stt{100}." and "\stt{device1} \stt{status} is \stt{Ok}." are independent statement-at-a-time assertions that happen to be about the same entity, \stt{device1}.
+In contrast, with SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary key \stt{device1} has information about both \stt{id} and \stt{status}.
+There are advantages and disadvantages to both Datalog and SQL.\@
+For example, it should be apparent that pulling all the information about an entity together with Datalog queries requires relational joins.
+On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in milliseconds, and adding properties (columns in SQL) does not require data migration.
+
+\begin{figure}[H]
+  \caption{Part (a): navigation of the source structure (Lines 1--9 of the data in Figure~\ref{data:simple-restructuring}).
+    The circled numbers refer to lines in the code of Figure~\ref{code:simple-restructuring}. Part (b): graph and triples representing device1.}\label{fig:hairpin}
+
+   \includegraphics[scale=0.15]{hairpin-two-part.jpg}
+  \centering
+\end{figure}
+
+
+
+
 
 %\subsection{Vectors and Iteration}
 %
