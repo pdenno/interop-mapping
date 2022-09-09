@@ -14,11 +14,13 @@
 \usepackage{float}
 \usepackage{appendix}
 \usepackage{fancyvrb}
-\usepackage{hyperref}
+\usepackage{hyperref} % for href
+\usepackage{textcomp} % has bullet, copyright symbols, etc.
 
-\usepackage{listings,xcolor}
-\usepackage{courier}
-\usepackage{textcomp}
+\usepackage{inconsolata} % https://tex.stackexchange.com/questions/50810/good-monospace-font-for-code-in-latex 
+%\usepackage{courier}    % Alternative monospace. Inconsolata is a bit rougher, but distinguishes ( from { better.
+
+\usepackage{listings,xcolor} % See https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings about minted rather than this.
 
 \usepackage{graphicx}
 \graphicspath{{./figures/}}
@@ -31,13 +33,14 @@
 \fancyhead[C]{\today\ DRAFT}
 \pagestyle{fancy}
 
-\newcommand{\stt}[1]{\begin{footnotesize}\texttt{#1}\end{footnotesize}}
+% This is only useful for courier; not needed for inconsolata.
+%\newcommand{\stt}[1]{\begin{footnotesize}\texttt{#1}\end{footnotesize}}
+\newcommand{\stt}[1]{\texttt{#1}}
 
 \usepackage{makecell}      % cells in tables to handle multiline content (see Ch5)
-\usepackage{hhline}
+\usepackage{hhline}        % more stuff for tables
 
-% Nice package! https://www.overleaf.com/learn/latex/Page_size_and_margins#Paper_size.2C_orientation_and_margins
-\usepackage{geometry}
+\usepackage{geometry} % https://www.overleaf.com/learn/latex/Page_size_and_margins#Paper_size.2C_orientation_and_margins
  \geometry{
 %  a4paper,
 %  total={170mm,257mm},
@@ -58,43 +61,44 @@
 
 %Customize a bit the look
 \lstset{ %
-backgroundcolor=\color{white}, % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
-basicstyle=\footnotesize, % the size of the fonts that are used for the code
-breakatwhitespace=false, % sets if automatic breaks should only happen at whitespace
-breaklines=true, % sets automatic line breaking
-captionpos=b, % sets the caption-position to bottom
-commentstyle=\color{mygreen}, % comment style
-deletekeywords={...}, % if you want to delete keywords from the given language
-escapeinside={\%*}{*)}, % if you want to add LaTeX within your code
-extendedchars=true, % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
-%pod frame=single, % adds a frame around the code
-keepspaces=true, % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
-keywordstyle=\color{blue}, % keyword style
-% language=Octave, % the language of the code
-morekeywords={*,...}, % if you want to add more keywords to the set
-numbers=left, % where to put the line-numbers; possible values are (none, left, right)
-numbersep=5pt, % how far the line-numbers are from the code
+backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+breaklines=true,                 % sets automatic line breaking
+captionpos=b,                    % sets the caption-position to bottom
+commentstyle=\color{mygreen},    % comment style
+deletekeywords={...},            % if you want to delete keywords from the given language
+escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+%pod frame=single,               % adds a frame around the code
+keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+keywordstyle=\color{blue},       % keyword style
+%language=JavaScript,            % the default language of the code  CANNOT BE SET.
+morekeywords={*,...},            % if you want to add more keywords to the set
+numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+numbersep=5pt,                   % how far the line-numbers are from the code
 numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
-rulecolor=\color{black}, % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
-showspaces=false, % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
-showstringspaces=false, % underline spaces within strings only
-showtabs=false, % show tabs within strings adding particular underscores
-stepnumber=1, % the step between two line-numbers. If it's 1, each line will be numbered
-stringstyle=\color{mymauve}, % string literal style
-tabsize=2, % sets default tabsize to 2 spaces
-title=\lstname % show the filename of files included with \lstinputlisting; also try caption instead of title
+rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+showstringspaces=false,          % underline spaces within strings only
+showtabs=false,                  % show tabs within strings adding particular underscores
+stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+stringstyle=\color{mymauve},     % string literal style
+tabsize=2,                       % sets default tabsize to 2 spaces
+title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 %END of listing package%
 
 \definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{darkblue}{rgb}{.3,.3,.9}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
 %define Javascript language (modified for  RADmapper)
 \lstdefinelanguage{JavaScript}{
-  keywords={\$abs, \$append, \$assert, \$average, \$base64decode, \$base64encode, \$boolean, \$ceil, \$contains, \$count, \$decodeUrl, \$decodeUrlComponent, \$distinct, \$each, \$encodeUrl, \$encodeUrlComponent, \$error, \$eval, \$exists, \$filter, \$floor, \$formatBase, \$formatInteger, \$formatNumber, \$fromMillis, \$join, \$keys, \$length, \$lookup, \$lowercase, \$map, \$match, \$max, \$merge, \$millis, \$min, \$not, \$now, \$number, \$pad, \$parseInteger, \$power, \$random,,\$read, \$readSpreadsheet, \$reduce, \$replace, \$reverse, \$round, \$shuffle, \$sift, \$single, \$sort, \$split, \$spread, \$sqrt, \$string, \$substring, \$substringAfter, \$substringBefore, \$sum, \$toMillis, \$trim, \$type,,\$uppercase, \$zip},
-keywordstyle=\color{darkgray}\bfseries,
-ndkeywords={false, function, express, query, true}
-ndkeywordstyle=\color{darkgray}\bfseries,
+  keywords={\$abs, \$append, \$assert, \$average, \$base64decode, \$base64encode, \$boolean, \$ceil, \$contains, \$count, \$decodeUrl, \$decodeUrlComponent, \$distinct, \$each, \$encodeUrl, \$encodeUrlComponent, \$error, \$eval, \$exists, \$filter, \$floor, \$formatBase, \$formatInteger, \$formatNumber, \$fromMillis, \$join, \$keys, \$length, \$lookup, \$lowercase, \$map, \$match, \$max, \$merge, \$millis, \$min, \$not, \$now, \$number, \$pad, \$parseInteger, \$power, \$random,,\$read, \$reduce, \$replace, \$reverse, \$round, \$shuffle, \$sift, \$single, \$sort, \$split, \$spread, \$sqrt, \$string, \$substring, \$substringAfter, \$substringBefore, \$sum, \$toMillis, \$trim, \$type,,\$uppercase, \$zip},
+keywordstyle=\color{darkblue}\bfseries,            % for \bfseries to be useful for Inconsolata, you may have to download the font: https://tex.stackexchange.com/questions/145833/inconsolata-bold-on-old-ubuntu-precise-texlive
+ndkeywords={false, function, express, query, true} % You'll find it at https://www.ctan.org/tex-archive/fonts/inconsolata/
+ndkeywordstyle=\color{darkgray}\bfseries,          % https://tex.stackexchange.com/questions/7669/bfseries-is-to-textbf-as-what-is-to-textsf explains names like 'bfseries'.
 identifierstyle=\color{black},
 sensitive=false,
 morecomment=\bfseries[s]{/*}{*/},
@@ -116,14 +120,14 @@ As an interoperable exchange form, it is intended that the language can be trans
 For example, it should be possible to translate statements in the exchange form into mapping specification used by commercial mapping tools.
 %OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
-The mapping language  described (provisionally called RADmapper) borrows predominantly from the JSONata language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
-These forms include tables (e.g. Excel) XML, and networks of data such as knowledge graphs.
+RADmapper, the mapping language, borrows predominantly from the JSONata language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
+These forms include tables (e.g. Excel), XML, and networks of data such as knowledge graphs.
 The RADmapper language also addresses additional use cases, including in-place updating of target data sources, and mapping from multiple sources.
 To support networks of data, the mapping language borrows ideas from the Object Management Group's Queries, Views and Transformation relational (QVT-r)~\cite{ObjectManagementGroup2016b} mapping language, and Datalog~\cite{Abiteboul1995a}.
 
-The document describes the RADmapper language and the concept behind how it is can be transformed to an interoperable exchange form.
+The document describes the RADmapper language and the concept behind how it can be transformed to an interoperable exchange form.
 As of this writing, the canonical form of the interoperable exchange form is under development.
-A reference implementation of the RADmapper language can be found in \href{https://github.com/pdenno/RADmapper}{this GitHub repository}.
+A reference implementation of the RADmapper language can be found in the Github respository \href{https://github.com/pdenno/RADmapper}{https://github.com/pdenno/RADmapper}. % href
 The document is a draft and as of this writing (\today) is likely to be updated often.
 %Whether or not the tool is useful for transforming information in real-world settings remains to be seen;
 %we'll generate an OpenAPI Specification for the tool to test that idea.
@@ -148,12 +152,12 @@ Examples of JSONata can be found in the \href{https://jsonata.org/}{JSONata spec
 
 This example illustrates simple restructuring of a data structure.
 The example is based on a discussion on the JSONata Slack channel.
-The goal of the example is to swap the nesting of \stt{owners} and \stt{systems} as shown in Figure~\ref{data:simple-restructuring}.
+The goal of the example is to swap the nesting of \stt{owners} and \stt{systems} as shown in Figure~\ref{data:restruct}.
 
 \begin{figure}[H]
   \caption{The goal is to swap the nesting of 'owners' and 'systems' in the data on Lines 1--9
   so that it looks Lines 13--21.}
- \label{data:simple-restructuring}
+ \label{data:restruct}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
 { "systems":
    { "system1": { "owners": { "owner1": { "device1": { "id": 100, "status": "Ok" },
@@ -183,33 +187,32 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
 Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner. Instead of arrays, the developer used meaningful names as keys, "device1","device2" etc.}) this is not relevant to the discussion.
 A solution to this problem in pure JSONata is shown in Figure~\ref{code:jsonata-sTPDRs}.
 Typical of a restructuring task, the goal data on Lines 13--21 does not contradict any of the facts evident in the original data on Lines 1--9.
-For example, there is owner called owner1, and owner1 still the same devices associated.
+For example, there is owner called \stt{owner1}, and \stt{owner1} still has the same devices associated.
 The idea that mapping is about how facts are viewed is a key concept in RADmapper.
 What has changed in restructuring the example data is not a fact but the sort of forward navigation that is possible in the two structures.
-In the original structure it is possible to navigate forward from a system to an owner (such as on Line 1, from system1 to owner1).
-In the restructured data it is possible only to navigate forward from owner to system (such as owner1 to system1 on Line 14).
+In the original structure it is possible to navigate forward from a system to an owner (such as on Line 1, from \stt{system1} to \stt{owner1}).
+In the restructured data it is possible only to navigate forward from owner to system (such as \stt{owner1} to \stt{system1} on Line 14).
 
+% Note how I use escapeinside here, to replace tilde with `$\sim$'.
 \begin{figure}[H]
 \caption{Using JSONata to restructure the data.}
  \label{code:jsonata-sTPDRs}
-\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize,escapeinside=`']
 {
     "owners": $distinct(systems.*.owners.$each(function($d, $ownerName) {$ownerName}))@$o.{
-      $o: $each($$.systems, function($sys, $sysName) {{$sysName: $lookup($$.systems, $sysName).owners ~> $lookup($o)
-      }}) ~> $merge()
-    } ~> $merge()
+      $o: $each($$.systems, function($sys, $sysName) {{$sysName: $lookup($$.systems, $sysName).owners `$\sim$'> $lookup($o)
+      }}) `$\sim$'> $merge()
+    } `$\sim$'> $merge()
 }
 \end{lstlisting}
 \end{figure}
 
-Though the RADmapper solution to this problems involves more lines of code (see Figure~\ref{code:simple-restructuring} below), it is arguably easier to understand once the basics of Datalog are understood.
-The RADmapper solution is also a better candidate for \textit{interoperable} exchange of mappings, as will be discussed in subsequent sections of this document.
-
-\textbf{[Figure showing forward navigation through the data on query.]} % <========================================
+Though the RADmapper solution to this problems involves more lines of code (see Figure~\ref{code:restruct} below), it is arguably easier to understand once the basics of Datalog are understood.
+The RADmapper solution is also arguably a better candidate for \textit{interoperable} exchange of mappings, as will be discussed in subsequent sections of this document.
 
 \begin{figure}[H]
 \caption{RADmapper query and express used to restructure data.}
- \label{code:simple-restructuring}
+ \label{code:restruct}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
   (   $data := $read('data/testing/jsonata/sTPDRs--6.json');
          $q := query(){ [?s ?systemName ?x]
@@ -238,26 +241,67 @@ The RADmapper solution is also a better candidate for \textit{interoperable} exc
 \end{figure}
 
 Regarding this code, first note that the syntax, excepting of the \stt{query} and \stt{express} constructs, is valid JSONata.
-\stt{query} and \stt{express} are function-like declarations, \stt{\$reduce} on Line 14 is essentially JSONata's \stt{\$reduce}, and \stt{\$read} is a RADmapper built-in function.
-\stt{\$match} used on Lines 3, 6 and 8 is a JSONata built-in Boolean function that returns true if the first argument, a string, matches the second argument a regular expression.
-An introduction of the \stt{query} construct defined on Lines 2--10 of Figure~\ref{code:simple-restructuring} is provided in the following paragraphs with the help of Figure~\ref{fig:hairpin}.
+\stt{query} and \stt{express} are RADmapper function-like declarations, \stt{\$reduce} on Line 14 is essentially JSONata's \stt{\$reduce}, and \stt{\$read} is a RADmapper built-in function.
+\stt{\$match} used on Lines 3, 6 and 8 is a JSONata built-in Boolean function that returns true if the first argument, a string, matches the second argument, a regular expression.
+An introduction to the \stt{query} construct defined on Lines 2--10 of Figure~\ref{code:restruct} is provided in the following paragraphs with the help of Figure~\ref{fig:hairpin}.
 
 \stt{query} is used to define a Datalog-like query.
-Datalog has the query power of SQL but does queries statement-at-a-time versus SQL's entity-at-a-time.
-For example, that distinction entails that in Datalog "\stt{device1} \stt{id} is \stt{100}." and "\stt{device1} \stt{status} is \stt{Ok}." are independent statement-at-a-time assertions that happen to be about the same entity, \stt{device1}.
-In contrast, with SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary key \stt{device1} has information about both \stt{id} and \stt{status}.
+Datalog's query has the power of SQL's but does queries fact-at-a-time versus SQL's entity-at-a-time.
+That distinction entails, for example, that in Datalog the facts (1) "\stt{device1} \stt{id} is \stt{100}." and (2) "\stt{device1} \stt{status} is \stt{Ok}." are independent assertions that happen to be about the same entity, \stt{device1}.
+In contrast, SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary key \stt{device1} has information about both \stt{id} and \stt{status}.
 There are advantages and disadvantages to both Datalog and SQL.\@
-For example, it should be apparent that pulling all the information about an entity together with Datalog queries requires relational joins.
-On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in milliseconds, and adding properties (columns in SQL) does not require data migration.
+For example, it should be apparent that pulling together all the information about an entity with Datalog queries requires relational joins, one each for each fact.
+On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in milliseconds, and adding new attributes (columns in SQL) does not require data migration in Datalog.
 
 \begin{figure}[H]
-  \caption{Part (a): navigation of the source structure (Lines 1--9 of the data in Figure~\ref{data:simple-restructuring}).
-    The circled numbers refer to lines in the code of Figure~\ref{code:simple-restructuring}. Part (b): graph and triples representing device1.}\label{fig:hairpin}
-
+  \caption{Part (a): navigation of the source structure (Lines 1--9 of the data in Figure~\ref{data:restruct}).
+    Part (b): graph and triples representing device1.
+    The circled numbers refer to lines in the code of Figure~\ref{code:restruct}.}\label{fig:hairpin}
    \includegraphics[scale=0.15]{hairpin-two-part.jpg}
   \centering
 \end{figure}
 
+A Datalog database can be viewed as several index tables supporting organization of data into triples such as depicted in Figure~\ref{fig:hairpin} (b).
+Some of Lines 2--10 in Figure~\ref{code:restruct}, for example, Line 2, \stt{[?s ?systemName ?x]}, have the form of these triples, where respectively \stt{?s}, \stt{?systemName} and \stt{?x} match an entity, attribute, and value.
+(Identifiers beginning with a question mark indicates a \textit{query variable}.)
+Line 4, \stt{[?x :owners ?y]}, is similar but the attribute position is occupied by \stt{:owners}, sometimes called a role.
+This triple will match any fact that has the string \stt{"owners"} in its attribute position.
+There are two such facts in the data depicted in Figure~\ref{data:restruct}, one on Line 2, and one on Line 6.
+In both cases the value position is occupied by another entity reference.
+Figure~\ref{fig:hairpin}(b) similarly depicts a triple whose value position references another entity, \stt{[203, device1, 204]}.
+
+Lines 3, 6 and 8 of the query do not use the 3-place triple pattern; they consist of a single JSONata expression wrapped in parentheses.
+The expression should be a Boolean (should return true or false).
+ Note that the expression uses variable bindings (e.g \stt{?systemName}, \stt{?ownerName}, and \stt{?deviceName}) used in triples of the query.
+ \stt{/system\textbackslash d/} is a JavaScript regular expression matching a string containing \stt{"system"} followed by a single digit (the \stt{\textbackslash d} part).
+
+The order of the triple patterns (including the predicate ones, which aren't really triples, are they?) does not matter at all; it does not matter with respect to the execution speed nor the result produced.
+However, in order to illustrate the chaining of joins being performed, it is useful to the readers of your code to keep joined things together.
+This is illustrated by the curvy red line in Figure~\ref{fig:hairpin}(a).
+The following provides paragraph provides a line-by-line summary of how the query in Lines 2--10 works.
+
+\begin{description}
+\item[Line 2 \stt{[?s ?systemName ?x]}:] All positions of this triple pattern are occupied by variables, so by itself it would match every triple in the database. It binds \stt{?systemName} to triple attributes, however.
+\item[Line 3 \stt{[(\$match(?systemName, /system\textbackslash d/))]}:] This uses the query variable \stt{?systemName} bound to the entity position on Line 2.
+  Therefore, between this pattern and the one in Line2, the only triples matching both of these patterns have ``system1'' or ``system2'' in the attribute position. (See the data to verify this.)
+  \stt{?s} and \stt{?x} from Line 2 are thus bound to the entity and value positions of triples having either ``system1'' or ``system2'' in their attribute positions.
+\item[Line 4 \stt{[?x :owners ?y]}:] Here we see \stt{?x}, which was introduced in Line 2, reused in the entity position.
+  We know that \stt{?x} is bound to an entity by looking at the data.
+  (See Line 2 in the data for example, \stt{ ``owners'': \{\ldots}. The ``\stt{: \{}'' means the thing keyed by ``owners'' here is a JSON object (an ``entity'' in the database).
+  This triple pattern ensures that \stt{?x} refers to entities for with the "owners" occupies the attribute position.
+\item[Line 5 \stt{[?y ?ownerName ?z]}:]  Like Line 2, this is used to introduce an new variable, \stt{?ownerName} in this case, which will be used in the a \stt{\$match} predicate similar to Line 3.
+  One difference here, however, is that the value of \stt{?y} is constrained by the triple pattern on Line 4.
+\item[Line 6 \stt{[(\$match(?ownerName, /owner\textbackslash d/))]}:] This serves a similar purpose Line 3, but for owner keys.
+\item[Line 7 \stt{[?z ?deviceName ?d]}:] This is like Lines 1 and 5, introducting a new variable for use in the \stt{\$match}.
+  Like Line 5, the value of the variable in entity position is constrained by another pattern.
+\item[Line 8 \stt{[(\$match(?deviceName, /device\textbackslash d/))]}:] This is similar in purpose to the other two uses of \stt{\$match}.
+\item[Line 9 \stt{[?d :id ?id]}:] Here we are finally ready to pick up some user data, the value of a device's ``id'' attribute.
+\item[Line 10 \stt{[?d :status ?id]}:] Like Line 9, but to pick up the value of a device's ``status'' attribute.
+\end{description}  
+
+% Commented stuff belongs elsewhere.
+% As mentioned earlier, A Datalog database can be viewed as four tables supporting a collection of triples.
+%The indexes could be viewed as tables of the entity, attribute, and value entries, each with different primary keys. Thus...
 
 
 
@@ -414,38 +458,37 @@ An example usage is:\\
 where the first argument names an Excel file and the second names a sheet in that spreadsheet.
 If the table is transposed (so that all the properties are in its first column, and each row concerns a different object), a third argument with value \stt{true} can be specified to access the data in the more useful orientation.
 
-\section{Working with Data Having Complex Interrelations}
+\section{Datalog features of RADmapper} % Formerly titled "Working with Data Having Complex Interrelations."
 %[This section will introduce provisions for expressing maps to/from relational DBs, where schema are assumed.]
 
-Some situations call for more complex query and restructuring functionality than what has been illustrated above.
-Everything to this point in the discussion could be performed easily with JSONata~\cite{Jsonata.org2021}, a language for querying and restructuring JSON-like data.
-JSONata is used, for example, in the Open Integration Hub~\cite{OIH2021}, an open software platform that received its initial funding in 2017 from the German Federal Government,
-Federal Ministry for Economic Affairs and Energy. % https://www.elastic.io/pressroom/open-integration-hub-data-synchronisation/
-JSONata is also used in Node-RED~\cite{Node-Red2021}.
+%Some situations call for more complex query and restructuring functionality than what has been illustrated above.
+%Everything to this point in the discussion could be performed easily with JSONata~\cite{Jsonata.org2021}, a language for querying and restructuring JSON-like data.
+%JSONata is used, for example, in the Open Integration Hub~\cite{OIH2021}, an open software platform that received its initial funding in 2017 from the German Federal Government,
+%Federal Ministry for Economic Affairs and Energy. % https://www.elastic.io/pressroom/open-integration-hub-data-synchronisation/
+%JSONata is also used in Node-RED~\cite{Node-Red2021}.
 
+% ToDo: This really belongs elsewhere.
+
+RADmapper provides a superset of the functionality of JSONata, but more importantly, it supports a second paradigm for navigating data and some very different usage scenarios.
 The JSONata viewpoint could be described as one where a tree (or equivalently, a JSON object) is navigated from the root.
 Decades of experience, dating back to the early days of EDI, has shown that tree-based organization such as JSON objects is a quite reasonable choice where the communication of document-like information (e.g. ``messaging'') is needed.
-The point of an interoperable exchange form such as RADmapper\footnote{RADmapper is my shot at a name. RAD=rapid application development. Suggest a name!}, however, includes additional requirements.
+The point of an interoperable exchange form such as RADmapper, however, includes additional requirements.
 Among these is the ability to describe relationships to and from data possessing complex interrelationship, for example, data described by a relational schema or knowledge graph.
 To argue that APIs to the back-end system already do this work is to miss the point:
-we are not trying to replace a back-end system function, but to describe the relationships in ways that help business analysts, programmers, and machine agents.\footnote{Likewise we are going to try to address
-  situations where there are multiple sources. There are tools to do this already, but again, we are trying to describe the relationships, not replace existing software.}
+we are not trying to replace a back-end system function, but to describe the relationships in ways that help business analysts, programmers, and machine agents.
+RADmapper, and particularly its \textit{AST strategy} described in Section~\ref{NYI} is targeted towards new integration scenarios that involve higher levels of automation and joint (human/AI) cognitive work.
 
-%========================================================
-%  Picture here of navigating a tree versus jumping around to find things in a network.
-%========================================================
-
-To illustrate the challenge of using a JSONata-like engine for data having complex interrelations, suppose, for example\ldots. [Discussion of the OWL example]
+% To illustrate the challenge of using a JSONata-like engine for data having complex interrelations, suppose, for example\ldots. [Discussion of the OWL example]
 
 \subsection{Data Organized as Triples}
-Relational and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity identifier, $y$ is data (string, number, object, array, another entity identifier, etc.)\footnote{What  additional atomic data
-  types shall we provide? Dates? URIs? UUIDs? etc.}~\footnote{Triples provide 5th-normal form relational data. Recomposing a concept from 5-th normal form typically requires as many joins as
-  there are attributes to recompose.
-  The upside of using triples are that
-  (1) substantial amounts of data are already in triples (e.g. RDF etc.),
-  (2) some query engines helpfully index triples in multiple ways entity-attribute-value, attribute-entity-value, and attribute-value-entity, and
-  (3) mapping engines can use triples effectively.
-  The challenge in using triples with this language is in preserving the abstraction of a functional pipeline owed to JSONata-like language features.}
+Relational and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity identifier, $y$ is data (string, number, object, array, another entity identifier, etc.)%\footnote{What  additional atomic data
+%  types shall we provide? Dates? URIs? UUIDs? etc.}%~\footnote{Triples provide 5th-normal form relational data. Recomposing a concept from 5-th normal form typically requires as many joins as
+%  there are attributes to recompose.
+%  The upside of using triples are that
+%  (1) substantial amounts of data are already in triples (e.g. RDF etc.),
+%  (2) some query engines helpfully index triples in multiple ways entity-attribute-value, attribute-entity-value, and attribute-value-entity, and
+%  (3) mapping engines can use triples effectively.
+%  The challenge in using triples with this language is in preserving the abstraction of a functional pipeline owed to JSONata-like language features.}
 and $rel$ is a relationship (predicate) holding between $x$ and $y$.
 The graph-based viewpoint on such data is that $x$ and $y$ are vertices, and $rel$ is an edge.
 $rel$ might be implemented as a string.
@@ -453,7 +496,8 @@ Thus, the translation of structured data such as JSON objects into such triples 
 \begin{enumerate}
 \item A unique entity identifier is associated with each object; this identifier serves as the first element of triples about that object.
       In JSON, for example, an object is a collection of name-value pairs delimited by curly brackets.
-\item Each object attribute is represented by the string naming it\footnote{I suppose we'll only support strings, though namespaced symbols would be nice!}; these supply the second element of the triple, the $rel$.
+    \item Each object attribute is represented by the string naming it;%\footnote{I suppose we'll only support strings, though namespaced symbols would be nice!}
+      these supply the second element of the triple, the $rel$.
 \item The third element of the triple provides an atomic datum (string, number, entity identifier, etc.) associated with the subject attribute of the subject object.
 \end{enumerate}
 
@@ -579,8 +623,8 @@ For example:
 
 \begin{lstlisting}[language=JavaScript]
  $.query([?e "name" "Bob"]
-          [?e "phoneNumberObjs" ?pn]
-          [?pn "cell" ?cellNum])
+         [?e "phoneNumberObjs" ?pn]
+         [?pn "cell" ?cellNum])
 \end{lstlisting}
 
 returns \stt{[\{?e: 13, ?pn: 14, ?cellNum: "123-456-1111"\}]} when \stt{\$} is the data of Figure~\ref{code:bob-phone}.
@@ -588,8 +632,8 @@ The example below illustrates the use of an optional parameter \stt{\$name}:
 
 \begin{lstlisting}[language=JavaScript]
  queryCellByName := query($name)([?e "name" $name]
-                                   [?e "phoneNumberObjs" ?pn]
-                                   [?pn "cell" ?cellNum])
+                                 [?e "phoneNumberObjs" ?pn]
+                                 [?pn "cell" ?cellNum])
 \end{lstlisting}
 
 Using the same data, \stt{\$.queryCellByName("Bob")} would return the same result as the previous query, where "Bob" is hard-coded.
