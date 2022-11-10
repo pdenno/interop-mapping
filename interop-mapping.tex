@@ -168,7 +168,7 @@ Similarly, \stt{\$myQuery := query()\{[\$DB1 ?person :age 42]\}} defines a query
 However, unlike ordinary functions, the body here consists of one or more \textit{patterns} such as the pattern  \stt[\$DB1 ?person :age 42] shown. 
 We'll start by talking about the argument to the query, for example, the value assigned to \stt{\$MyDB} in the expression \stt{\$myQuery(\$MyDB)} then get back to talking about the patterns. 
 
-Relational (table-based) and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity identifier, $y$ is data (string, number, object, array, another entity identifier, etc.) and $rel$ is a relationship (predicate) holding between $x$ and $y$.
+Relational (table-based) and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity reference, $y$ is data (string, number, entity reference, etc.) and $rel$ is a relationship (predicate) holding between $x$ and $y$.
 For example, in syntax similar to JSON we could describe the fact that Bob's age is 42 with an object \stt{\{'name' : 'Bob', 'age' : 42\}}.
 As triples, we represent Bob being 42 years old with two triples, for example, \stt{[152 'name' 'Bob']} and \stt{[152 'age' 42]}.
 As a graph, this would look like the following:
@@ -250,13 +250,13 @@ some data against a same-valued (but possibly differently named) value in other 
                             [$DB2 ?e2 :id  ?id]}
 \end{lstlisting}
 
-
 You have probably noticed that the query above, and one used earlier have four element in their pattern whereas most of the examples have only three.
 If four elements are provided the first is the database to search against.
 This provides a segue to a broader discussion of mapping from multiple sources.
+% Move this after the match
 Very little of what has been presented so far is a novel invention of RADmapper;
-these are ordinary features of Datalog, a language which was studied extensively in the 1980s \cite{Abiteboul1995a}.
-and an influence on languages such as SPARQL and the Shapes Constraint Language (SHACL).
+these are ordinary features of Datalog, a language which was studied extensively in the 1980s \cite{Abiteboul1995a}
+and has influence languages such as SPARQL and the Shapes Constraint Language (SHACL).
 After discussion of mapping from multiple sources we'll discuss the higher-order version of \stt{query} and the uses of \stt{express}. 
 
 \subsection{Matching against multiple sources}
