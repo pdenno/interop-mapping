@@ -164,7 +164,7 @@ The principal concepts to discuss are
 
 \subsection{Data Organized as Triples and the query Construct}
 
-\stt{query} is the principal construct of RADmapper that provide Datalog-like functionality to the language.
+\stt{query} is the principal construct of RADmapper providing Datalog-like functionality to the language.
 \stt{query} declarations are used like JSONata or Javascript function declaration in the sense that the value of the declaration (a function) can be assigned to variables and used directly.
 For example,
 \begin{lstlisting}[language=JavaScript,numbers=none,basicstyle=\ttfamily\scriptsize]
@@ -187,7 +187,7 @@ As triples, we represent Bob being 42 years old with two triples, for example, \
 As a graph, this would look like the following:
 
 \begin{figure}[H]
-  \caption{Information about Bob in a graph form}
+  \caption{Information about Bob in graph form}
   \label{fig:bob-as-a-graph}
      \includegraphics[scale=0.15]{bob-age-42.jpg}
   \centering
@@ -227,7 +227,7 @@ binding object for each of them.
 Amazing as that query might seem, running against a database with one entity in it and all, it didn't tell us what person is age 42.
 All we got was a binding set for every entity that has an age attribute equal to 42.
 Entity IDs are internal to the database and not of much value to RADmapper users.\footnote{In fact, I sort of told a fib for ease of exposition; by default the binding of variables in the entity position, entity IDs, aren't provided in a binding object.
-  Using default settings  what this example returns is \stt{[\{\}]} meaning ``one match was found.''
+  Using default settings, what this example returns is \stt{[\{\}]} meaning ``one match was found.''
 The binding sets depicted in most examples won't include bindings for entity IDs.}
 In order to make any use of this information, we need to join the \stt{[?e :age 42]} pattern with a pattern that grabs the name attribute in the data, \stt{[?e :name ?name]}.
 This is shown in Figure~\ref{code:bob-age-more} below.
@@ -243,7 +243,7 @@ This is shown in Figure~\ref{code:bob-age-more} below.
 \end{lstlisting}
 \end{figure} \vspace{-2em}
 
-Line 3, by virtue of its use of \stt{?e} again imposes an additional constraint on the graph match: the entity bound to \stt{?e} must have a \stt{:name} attribute.
+The pattern on Line 3, by virtue of its use of \stt{?e} again imposes an additional constraint on the graph match: the entity bound to \stt{?e} must have a \stt{:name} attribute.
 The value of the name attribute is bound to \stt{?name}.
 Thus each element in the binding set will bind two variable, \stt{?e} and \stt{?name}.
 The binding set for the database in the graph depicted in Figure~\ref{fig:bob-as-a-graph} is \stt{[\{?e : 152, ?name 'Bob'\}]}.
@@ -355,7 +355,7 @@ The binding set assigned to \stt{\$bSet} is
  {?id : "alice@alice.org", ?name : "Alice", ?aData : "Alice-A-data", ?bData : "Alice-B-data"}].
 \end{lstlisting} \vspace{-2em}
 
-Assuming that we'd just like to present the target data as nested objects indexed customer by email address:
+Assuming that we'd just like to present the target data as nested objects indexed by the customer's email address, for example:
 
 \begin{lstlisting}[language=JavaScript,numbers=none,basicstyle=\ttfamily\scriptsize]
 {"alice@alice.org" {"name"  : "Alice",
@@ -367,7 +367,7 @@ Assuming that we'd just like to present the target data as nested objects indexe
                     "bData" : "Bob-B-data"   }}
 \end{lstlisting} \vspace{-2em}
 
-\hspace{-2em} we could use the \stt{express} declaration that begins on Line 14 of Figure~\ref{code:two-database-query-express}.
+\hspace{-2em} we could use the \stt{express} declaration that begins on Line 14 of Figure~\ref{code:two-database-query-express} to do this.
 
 \begin{figure}[H]
     \caption{A query that looks into two databases}
@@ -396,16 +396,16 @@ Assuming that we'd just like to present the target data as nested objects indexe
 
 \stt{express} is a function-defining construct that, like \stt{query}, is capable of returning express functions when supplied with parameters.
 In that sense it is capable of being a higher-order function.
-But here on Line 14 we aren't using parameter; the declaration is simply \stt{express()\{...\}}; no parameters imply it isn't a template.
-The body of the \stt{express} declaration, inside the outer curly brackets, defines the pattern of JSONata-like object structure.
+But here on Line 14 we aren't using parameter; the declaration is simply \stt{express()\{...\}}; no parameters imply it isn't a template and can be used directly.
+The body of the \stt{express} declaration, the text inside the outer curly brackets, defines the pattern of JSONata-like object structure.
 The target data is produced by iterating over the express function bound to \stt{\$eFn} using the elements of the binding set.
 Two of the most common ways to iterate over a function in functional languages such as JSONata and RADmapper are map and reduce.
-Map and reduce differ in how they process the collection of arguments;
+Map and reduce differ in how they process the collection of arguments:
 map applies a given function to each element independently;
 reduce ``summarizes'' results by allowing each element to affect a summary outcome.\footnote{Examples to help you recall how these work:
   \\ \stt{\$map([1,2,3,4], function(\$x)\{\$x * 2\})} returns [2,4,6,8]; it multiplies each argument by 2.
-  \\ \stt{\$reduce([1,2,3,4], function(\$x, \$y)\{\$x + \$y\})} returns 10; it applies \stt{+} to 1 and 2, then to that sum and 3,
-  then to that sum and 4.}
+  \\ \stt{\$reduce([1,2,3,4], function(\$x, \$y)\{\$x + \$y\})} returns 10; it applies \stt{+} to 1 and 2, then to 3 and that sum,
+  then to 4 and that sum.}
 Whether you \stt{\$map} or \stt{\$reduce} the \stt{express} function over the binding set can have great influence on the outcome, as will be demonstrated in subsequent examples.
 As written above, the call to \stt{\$reduce} on Line 18 creates a nested structure for the first binding element and then inserts a second structure into it at the second \stt{?id} key, as shown above.
 Were Line 18 replaces with \stt{\$map(\$bSet, \$eFn)}, the result would be two indepenent nested maps:
@@ -417,8 +417,8 @@ Were Line 18 replaces with \stt{\$map(\$bSet, \$eFn)}, the result would be two i
 
 \subsection{Predicate patterns and an example from a different perspective}
 
-This example illustrates simple restructuring of a data structure, use of predicates as query patterns, and extensive joining
-to navigate deeply nested structures.
+This example illustrates (1) simple restructuring of a data structure, (2) use of predicates as query patterns, (3) extensive joining
+to navigate deeply nested structures, and (4) use of query variable in the attribute position of patterns.
 The example is based on a discussion on the JSONata Slack channel.
 The goal of the example is to swap the nesting of \stt{owners} and \stt{systems} as shown in Figure~\ref{data:restruct}.
 
@@ -455,7 +455,7 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
 Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner, but instead of arrays, the developer used meaningful names as keys, "device1","device2" etc. Perhaps these structures only seems unusual if your perspective is objects indexed by named fields, as is typical in messaging structures.}) this is not relevant to the discussion.
 A solution to this problem in pure JSONata is shown in Figure~\ref{code:jsonata-sTPDRs}.
 Typical of a restructuring task, the goal data on Lines 13--21 does not contradict any of the facts evident in the original data on Lines 1--9.
-For example, there is owner called \stt{owner1}, and \stt{owner1} still has the same devices associated.
+For example, there is an owner called \stt{owner1}, and \stt{owner1} still has the same devices associated.
 The idea that mapping is about how facts are viewed is a key concept in RADmapper.
 What has changed in restructuring the example data is not a fact but the sort of forward navigation that is possible in the two structures.
 In the original structure, it is possible to navigate forward from a system to an owner (such as on Line 1, from \stt{system1} to \stt{owner1}).
@@ -514,15 +514,8 @@ Where this example differs from earlier ones is the use of \stt{\$match} on Line
 Instead of the usual 3- or 4-place pattern, we have a single \textit{predicate} that is being applied using query variables from other patterns in the query.
 \stt{\$match} is a JSONata built-in Boolean function that returns true if the first argument, a string, matches the second argument, a regular expression.
 %An introduction to the \stt{query} construct defined on Lines 2--10 of Figure~\ref{code:restruct} is provided in the following paragraphs with the help of Figure~\ref{fig:hairpin}.
-This example is also the first to use extensive joins in a ``hairpin'' pattern, as depicted in \ref{fig:hairpin}.
-
-% ToDo: This could go elsewhere
-%%\stt{query} has the power of SQL's  query but does operates fact-at-a-time versus SQL's entity-at-a-time.
-%%That distinction entails, for example, that in Datalog the facts (1) "\stt{device1} \stt{id} is \stt{100}." and (2) "\stt{device1} %%\stt{status} is \stt{Ok}." are independent assertions that happen to be about the same entity, \stt{device1}.
-%%In contrast, SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary key \stt{device1} has %%information about both \stt{id} and \stt{status}.
-%%There are advantages and disadvantages to both Datalog and SQL.\@
-%%For example, it should be apparent that pulling together all the information about an entity with Datalog queries requires relational joins, %%one each for each fact.
-%%On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in milliseconds, and adding new %%attributes (columns in SQL) does not require data migration in Datalog.
+This example is also the first to use extensive joins to navigate into deeply nested objects.
+A ``hairpin'' pattern of joined variables is depicted in Figure~\ref{fig:hairpin} and reflected in Lines 2--10 of Figure~\ref{code:restruct}.
 
 \begin{figure}[H]
   \caption{Part (a): navigation of the source structure (Lines 1--9 of the data in Figure~\ref{data:restruct}).
@@ -530,12 +523,11 @@ This example is also the first to use extensive joins in a ``hairpin'' pattern, 
     The circled numbers refer to lines in the code of Figure~\ref{code:restruct}.}\label{fig:hairpin}
    \includegraphics[scale=0.15]{hairpin-two-part.jpg}
   \centering
-\end{figure} \vspace{-2em}
+\end{figure}
 
 A Datalog database can be viewed as several index tables supporting organization of data into triples such as depicted in Figure~\ref{fig:hairpin} (b).
 Some of Lines 2--10 in Figure~\ref{code:restruct}, for example, Line 2, \stt{[?s ?systemName ?x]}, have the form of these triples, where respectively \stt{?s}, \stt{?systemName} and \stt{?x} match an entity, attribute, and value.
-(Identifiers beginning with a question mark indicates a \textit{query variable}.)
-Line 4, \stt{[?x :owners ?y]}, is similar but the attribute position is occupied by \stt{:owners}, sometimes called a role.
+Line 4, \stt{[?x :owners ?y]}, is similar but the attribute position is occupied by \stt{:owners}.
 This triple will match any fact that has the string \stt{"owners"} in its attribute position.
 There are two such facts in the data depicted in Figure~\ref{data:restruct}, one on Line 2, and one on Line 6.
 In both cases the value position is occupied by another entity reference.
@@ -545,10 +537,6 @@ Lines 3, 6 and 8 of the query do not use the 3-place triple pattern; they consis
 The expression should be a Boolean (should return true or false).
  Note that the expression uses variable bindings (e.g \stt{?systemName}, \stt{?ownerName}, and \stt{?deviceName}) used in triples of the query.
  \stt{/system\textbackslash d/} is a JavaScript regular expression matching a string containing \stt{"system"} followed by a single digit (the \stt{\textbackslash d} part).
-
-The order of the triple patterns (including the predicate ones, which aren't really triples, are they?) does not matter at all; it does not matter with respect to the execution speed nor the result produced.
-However, in order to illustrate the chaining of joins being performed, it is useful to the readers of your code to keep joined things together.
-This is illustrated by the curvy red line in Figure~\ref{fig:hairpin}(a).
 The following provides paragraph provides a line-by-line summary of how the query in Lines 2--10 works.
 
 \begin{description}
@@ -578,8 +566,18 @@ The following provides paragraph provides a line-by-line summary of how the quer
 
 \subsection{Section Summary}
 
-RADmapper's query facility is based on Datalog, a language which was studied extensively in the 1980s \cite{Abiteboul1995a}
-and has influence languages such as SPARQL and the Shapes Constraint Language (SHACL).
+RADmapper's \stt{query} is based on Datalog, a language which was studied extensively in the 1980s \cite{Abiteboul1995a}
+and has influenced languages such as SPARQL and the Shapes Constraint Language (SHACL) \cite{?}.
+\stt{query} has the power of SQL's  query but does operates fact-at-a-time versus SQL's entity-at-a-time.
+That distinction entails, for example concerning the previous example, that in Datalog the facts (1) "\stt{device1} \stt{id} is \stt{100}." and (2) "\stt{device1} \stt{status} is \stt{Ok}." are independent assertions that happen to be about the same entity, \stt{device1}.
+In contrast, SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary key \stt{device1} has information about both \stt{id} and \stt{status}.
+There are advantages and disadvantages to both Datalog and SQL.\@
+For example, it should be apparent that pulling together all the information about an entity with Datalog queries requires relational joins, one each for each fact.
+On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in milliseconds, and adding new attributes (columns in SQL) does not require data migration in Datalog.
+
+The order of the patterns in a \stt{query} statement does not matter at all; it does not matter with respect to the execution speed nor the result produced.
+However, in order to illustrate the chaining of joins being performed, it is useful to the readers of your code to keep joined things together.
+This is illustrated, for example, by the curvy red line in Figure~\ref{fig:hairpin}(a).
 
 
 %\footnote{What  additional atomic data
