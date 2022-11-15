@@ -118,7 +118,7 @@ morestring=[b]"
 \section{Introduction}
 This document describes a data mapping language designed to serve as an \textit{interoperable exchange form} for expressing the intent of many mapping and data restructuring needs.
 As an interoperable exchange form, it is intended that the language can be translated (by humans and machine agents) into mapping specification in other languages.
-For example, it should be possible to translate statements in the exchange form into mapping specification used by commercial mapping tools.
+For example, it should be possible to translate statements in the exchange form into mapping specifications used by commercial mapping tools.
 %OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
 RADmapper, the mapping language, borrows predominantly from the JSONata language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
@@ -250,7 +250,7 @@ The binding set for the database in the graph depicted in Figure~\ref{fig:bob-as
 
 In this example, we used one variable to match on the entity and another to capture a value, however each position (entity, attribute, and value) can take a variable.
 Further, you can use variables in more than one of those positions.
-For example, \stt{query()\{[?entity ?attr ?val]\}} is a query that matches on every entity attribute and value of the database; it represents every edge of the database's graph.
+For example, \stt{query()\{[?entity ?attr ?val]\}} is a query that matches on every entity, attribute, and value of the database; it represents every edge of the database's graph.
 \stt{query\{[\_ ?attr \_]\}} would return the names of all the attributes in the database (without duplicates). % ToDo: Fix this in the code!
 This provides a kind of introspection that is typically more difficult to obtain in other database technology.
 When matching the value position you are doing a relational join, for example, we might match the social security number (SSN) in
@@ -263,7 +263,7 @@ For example,
                             [$DB2 ?e2 :id  ?id]}
 \end{lstlisting} \vspace{-2em}
 
-You may have noticed that the query above, and one used earlier have four elements in their pattern whereas most of the examples have only three (entity, attribute and value).
+You may have noticed that the query above, and one used earlier have four elements in their pattern whereas most of the examples have only three (entity, attribute, and value).
 If four elements are provided, the first is the database to which the pattern is applied.
 If there is only one database being queried, as we've been doing earlier, you don't need to use four-place patterns.
 Let's look at a complete \stt{query} example that uses two databases.
@@ -288,7 +288,7 @@ Let's look at a complete \stt{query} example that uses two databases.
   \end{figure} \vspace{-2em}
 
   In Figure~\ref{code:two-database-query} Lines 1--4 we define two small databases and assign them to variables \stt{\$DBa} and \stt{\$DBb} respectively. On Lines 6--10 we define the query.
-Since both databases use email addresses for the \stt{id} attribute, we can use that attribute to join together information about a customer from the two databases.
+Since both databases use email addresses for customer identification, we can use the \stt{:email} and \stt{:id} attributes to join together information about a customer from the two databases.
 That is the purpose of the patterns on Lines 6 and 7; the two patterns use different values for the entities, \stt{?e1} and \stt{?e2}
 because the information is coming from different databases and we don't control entity IDs, but both use \stt{?id} to force
 matches on email address.
@@ -370,7 +370,7 @@ Assuming that we'd just like to present the target data as nested objects indexe
 \hspace{-2em} we could use the \stt{express} declaration that begins on Line 14 of Figure~\ref{code:two-database-query-express} to do this.
 
 \begin{figure}[H]
-    \caption{A query that looks into two databases}
+    \caption{Using express with a query that looks into two databases}
     \label{code:two-database-query-express}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 ( $DBa := [{'email' : 'bob@example.com', 'aAttr' : 'Bob-A-data',   'name' : 'Bob'},
@@ -408,7 +408,7 @@ reduce ``summarizes'' results by allowing each element to affect a summary outco
   then to 4 and that sum.}
 Whether you \stt{\$map} or \stt{\$reduce} the \stt{express} function over the binding set can have great influence on the outcome, as will be demonstrated in subsequent examples.
 As written above, the call to \stt{\$reduce} on Line 18 creates a nested structure for the first binding element and then inserts a second structure into it at the second \stt{?id} key, as shown above.
-Were Line 18 replaces with \stt{\$map(\$bSet, \$eFn)}, the result would be two indepenent nested maps:
+Were Line 18 replaced with \stt{\$map(\$bSet, \$eFn)}, the result would be two independent nested maps:
 
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numbers=none]
 [{"bob@example.com" : {"name" : "Bob",   "aData" : "Bob-A-data",  "bData" : "Bob-B-data"  }},
@@ -452,7 +452,7 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
 \end{lstlisting}
 \end{figure}
 
-Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner, but instead of arrays, the developer used meaningful names as keys, "device1","device2" etc. Perhaps these structures only seems unusual if your perspective is objects indexed by named fields, as is typical in messaging structures.}) this is not relevant to the discussion.
+Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner, but instead of arrays, the developer used meaningful names as keys, "device1","device2" etc. Perhaps these structures only seems unusual if your perspective involves the object/attribute/value patterns that are typical of messaging structures.}) this is not relevant to the discussion.
 A solution to this problem in pure JSONata is shown in Figure~\ref{code:jsonata-sTPDRs}.
 Typical of a restructuring task, the goal data on Lines 13--21 does not contradict any of the facts evident in the original data on Lines 1--9.
 For example, there is an owner called \stt{owner1}, and \stt{owner1} still has the same devices associated.
@@ -525,7 +525,8 @@ A ``hairpin'' pattern of joined variables is depicted in Figure~\ref{fig:hairpin
   \centering
 \end{figure}
 
-A Datalog database can be viewed as several index tables supporting organization of data into triples such as depicted in Figure~\ref{fig:hairpin} (b).
+A Datalog database can be viewed as several index tables about the triples (such as those depicted in Figure~\ref{fig:hairpin} (b).)
+One such index table will index primarily by entity, another primarily by attribute, etc.
 Some of Lines 2--10 in Figure~\ref{code:restruct}, for example, Line 2, \stt{[?s ?systemName ?x]}, have the form of these triples, where respectively \stt{?s}, \stt{?systemName} and \stt{?x} match an entity, attribute, and value.
 Line 4, \stt{[?x :owners ?y]}, is similar but the attribute position is occupied by \stt{:owners}.
 This triple will match any fact that has the string \stt{"owners"} in its attribute position.
@@ -537,10 +538,10 @@ Lines 3, 6 and 8 of the query do not use the 3-place triple pattern; they consis
 The expression should be a Boolean (should return true or false).
  Note that the expression uses variable bindings (e.g \stt{?systemName}, \stt{?ownerName}, and \stt{?deviceName}) used in triples of the query.
  \stt{/system\textbackslash d/} is a JavaScript regular expression matching a string containing \stt{"system"} followed by a single digit (the \stt{\textbackslash d} part).
-The following provides paragraph provides a line-by-line summary of how the query in Lines 2--10 works.
+The following paragraph provides a line-by-line summary of how the query in Lines 2--10 works.
 
 \begin{description}
-\item[Line 2 \stt{[?s ?systemName ?x]}:] All positions of this triple pattern are occupied by variables, so by itself it would match every triple in the database. It binds \stt{?systemName} to triple attributes, however.
+\item[Line 2 \stt{[?s ?systemName ?x]}:] All positions of this triple pattern are occupied by variables, so by itself it would match every triple in the database.
 \item[Line 3 \stt{[(\$match(?systemName, /system\textbackslash d/))]}:] This uses the query variable \stt{?systemName} bound to the entity position on Line 2.
   Therefore, between this pattern and the one in Line2, the only triples matching both of these patterns have ``system1'' or ``system2'' in the attribute position. (See the data to verify this.)
   \stt{?s} and \stt{?x} from Line 2 are thus bound to the entity and value positions of triples having either ``system1'' or ``system2'' in their attribute positions.
@@ -558,13 +559,31 @@ The following provides paragraph provides a line-by-line summary of how the quer
 \item[Line 10 \stt{[?d :status ?id]}:] Like Line 9, but to pick up the value of a device's ``status'' attribute.
 \end{description}
 
-\textbf{[Next discuss use of key() to create more conventional output.]}
+\textbf{[Discuss use of key() to create more conventional output.
+Then discuss the idea of playing with challenging problems in the exerciser, starting with simple queries, and getting bsets
+before reformatting with express. (Compares favorably to JSONata.)
+Use this to segue to a discussion of using an exerciser to validate mapping requirements,
+then using the AST strategy to map to other forms (e.g. to validate with stakeholders, map to a commercial mapping language,
+  joint cognitive work, etc.]}
 
 \subsection{Don't bother to read past here.}
 
 \subsection{Interoperability?}
 
-\subsection{Section Summary}
+\textbf{[Discuss simple examples of using ASTs and mapping to "mapping tables". 90 percent of use cases don't need this.]}
+
+% Standards encode industry consensus on best practice.
+% It would be presumptuous of us to suggest that we've captured the essence of the vaguely defined task sometimes referred to as "mapping", or "data "restructuring" -- much less industry consensus on the best practice for it.
+% The usual methods of promulgating standardization through a domain-specific language might not work here.
+% Nonetheless, we might be able to chip away at the walls of task and discipline isolation through other means.
+% We suggest that these other means entail using the RADmapper language as describe above to do requirements engineering,
+% and then mapping the expression of the requirements to other forms.
+% THIS NEEDS WORK!
+% One challenge to doing this that by using the RADmapper syntax we've locked the requirements in a domain-specific programming language
+% that possess the sort of concision that appeals to programmers; RADmapper syntax is more a language for requirements validation
+% than it is for expression of requirements.
+
+\subsection{Section Summary and Additional Thoughts}
 
 RADmapper's \stt{query} is based on Datalog, a language which was studied extensively in the 1980s \cite{Abiteboul1995a}
 and has influenced languages such as SPARQL and the Shapes Constraint Language (SHACL) \cite{?}.
