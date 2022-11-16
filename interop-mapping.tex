@@ -121,17 +121,17 @@ As an interoperable exchange form, it is intended that the language can be trans
 For example, it should be possible to translate statements in the exchange form into mapping specifications used by commercial mapping tools.
 %OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
-RADmapper, the mapping language, borrows predominantly from the JSONata language~\cite{Jsonata.org2021}, but also includes provisions for mapping to/from forms other than JSON.\@
-These forms include tables (e.g. Excel), XML, and networks of data such as knowledge graphs.
-The RADmapper language also addresses additional use cases, including in-place updating of target data sources, and mapping from multiple sources.
-To support networks of data, the mapping language borrows ideas from the Object Management Group's Queries, Views and Transformation relational (QVT-r)~\cite{ObjectManagementGroup2016b} mapping language, and Datalog~\cite{Abiteboul1995a}.
+RADmapper, the mapping language, integrates JSONata expression language~\cite{Jsonata.org2021} with Datalog~\cite{Abiteboul1995a} capabilities. It currently supports mapping to/from JSON, XML, tables (e.g. Excel), and knowledge graphs (RDF).
+Use cases for the RADmapper language including in-place updating of target data sources, and mapping from multiple sources.
 
-The document describes the RADmapper language and the concept behind how it can be transformed to an interoperable exchange form.
-As of this writing, the canonical form of the interoperable exchange form is under development.
+%The document describes the RADmapper language and its strategy for serving as an interoperable exchange form mapping specifications.
+As of this writing, a strategy for interoperable exchange of mapping specifications is under development. % ; these are discussed.
+There is also on-going exploratory work for RADmapper to support streaming data.
+These two topic are currently not discussed.
 The reference implementation of the RADmapper language can be found in the Github repository \href{https://github.com/pdenno/RADmapper}{https://github.com/pdenno/RADmapper}.
 An web-based ``exerciser'' tool to explore the language is available as a Docker container
 \href{https://hub.docker.com/r/podenno/rm-exerciser}{https://hub.docker.com/r/podenno/rm-exerciser}.
-The document is a draft and as of this writing (\today) is likely to be updated often, as will the software.
+The document is a draft and, as of this writing (\today), is likely to be updated often, as will the language implementation and exerciser.
 %Whether or not the tool is useful for transforming information in real-world settings remains to be seen;
 %we'll generate an OpenAPI Specification for the tool to test that idea.
 
@@ -150,14 +150,14 @@ The document is a draft and as of this writing (\today) is likely to be updated 
 This section uses examples to describe the basic features of the RADmapper language.
 RADmapper provides the complete expression language and all the built-in functions of JSONata.
 Examples of JSONata can be found in the \href{https://jsonata.org/}{JSONata specification}.
-This document only goes into detail about the capabilities of RADmapper not found in JSONata.
+This section only goes into detail about the capabilities of RADmapper not found in JSONata.
 The principal concepts to discuss are
 
 \begin{itemize}
   \item{the relational and graph forms of data,}
   \item{RADmapper's \stt{query} declaration, used to query relational data,}
   \item{RADmapper's \stt{express} declaration, used to reorganize (``map'') data from its original form to the form in which it is needed, and}
-  \item{RADmapper's strategy for interoperability.}
+  \item{RADmapper's strategy for interoperability. [Not yet!]}
 \end{itemize}
 
 %  The original form of data is called a \textit{source} form; the needed form is called the \textit{target} form.
@@ -178,7 +178,7 @@ $myQuery := query(){[$DB1 ?person :age 42]}
 \end{lstlisting} \vspace{-2em}
 defines a query that can be used like a function.
 \stt{\$myQuery(\$myDB)} is a call to the function with whatever ``database'' is assigned to \stt{\$myDB}.
-However, unlike ordinary functions, the body here consists of one or more \textit{Datalog patterns} such as the pattern \stt{[\$DB1 ?person :age 42]} shown.
+However, unlike ordinary functions, the body of a \stt{query} consists of one or more \textit{Datalog patterns} such as the pattern \stt{[\$DB1 ?person :age 42]} shown.
 We'll start by talking about the database argument to the query, for example, the value assigned to \stt{\$MyDB} in the expression \stt{\$myQuery(\$MyDB)} then get back to talking about the patterns.
 
 Relational (table-based) and graph-based data can be described by triples $[x,rel,y]$ where $x$ is an entity reference, $y$ is data (string, number, entity reference, etc.) and $rel$ is a relationship (predicate) holding between $x$ and $y$.
@@ -197,9 +197,9 @@ You might wonder where the 152 in the triples came from, or for that matter, why
 simply be represented by the single triple \stt{['Bob' 'age' 42]}.
 The answer is that you could represent this fact with that one triple, but in doing so you are using \stt{'Bob'} as a key
 which might not be that good if your database has more than one Bob in it.
-So instead, to prepare for the more general case, Datalog-like databases use unique integers to refer to entities.
+So instead, to prepare for the more general case, Datalog-like graph databases use unique integers to refer to entities.
 152 here is like a primary key in relational DB, or an IRI for a particular entity defined in RDF.
-A complete RADmapper program for querying the database for people age 42 is as follows:
+A complete RADmapper program for querying the Bob database for people age 42 is as follows:
 
 \begin{figure}[H]
   \caption{A complete query}
@@ -214,17 +214,17 @@ A complete RADmapper program for querying the database for people age 42 is as f
 The above needs some explanation.
 On Line 1 we put a JSON-like object in an Javascript-like array by wrapping it in square brackets; this is the literal form of a very small database.
 On Line 2 we defined the query function; here note the use of a \textit{query variable} \stt{?e}.
-Also note that whereas we used the string \stt{'age'} for the relation, we used \stt{:age}, syntax we call a \textit{role}, to represent that same relation in the pattern.
+Also note that whereas we used the string \stt{'age'} for the relation, we used \stt{:age} --- syntax we call a \textit{role} --- to represent that same relation in the pattern.
 On Line 3 we apply the query function \stt{\$ageQuery} to the database \stt{\$myDB} defined on Line 1.
 Of course, \stt{\$myDB} isn't much of a database; it contains only the data shown in Figure~\ref{fig:bob-as-a-graph}.
 Alternatively, you could have defined data through other means, such as reference to a file or a GraphQL query.
 The result of this query, assigned to \stt{\$result} is a \textit{binding set}, a set of objects each describing a consistent binding of the search pattern's variables to values from the database.
 In this example, with the data in Figure~\ref{fig:bob-as-a-graph}, the binding set consists of just one binding element and it binds one variable; the binding set is \stt{[\{?e : 152\}]}.
 This indicates that the entity indexed at 152 has an attribute \stt{:age} with value 42.
-If there were more such values entities in the database, the query would have returned one such \stt{\{?e : <whatever>\}}
+If there were more entities in the database possessing an \stt{:age} attribute, the query would have returned one such \stt{\{?e : <whatever>\}}
 binding object for each of them.
 
-Amazing as that query might seem, running against a database with one entity in it and all, it didn't tell us what person is age 42.
+Amazing as that query might seem, running against a database with one entity in it and all, it didn't tell us \textit{what person} is age 42.
 All we got was a binding set for every entity that has an age attribute equal to 42.
 Entity IDs are internal to the database and not of much value to RADmapper users.\footnote{In fact, I sort of told a fib for ease of exposition; by default the binding of variables in the entity position, entity IDs, aren't provided in a binding object.
   Using default settings, what this example returns is \stt{[\{\}]} meaning ``one match was found.''
@@ -243,10 +243,10 @@ This is shown in Figure~\ref{code:bob-age-more} below.
 \end{lstlisting}
 \end{figure} \vspace{-2em}
 
-The pattern on Line 3, by virtue of its use of \stt{?e} again imposes an additional constraint on the graph match: the entity bound to \stt{?e} must have a \stt{:name} attribute.
+The pattern on Line 3, by virtue of its reuse of \stt{?e}, imposes an additional constraint on the graph match: the entity bound to \stt{?e} must have a \stt{:name} attribute.
 The value of the name attribute is bound to \stt{?name}.
 Thus each element in the binding set will bind two variable, \stt{?e} and \stt{?name}.
-The binding set for the database in the graph depicted in Figure~\ref{fig:bob-as-a-graph} is \stt{[\{?e : 152, ?name 'Bob'\}]}.
+The binding set for the database in the graph depicted in Figure~\ref{fig:bob-as-a-graph} is \stt{[\{?e : 152, ?name 'Bob'\}]}.\footnote{If you read the previous footnote you know it actually returns just \stt{[\{?name 'Bob'\}].}}
 
 In this example, we used one variable to match on the entity and another to capture a value, however each position (entity, attribute, and value) can take a variable.
 Further, you can use variables in more than one of those positions.
@@ -323,7 +323,7 @@ For this reason, the \stt{query} declaration can serve to produce a higher-order
    $ageQ42    := $ageQueryT(42);
    $ageQ33    := $ageQueryT(33);
 
-   $append($ageQ42($myDB) , $ageQ33($myDB)  )
+   $append($ageQ42($myDB) , $ageQ33($myDB))  )
 \end{lstlisting}
 \end{figure} \vspace{-2em}
 
