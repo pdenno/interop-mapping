@@ -97,7 +97,7 @@ title=\lstname                   % show the filename of files included with \lst
 \lstdefinelanguage{JavaScript}{
   keywords={\$abs, \$append, \$assert, \$average, \$base64decode, \$base64encode, \$boolean, \$ceil, \$contains, \$count, \$decodeUrl, \$decodeUrlComponent, \$distinct, \$each, \$encodeUrl, \$encodeUrlComponent, \$error, \$eval, \$exists, \$filter, \$floor, \$formatBase, \$formatInteger, \$formatNumber, \$fromMillis, \$join, \$keys, \$length, \$lookup, \$lowercase, \$map, \$match, \$max, \$merge, \$millis, \$min, \$not, \$now, \$number, \$pad, \$parseInteger, \$power, \$random,,\$read, \$reduce, \$replace, \$reverse, \$round, \$shuffle, \$sift, \$single, \$sort, \$split, \$spread, \$sqrt, \$string, \$substring, \$substringAfter, \$substringBefore, \$sum, \$toMillis, \$trim, \$type,,\$uppercase, \$zip},
 keywordstyle=\color{darkblue}\bfseries,            % for \bfseries to be useful for Inconsolata, you may have to download the font: https://tex.stackexchange.com/questions/145833/inconsolata-bold-on-old-ubuntu-precise-texlive
-ndkeywords={false, function, express, query, true} % You'll find it at https://www.ctan.org/tex-archive/fonts/inconsolata/
+ndkeywords={false, function, express, key, query, true} % You'll find it at https://www.ctan.org/tex-archive/fonts/inconsolata/
 ndkeywordstyle=\color{darkgray}\bfseries,          % https://tex.stackexchange.com/questions/7669/bfseries-is-to-textbf-as-what-is-to-textsf explains names like 'bfseries'.
 identifierstyle=\color{black},
 sensitive=false,
@@ -450,7 +450,6 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
                                        "device4": {"id": 400, "status": "Ok"}},
                            "system2": {"device7": {"id": 700, "status": "Ok"},
                                        "device8": {"id": 800, "status": "Ok"}}}}}))))
-
 \end{lstlisting}
 \end{figure}
 
@@ -609,10 +608,10 @@ The target data sought, for example, might be as depicted in Figure~\ref{data:sl
 \end{lstlisting}
 \end{figure}  \vspace{-2em}
 
-As the figure suggests, this target data is more verbose, and only in Hollywood do the colons line up in the columns like that.
-A thought at what the \stt{express} structure for this data might be as follows.
+As the figure depicts, the output is more verbose, and only in Hollywood do the colons line up in the columns like that.
+A guess at an \stt{express} structure to produce this output is as follows.
 \begin{figure}[H]
-  \caption{Possible express structure for target data as depicted in Figure~\ref{data:slack-with-keys}}
+  \caption{Draft express structure for target data as depicted in Figure~\ref{data:slack-with-keys}}
  \label{code:slack-possible-express}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
 $ex1 := express{{'type'   : 'OWNER',
@@ -622,17 +621,89 @@ $ex1 := express{{'type'   : 'OWNER',
                               'devices': [{'type'  : 'DEVICE',
                                            'id'    : ?deviceName,
                                            'status': ?status}]}]}
-               } 
+               }
 \end{lstlisting}
 \end{figure}  \vspace{-2em}
 
 If we were to map over that \stt{express} body, that is \stt{\$map(\$bsets,\$ex1)}, the result would be (logically correct, of course but) even more verbose and also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
-A better alternative would be to reduce over the \stt{express}, \stt{\$reduce(\$bsets,\$ex1)}.
-There is a problem in doing this with the \stt{express} body as written above.
+A better alternative might be to \stt{\$reduce} over the \stt{express}, that is, \stt{\$reduce(\$bsets,\$ex1)};
+\stt{\$reduce} can have the effect of ``summarizing'' data, in this case by squeezing out the repetition.
+However, there is a problem with reducing over the \stt{express} body as written;
+it would produce the following:
 
+\begin{figure}[H]
+  \caption{Reducing over the \stt{express} body here results in iteratively overwriting data, so that the result is
+    the same as applying \stt{express} body to just the last binding set.}
+ \label{code:slack-result-wo-keys}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+{"type"    : "OWNER",
+ "id"      : "owner1",
+ "systems" : {"type"    : "SYSTEM",
+              "id"      : "system1",
+              "devices" : {"type"   : "DEVICE",
+                           "id"     : "device2",
+                           "status" : "Ok"}}}
 
+   /* This result indicates that the last binding set processed was the following */
+   {?ownerName : "owner1", ?systemName : "system1", ?deviceName : "device2", ?status : "Ok", ?id : 200}
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
 
-% Now discuss the idea of playing with challenging problems in the exerciser, starting with simple queries, and getting bsets
+What happened to the rest of the data?
+Why were data not lost similarly when we reduced over the \stt{express} body on Lines 14--20 of Figure~\ref{code:restruct}?
+The answer is that the \stt{express} body of Figure~\ref{code:restruct} uses unique values for the object keys.
+The effect of reducing over the \stt{express} body in that example is to ``drop in'' new pathways for each binding set.
+Specifically, if we consider the Lines 13--21 of Figure~\ref{data:restruct}, the result of applying the \stt{express} body on Lines 14--20 of Figure~\ref{code:restruct} to the key values in  each corresponding binding set, it is apparent that:
+
+\begin{itemize}
+\item the Line 14 object was created by the keys \stt{"owners"}, \stt{"owners1"}, \stt{"system1"}, \stt{"device1"},
+\item the Line 15 object was created by the keys \stt{"owners"}, \stt{"owners1"}, \stt{"system1"}, \stt{"device2"},
+\item the Line 16 object was created by the keys \stt{"owners"}, \stt{"owners1"}, \stt{"system2"}, \stt{"device5"}, and
+\item et cetera, to Line 21, created by the keys \stt{"owners"}, \stt{"owners2"}, \stt{"system2"}, \stt{"device8"}.
+\end{itemize}
+
+There are then 3 solutions to the problem just highlighted:
+(1) use unique keys  to ``drop in'' new pathways like in the original example,
+(2) use \stt{\$map} instead of \stt{\$reduce}, which entails accepting the fact that the result will be verbose with lots of repetition, or
+(3) wrap keys in the \stt{key} construct as described below.
+
+\subsubsection{The key construct of express}
+
+We'll continue with the running example.
+In order to prevent the overwriting that was depicted in Figure~\ref{code:slack-result-wo-keys} we will
+adapt the code from Figure~\ref{code:slack-possible-express} by adding the \stt{key} construct as shown.
+
+\begin{figure}[H]
+  \caption{The express structure from Figure~\ref{code:slack-possible-express} revised to identify keys}
+ \label{code:slack-express-with-keys}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+$ex1 := express{{'owners' : {'type'   : 'OWNER',
+                              'id'    : key(?ownerName),
+                              'systems': [{'type'   : 'SYSTEM',
+                                           'id'     : key(?systemName),
+                                           'devices': [{'type'  : 'DEVICE',
+                                                        'id'    : key(?deviceName),
+                                                        'status': ?status}]}]
+                            }
+                  }
+                 }
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
+
+There are two significant modification to the orginal \stt{express} body.
+First, Lines 2, 4, and 6 wrap the respective binding variables \stt{?ownerName}, \stt{?systemName}, and \stt{?deviceName} in
+the \stt{key} construct to declare identity conditions for the corresponding objects.
+This will ensure that binding sets on paths with those keys insert new data, not overwrite existing data.
+Second, compared to the orginal code, the whole body is now wrapped in \stt{\{'owners ...\}}.
+This ensures that calls to reduce have a common root on which to grow the structure.
+
+Incidentally, the situation that we just handled is similar to the choice between updating and inserting data.
+When we declare a field a key, we are saying that other values for that field necessarily refer to other conceptual objects,
+and therefore the data should be inserted, not used to update the existing object.
+
+\subsection{Summary so far}
+
+% Now discuss the idea of playing with challenging problems in the exerciser, ***starting with simple queries***, and getting bsets
 % before reformatting with express. (Compares favorably to JSONata.)
 % Use this to segue to a discussion of using an exerciser to validate mapping requirements,
 % then using the AST strategy to map to other forms (e.g. to validate with stakeholders, map to a commercial mapping language,
