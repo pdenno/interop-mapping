@@ -129,7 +129,7 @@ As of this writing, a strategy for interoperable exchange of mapping specificati
 There is also on-going exploratory work for RADmapper to support streaming data.
 These two topic are currently not discussed.
 The reference implementation of the RADmapper language can be found in the Github repository \href{https://github.com/pdenno/RADmapper}{https://github.com/pdenno/RADmapper}.
-An web-based ``exerciser'' tool to explore the language is available as a Docker container
+An web-based ``exerciser'' tool to explore the language is available as a Docker image
 \href{https://hub.docker.com/r/podenno/rm-exerciser}{https://hub.docker.com/r/podenno/rm-exerciser}.
 The document is a draft and, as of this writing (\today), is likely to be updated often, as will the language implementation and exerciser.
 %Whether or not the tool is useful for transforming information in real-world settings remains to be seen;
@@ -214,7 +214,7 @@ A complete RADmapper program for querying the Bob database for people age 42 is 
 The above needs some explanation.
 On Line 1 we put a JSON-like object in an Javascript-like array by wrapping it in square brackets; this is the literal form of a very small database.
 On Line 2 we defined the query function; here note the use of a \textit{query variable} \stt{?e}.
-Also note that whereas we used the string \stt{'age'} for the relation, we used \stt{:age} --- syntax we call a \textit{role} --- to represent that same relation in the pattern.
+Also note that whereas we used the string \stt{'age'} for the relation, we used \stt{:age} --- syntax we call an \textit{attribute} --- to represent that same relation in the pattern.
 On Line 3 we apply the query function \stt{\$ageQuery} to the database \stt{\$myDB} defined on Line 1.
 Of course, \stt{\$myDB} isn't much of a database; it contains only the data shown in Figure~\ref{fig:bob-as-a-graph}.
 Alternatively, you could have defined data through other means, such as reference to a file or a GraphQL query.
@@ -289,7 +289,7 @@ Let's look at a complete \stt{query} example that uses two databases.
 
   In Figure~\ref{code:two-database-query} Lines 1--4 we define two small databases and assign them to variables \stt{\$DBa} and \stt{\$DBb} respectively. On Lines 6--10 we define the query.
 Since both databases use email addresses for customer identification, we can use the \stt{:email} and \stt{:id} attributes to join together information about a customer from the two databases.
-That is the purpose of the patterns on Lines 6 and 7; the two patterns use different values for the entities, \stt{?e1} and \stt{?e2}
+That is the purpose of the patterns on Lines 6 and 7; the two patterns use different variables for the entities, \stt{?e1} and \stt{?e2},
 because the information is coming from different databases and we don't control entity IDs, but both use \stt{?id} to force
 matches on email address.
 The remainder of the patterns in the query, Lines 8--10, pick up various information from the two databases.
@@ -307,7 +307,9 @@ The binding set that is produced, the value of \stt{\$bSet}, consists of two bin
 
 One small but very significant point before moving on to discuss \stt{express}:
 writing queries like \stt{query()\{[?e :age 42] [?e :name ?name]\}} could become rather tedious in the case that you might want to get data about some other age value.
-For this reason, the \stt{query} declaration can serve to produce a higher-order function, a function that returns (query) functions as values. Figure~\ref{code:higher-order-query} demonstrates the idea.
+For this reason, the \stt{query} declaration can serve to produce a \textit{higher-order function}, a function that returns (query) functions as values. Figure~\ref{code:higher-order-query} demonstrates the idea.
+
+% ToDo: Should I allow jvars to be the keys of binding sets, and thereby eliminate the need for such things as [?e :age ?age] below?
 
 \begin{figure}[H]
     \caption{Get the names of people ages 42 and 33.}
@@ -327,9 +329,9 @@ For this reason, the \stt{query} declaration can serve to produce a higher-order
 \end{lstlisting}
 \end{figure} \vspace{-2em}
 
-The key difference is that on Line 4, the \stt{query} construct defines a parameter, \stt{\$age},  using ordinary JSONata-like syntax.
+The key difference is that on Line 4, the \stt{query} construct, defines a parameter, \stt{\$age}, using ordinary JSONata-like syntax.
 You can define as many parameters as you'd like and they can be used to substitute into any of the pattern positions, entity, attribute, or value.
-By convention, if we are to assign the result to a variable, we end the variable name with a \stt{T} such as shown on Line 4, \stt{\$ageQueryT}.
+By convention, if we are to assign a higher-order \stt{query} function to a variable, we end the variable name with a \stt{T} such as shown on Line 4, \stt{\$ageQueryT}.
 The T suggests that the variable denotes a \textit{query template}.
 Lines 8 and 9 define query functions for querying ages 42 and 33, respectively.
 Line 11 uses the JSONata-like builtin \stt{\$append} to combine the two binding sets.
@@ -439,7 +441,7 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
 
  /* ...so that it looks like: */
 
-{"owners"
+{"owners":
    {"owner1": {"systems": {"system1": {"device1": {"id": 100, "status": "Ok"},
                                        "device2": {"id": 200, "status": "Ok"}},
                            "system2": {"device5": {"id": 500, "status": "Ok"},
@@ -453,11 +455,10 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
 \end{figure}
 
 Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner, but instead of arrays, the developer used meaningful names as keys, "device1","device2" etc. Perhaps these structures only seems unusual if your perspective involves the object/attribute/value patterns that are typical of messaging structures.}) this is not relevant to the discussion.
-A solution to this problem in pure JSONata is shown in Figure~\ref{code:jsonata-sTPDRs}.
 Typical of a restructuring task, the goal data on Lines 13--21 does not contradict any of the facts evident in the original data on Lines 1--9.
 For example, there is an owner called \stt{owner1}, and \stt{owner1} still has the same devices associated.
 The idea that mapping is about how facts are viewed is a key concept in RADmapper.
-What has changed in restructuring the example data is not a fact but the sort of forward navigation that is possible in the two structures.
+What has changed in restructuring the example data is not a fact but the kind of forward navigation that is possible in the two structures.
 In the original structure, it is possible to navigate forward from a system to an owner (such as on Line 1, from \stt{system1} to \stt{owner1}).
 In the restructured data, it is possible only to navigate forward from owner to system (such as \stt{owner1} to \stt{system1} on Line 14).
 The restructuring task can be achieved using only JSONata functions and operators as depicted in Figure~\ref{code:jsonata-sTPDRs}.
@@ -559,12 +560,83 @@ The following paragraph provides a line-by-line summary of how the query in Line
 \item[Line 10 \stt{[?d :status ?id]}:] Like Line 9, but to pick up the value of a device's ``status'' attribute.
 \end{description}
 
-\textbf{[Discuss use of key() to create more conventional output.
-Then discuss the idea of playing with challenging problems in the exerciser, starting with simple queries, and getting bsets
-before reformatting with express. (Compares favorably to JSONata.)
-Use this to segue to a discussion of using an exerciser to validate mapping requirements,
-then using the AST strategy to map to other forms (e.g. to validate with stakeholders, map to a commercial mapping language,
-  joint cognitive work, etc.]}
+% Discuss use of key() and vector syntax to create more conventional output.
+It was suggested earlier that the encoding of the source data was a bit unusual.
+For example, object key values such as \stt{owner1}, \stt{system1} and \stt{device1} are being used, apparently, both to indicate a unique entity and to identify the kind of entity being described, presumably an owner, system and device respectively.
+We might seek target data that explicitly declares the type and identifier separated, for example using attributes \stt{type} and \stt{id} respectively.
+The target data sought, for example, might be as depicted in Figure~\ref{data:slack-with-keys}.
+
+\begin{figure}[H]
+  \caption{An alternative organization of the target data from the example.}
+ \label{data:slack-with-keys}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+[{"type"   : "OWNER",
+  "id"     : "owner1",
+  "systems": [{"type"   : "SYSTEM",
+               "id"     : "system1",
+               "devices": [{"type"   : "DEVICE",
+                            "id"     : "100",
+                            "status" : "Ok"},
+                           {"type"   : "DEVICE",
+                             "id"    : "200",
+                             "status": "Ok"}]},
+              {"type"   : "SYSTEM",
+               "id"     : "system2",
+               "devices": [{"type"   : "DEVICE",
+                            "id"     : "500",
+                            "status" : "Ok"},
+                           {"type"   : "DEVICE",
+                             "id"    : "600",
+                             "status": "Ok"}]}]},
+ {"type"   : "OWNER",
+  "id"     : "owner2",
+  "systems": [{"type"   : "SYSTEM",
+               "id"     : "system1",
+               "devices": [{"type"   : "DEVICE",
+                            "id"     : "300",
+                            "status" : "Ok"},
+                           {"type"   : "DEVICE",
+                             "id"    : "400",
+                             "status": "Ok"}]},
+              {"type"   : "SYSTEM",
+               "id"     : "system2",
+               "devices": [{"type"   : "DEVICE",
+                            "id"     : "700",
+                            "status" : "Ok"},
+                           {"type"   : "DEVICE",
+                             "id"    : "800",
+                             "status": "Ok"}]}]}]
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
+
+As the figure suggests, this target data is more verbose, and only in Hollywood do the colons line up in the columns like that.
+A thought at what the \stt{express} structure for this data might be as follows.
+\begin{figure}[H]
+  \caption{Possible express structure for target data as depicted in Figure~\ref{data:slack-with-keys}}
+ \label{code:slack-possible-express}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+$ex1 := express{{'type'   : 'OWNER',
+                 'id'     : ?ownerName,
+                 'systems': [{'type'   : 'SYSTEM',
+                              'id'     : ?systemName,
+                              'devices': [{'type'  : 'DEVICE',
+                                           'id'    : ?deviceName,
+                                           'status': ?status}]}]}
+               } 
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
+
+If we were to map over that \stt{express} body, that is \stt{\$map(\$bsets,\$ex1)}, the result would be (logically correct, of course but) even more verbose and also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
+A better alternative would be to reduce over the \stt{express}, \stt{\$reduce(\$bsets,\$ex1)}.
+There is a problem in doing this with the \stt{express} body as written above.
+
+
+
+% Now discuss the idea of playing with challenging problems in the exerciser, starting with simple queries, and getting bsets
+% before reformatting with express. (Compares favorably to JSONata.)
+% Use this to segue to a discussion of using an exerciser to validate mapping requirements,
+% then using the AST strategy to map to other forms (e.g. to validate with stakeholders, map to a commercial mapping language,
+% joint cognitive work, etc.
 
 \subsection{Don't bother to read past here.}
 
@@ -729,10 +801,10 @@ This is illustrated, for example, by the curvy red line in Figure~\ref{fig:hairp
 %%For this reason, where possible, best practice in Datalog-like languages uses namespaced attributes.
 %%We could use, for example, strings with a slash between the namespace name and the property name.
 %%Thus perhaps, \stt{"Person/name"} and \stt{"Phone/cell"}.
-%%But since these identifiers serve the special purpose of \textit{roles}, the language uses a special syntax: a prefixed colon rather than %%string delimiters.
+%%But since these identifiers serve the special purpose of \textit{attributes}, the language uses a special syntax: a prefixed colon rather than %%string delimiters.
 %%Thus \stt{:Person/name} and \stt{:Phone/cell}.
 %%%Where it helps reduce mistakes and the cognitive load on programmers, getting data in that form can be done with JSONata-like pre-processing.
-%%Figure \ref{code:simple-binding-set} above illustrates use of the role syntax on Lines 3 and 4.
+%%Figure \ref{code:simple-binding-set} above illustrates use of the attribute syntax on Lines 3 and 4.
 %%
 %%\subsection{Query Functions}
 %%%We can now propose a language feature for querying data using the Datalog-like syntax.\footnote{Soon, we will need to demonstrate how this %%(and the \stt{express} and
