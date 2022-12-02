@@ -30,7 +30,7 @@
 \usepackage{fancyhdr}
 \usepackage{datetime}
 \fancyhf{}
-\fancyhead[C]{\today\ DRAFT}
+\fancyhead[C]{\today\ DRAFT page \thepage}
 \pagestyle{fancy}
 
 % This is only useful for courier; not needed for inconsolata.
@@ -608,7 +608,7 @@ The target data sought, for example, might be as depicted in Figure~\ref{data:sl
 \end{lstlisting}
 \end{figure}  \vspace{-2em}
 
-As the figure depicts, the output is more verbose, and only in Hollywood do the colons line up in the columns like that.
+As the figure depicts, the output is more verbose. % , and only in Hollywood do the colons line up in the columns like that
 A guess at an \stt{express} structure to produce this output is as follows.
 \begin{figure}[H]
   \caption{Draft express structure for target data as depicted in Figure~\ref{data:slack-with-keys}}
@@ -677,8 +677,8 @@ adapt the code from Figure~\ref{code:slack-possible-express} by adding the \stt{
   \caption{The express structure from Figure~\ref{code:slack-possible-express} revised to identify keys}
  \label{code:slack-express-with-keys}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
-$ex1 := express{{'owners' : {'type'   : 'OWNER',
-                              'id'    : key(?ownerName),
+$ex1 := express{{'owners' : {'type'    : 'OWNER',
+                              'id'     : key(?ownerName),
                               'systems': [{'type'   : 'SYSTEM',
                                            'id'     : key(?systemName),
                                            'devices': [{'type'  : 'DEVICE',
