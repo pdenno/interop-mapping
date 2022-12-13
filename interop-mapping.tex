@@ -197,7 +197,7 @@ You might wonder where the 152 in the triples came from, or for that matter, why
 simply be represented by the single triple \stt{['Bob' 'age' 42]}.
 The answer is that you could represent this fact with that one triple, but in doing so you are using \stt{'Bob'} as a key
 which might not be that good if your database has more than one Bob in it.
-So instead, to prepare for the more general case, Datalog-like graph databases use unique integers to refer to entities.
+So instead, to prepare for the more general case, Datalog-like graph databases use integers to refer to entities.
 152 here is like a primary key in relational DB, or an IRI for a particular entity defined in RDF.
 A complete RADmapper program for querying the Bob database for people age 42 is as follows:
 
@@ -614,13 +614,13 @@ A guess at an \stt{express} structure to produce this output is as follows.
   \caption{Draft express structure for target data as depicted in Figure~\ref{data:slack-with-keys}}
  \label{code:slack-possible-express}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
-$ex1 := express{{'type'   : 'OWNER',
-                 'id'     : ?ownerName,
-                 'systems': [{'type'   : 'SYSTEM',
-                              'id'     : ?systemName,
-                              'devices': [{'type'  : 'DEVICE',
-                                           'id'    : ?deviceName,
-                                           'status': ?status}]}]}
+$ex1 := express{{'owners' : {'type'   : 'OWNER',
+                             'id'     : ?ownerName,
+                             'systems': [{'type'   : 'SYSTEM',
+                                          'id'     : ?systemName,
+                                          'devices': [{'type'  : 'DEVICE',
+                                                       'id'    : ?deviceName,
+                                                       'status': ?status}]}]}}
                }
 \end{lstlisting}
 \end{figure}  \vspace{-2em}
@@ -632,7 +632,7 @@ However, there is a problem with reducing over the \stt{express} body as written
 it would produce the following:
 
 \begin{figure}[H]
-  \caption{Reducing over the \stt{express} body here results in iteratively overwriting data, so that the result is
+  \caption{Reducing over the \stt{express} body here results in iteratively overwriting data; the result is
     the same as applying \stt{express} body to just the last binding set.}
  \label{code:slack-result-wo-keys}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
@@ -662,8 +662,8 @@ Specifically, if we consider the Lines 13--21 of Figure~\ref{data:restruct}, the
 \item et cetera, to Line 21, created by the keys \stt{"owners"}, \stt{"owners2"}, \stt{"system2"}, \stt{"device8"}.
 \end{itemize}
 
-There are then 3 solutions to the problem just highlighted:
-(1) use unique keys  to ``drop in'' new pathways like in the original example,
+There are three solutions to the problem just highlighted:
+(1) use unique keys to ``drop in'' new pathways like in the original example,
 (2) use \stt{\$map} instead of \stt{\$reduce}, which entails accepting the fact that the result will be verbose with lots of repetition, or
 (3) wrap keys in the \stt{key} construct as described below.
 
@@ -690,34 +690,62 @@ $ex1 := express{{'owners' : {'type'   : 'OWNER',
 \end{lstlisting}
 \end{figure}  \vspace{-2em}
 
-There are two significant modification to the orginal \stt{express} body.
-First, Lines 2, 4, and 6 wrap the respective binding variables \stt{?ownerName}, \stt{?systemName}, and \stt{?deviceName} in
-the \stt{key} construct to declare identity conditions for the corresponding objects.
-This will ensure that binding sets on paths with those keys insert new data, not overwrite existing data.
-Second, compared to the orginal code, the whole body is now wrapped in \stt{\{'owners ...\}}.
-This ensures that calls to reduce have a common root on which to grow the structure.
-
-Incidentally, the situation that we just handled is similar to the choice between updating and inserting data.
-When we declare a field a key, we are saying that other values for that field necessarily refer to other conceptual objects,
-and therefore the data should be inserted, not used to update the existing object.
+Here we modified Lines 2, 4, and 6 of Figure~\ref{code:slack-possible-express}, wrapping the binding variables
+\stt{?ownerName}, \stt{?systemName}, and \stt{?deviceName} in the \stt{key} construct.
+The \stt{key} construct declares identity conditions for the corresponding objects.
+With knowledge of identity conditions, reduce processing on the \stt{express} body can distinguish between inserting a new object (one where the key hasn't yet been seen) and updating (or mistakenly overwriting) the existing object.
+Thus the entire source data can be pushed into a single object structured as depicted in the figure.
+Incidentally, note that Lines 3 and 5 use square brackets to signify that there are possibly multiple systems and devices respectively
+in the target form.
 
 \subsection{Summary so far}
 
-% Now discuss the idea of playing with challenging problems in the exerciser, ***starting with simple queries***, and getting bsets
-% before reformatting with express. (Compares favorably to JSONata.)
-% Use this to segue to a discussion of using an exerciser to validate mapping requirements,
-% then using the AST strategy to map to other forms (e.g. to validate with stakeholders, map to a commercial mapping language,
-% joint cognitive work, etc.
+\stt{query} and \stt{express} are two principal constructs of the RADmapper language that together provide powerful, flexible, means to restructure data.
+They enable mapping from multiple sources, in-place updating, and effective abstractions such as templating, higher-order functions and compositionality.
+It may look like a lot to learn, and indeed there is more that we have not yet discussed, but we believe that many tasks can be programmed with RADmapper more easily than with pure JSONata. 
+For example, consider the pure JSONata solution to the owners/systems/devices problem we presented in Figure~\ref{code:jsonata-sTPDRs}.
+That solution uses lots of syntax and juggling operations to do something that is conceptually very simple.
+The RADmapper solution reflects those simple observations; with \stt{query} you pull out threads of data that conceptually hang together;
+with \stt{express} you either \stt{\$map} or \stt{\$reduce} the individual threads into a result structure.
+Further, the programming typically can be approached in small steps, for example, by starting with a \stt{query} that binds just one or two query variables along a path and progressively adding path steps until you have a complete, coherent thread of ``business'' relationships.
 
-\subsection{Don't bother to read past here.}
+Likewise, you can create binding sets by hand and approach programming the \stt{express} structure in small steps.
+You can evaluate \stt{express} with a single binding set to see the result, combine binding sets (even from calls to different \stt{query} definitions) and experiment with \stt{\$reduce}-ing on the \stt{express}.
 
-\subsection{Interoperability?}
+The motivation for RADmapper, however, is more encompassing than what discussion thus far might suggest.
+Though you can use RADmapper's web-based exerciser to define and validate mappings,
+and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and Javascript programs by provide \stt{.jar} and npm modules. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you don't need to read it if your primary goal is to learn how to use RADmapper Java or JavaScript tools.
 
-\textbf{[Discuss simple examples of using ASTs and mapping to "mapping tables". 90 percent of use cases don't need this.]}
+\section{Interoperable Specification of Mapping Requirements}
 
-% Standards encode industry consensus on best practice.
-% It would be presumptuous of us to suggest that we've captured the essence of the vaguely defined task sometimes referred to as "mapping", or "data "restructuring" -- much less industry consensus on the best practice for it.
-% The usual methods of promulgating standardization through a domain-specific language might not work here.
+RADmapper seeks to describe mapping requirements in ways that are useful to various tools.
+Unfortunately, the usual process for this, defining a useful \textit{standard} interoperable exchange form for mapping appears to be an unreasonable goal.
+Standards encode industry consensus on best practice.
+It would be presumptuous of us to suggest that we have captured the essence of ``mapping'', or ``data restructuring'' -- much less industry consensus on the best practice for it.
+Mapping is a vague term and the tasks it represents often can be accomplished with general-purpose programming languages.
+Additionally, the usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint Language (OCL), ISO 10303 Express, and Modelica. Each of these are implemented in various open-source and commercial tools capable of processing the DSL lanaguage.
+  This is feasible because the purpose of the tool and conformance to the intended behaviors specified in the DSL is easy to state.
+  We argue that such a scenarios is unlikely with ``mapping tools''.
+  For example, it seems more likely that a mapping specification would be used to guide implementation in a general-purpose language,
+  not passed to a ``RADmapper-aware'' processor (something that might never exist outside the reference implementation).}
+The RADmapper language presented above (a DSL) is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
+\textit{Requirements} are specifications of what an engineered system must do, not how they do it.
+The experience of working a problem with the RADmapper language verifies and documents the relationships among data in formal terms.
+Thus RADmapper language \textit{does} specify (and verify) requirements for mapping, but something similar could be said about \textit{any} programming language!
+The difference is that with RADmapper we take the process one more step: having defined detailed requirements in RADmapper code, we then use RADmapper ``a second time'' to map its own code to abstractions expressing the intent of the mapping.
+We call this process the \textit{AST strategy}.
+
+\subsection{AST Strategy}
+
+
+
+
+
+
+
+
+
+
 % Nonetheless, we might be able to chip away at the walls of task and discipline isolation through other means.
 % We suggest that these other means entail using the RADmapper language as describe above to do requirements engineering,
 % and then mapping the expression of the requirements to other forms.
@@ -725,6 +753,10 @@ and therefore the data should be inserted, not used to update the existing objec
 % One challenge to doing this that by using the RADmapper syntax we've locked the requirements in a domain-specific programming language
 % that possess the sort of concision that appeals to programmers; RADmapper syntax is more a language for requirements validation
 % than it is for expression of requirements.
+
+\textbf{[Discuss simple examples of using ASTs and mapping to "mapping tables". 90 percent of use cases don't need this.]}
+
+\subsection{Don't bother to read past here.}
 
 \subsection{Section Summary and Additional Thoughts}
 
