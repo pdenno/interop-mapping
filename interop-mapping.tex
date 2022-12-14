@@ -155,9 +155,9 @@ The principal concepts to discuss are
 
 \begin{itemize}
   \item{the relational and graph forms of data,}
-  \item{RADmapper's \stt{query} declaration, used to query relational data,}
-  \item{RADmapper's \stt{express} declaration, used to reorganize (``map'') data from its original form to the form in which it is needed, and}
-  \item{RADmapper's strategy for interoperability. [Not yet!]}
+  \item{RADmapper's \stt{query} declaration, used to query relational data, and }
+  \item{RADmapper's \stt{express} declaration, used to reorganize (``map'') data from its original form to the form in which it is needed.}
+%  \item{RADmapper's strategy for interoperability.}
 \end{itemize}
 
 %  The original form of data is called a \textit{source} form; the needed form is called the \textit{target} form.
@@ -698,23 +698,30 @@ Thus the entire source data can be pushed into a single object structured as dep
 Incidentally, note that Lines 3 and 5 use square brackets to signify that there are possibly multiple systems and devices respectively
 in the target form.
 
+% Right here you might want to show the previous example with namespaced keys and talk about
+% how that reduces the cognitive load and dovetails with serialization to namespaced XML.
+
 \subsection{Summary so far}
 
 \stt{query} and \stt{express} are two principal constructs of the RADmapper language that together provide powerful, flexible, means to restructure data.
-They enable mapping from multiple sources, in-place updating, and effective abstractions such as templating, higher-order functions and compositionality.
-It may look like a lot to learn, and indeed there is more that we have not yet discussed, but we believe that many tasks can be programmed with RADmapper more easily than with pure JSONata. 
-For example, consider the pure JSONata solution to the owners/systems/devices problem we presented in Figure~\ref{code:jsonata-sTPDRs}.
-That solution uses lots of syntax and juggling operations to do something that is conceptually very simple.
-The RADmapper solution reflects those simple observations; with \stt{query} you pull out threads of data that conceptually hang together;
+They enable mapping from multiple sources, in-place updating, and effective methods of abstraction and composition such as templating and higher-order functions.
+It may look like a lot to learn, and in fact there is more to the language yet to be discussed.
+That notwithstanding, we believe that many tasks can be programmed with RADmapper more easily than with pure JSONata. 
+For example, consider  the running example of restructuring we discussed above.
+The pure JSONata solution uses lots of syntax and juggling operations (see Figure~\ref{code:jsonata-sTPDRs}) to do something that is conceptually very simple.
+The RADmapper solution, on the other hand, reflects those simple observations: with \stt{query} you pull out threads of data that conceptually hang together;
 with \stt{express} you either \stt{\$map} or \stt{\$reduce} the individual threads into a result structure.
-Further, the programming typically can be approached in small steps, for example, by starting with a \stt{query} that binds just one or two query variables along a path and progressively adding path steps until you have a complete, coherent thread of ``business'' relationships.
+Separating the collection of source information from the expression of target information makes the task easier to perform.
+Further, even these two mostly-independent steps can be approached in smaller sub-steps.
+For example, one could start with a \stt{query} that binds just one or two query variables along a path.
+When it is clear that that works (verified in the RADmapper exerciser, for example) one could progressively add more path steps until the complete, coherent thread of ``business'' relationships is captured.
 
 Likewise, you can create binding sets by hand and approach programming the \stt{express} structure in small steps.
 You can evaluate \stt{express} with a single binding set to see the result, combine binding sets (even from calls to different \stt{query} definitions) and experiment with \stt{\$reduce}-ing on the \stt{express}.
 
 The motivation for RADmapper, however, is more encompassing than what discussion thus far might suggest.
 Though you can use RADmapper's web-based exerciser to define and validate mappings,
-and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and Javascript programs by provide \stt{.jar} and npm modules. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you don't need to read it if your primary goal is to learn how to use RADmapper Java or JavaScript tools.
+and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and Javascript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you don't need to read it if your primary goal is to learn how to use RADmapper Java or JavaScript tools.
 
 \section{Interoperable Specification of Mapping Requirements}
 
@@ -723,27 +730,27 @@ Unfortunately, the usual process for this, defining a useful \textit{standard} i
 Standards encode industry consensus on best practice.
 It would be presumptuous of us to suggest that we have captured the essence of ``mapping'', or ``data restructuring'' -- much less industry consensus on the best practice for it.
 Mapping is a vague term and the tasks it represents often can be accomplished with general-purpose programming languages.
-Additionally, the usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint Language (OCL), ISO 10303 Express, and Modelica. Each of these are implemented in various open-source and commercial tools capable of processing the DSL lanaguage.
-  This is feasible because the purpose of the tool and conformance to the intended behaviors specified in the DSL is easy to state.
-  We argue that such a scenarios is unlikely with ``mapping tools''.
-  For example, it seems more likely that a mapping specification would be used to guide implementation in a general-purpose language,
-  not passed to a ``RADmapper-aware'' processor (something that might never exist outside the reference implementation).}
+Additionally, the usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint Language (OCL), ISO 10303 Express, and Modelica.
+  Each of these are implemented in various open-source and commercial tools capable of processing the corresponding DSL language.
+  A DSL is a feasible strategy in each of those cases because the DSL specification defines the required behavior of the DSL-aware tools.
+  We argue that the situation is different  with ``mapping tools''.
+  Mapping specifications might, for example, only be used to guide implementation in a general-purpose language.
+  Though the reference implementation of RADmapper might be used like the reference implementation of JSONata (e.g.\@ in JavaScript applications), developing interoperable ``RADmapper-aware'' processors is unlikely to be economical.}
 The RADmapper language presented above (a DSL) is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
 \textit{Requirements} are specifications of what an engineered system must do, not how they do it.
 The experience of working a problem with the RADmapper language verifies and documents the relationships among data in formal terms.
 Thus RADmapper language \textit{does} specify (and verify) requirements for mapping, but something similar could be said about \textit{any} programming language!
 The difference is that with RADmapper we take the process one more step: having defined detailed requirements in RADmapper code, we then use RADmapper ``a second time'' to map its own code to abstractions expressing the intent of the mapping.
 We call this process the \textit{AST strategy}.
+It is discussed in the next section.
 
 \subsection{AST Strategy}
 
-
-
-
-
-
-
-
+\begin{figure}[H]
+  \caption{The strategy for interoperation involves a second use of RADmapper. Whereas the first use produces a mapping specification (orange arrows) and domain-specific target data, the second (blue arrows) uses that specification as data to generate an abstraction of the original mapping task useful to other mapping tools.}
+  \label{fig:ast-strategy}
+   \includegraphics[scale=0.28]{ast-strategy.jpg}  
+\end{figure}
 
 
 % Nonetheless, we might be able to chip away at the walls of task and discipline isolation through other means.
