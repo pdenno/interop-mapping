@@ -211,6 +211,13 @@ A complete RADmapper program for querying the Bob database for people age 42 is 
 \end{lstlisting}
 \end{figure} \vspace{-2em}
 
+% ToDo: I think I made a mistake by calling the thing returned by query a binding set. It is a collection of binding sets.
+%       Or maybe binding element was the problem. But element and set are wrong. I should call the each one a binding object
+%       where "object" means "dictionary" (python) or the JS notion of object. "A collection of binding objects"
+%       In the code I can call it whatever. Keep it binding set, I think.
+%       Even this isn't very good! +Maybe check what Abiteboul called it.+ ... They don't.
+%       See https://en.wikipedia.org/wiki/Datalog.
+
 The above needs some explanation.
 On Line 1 we put a JSON-like object in an Javascript-like array by wrapping it in square brackets; this is the literal form of a very small database.
 On Line 2 we defined the query function; here note the use of a \textit{query variable} \stt{?e}.
