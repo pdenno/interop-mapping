@@ -417,7 +417,7 @@ reduce ``summarizes'' results by allowing each element to affect a summary outco
   then to 4 and that sum.}
 Whether you \stt{\$map} or \stt{\$reduce} the \stt{express} function over the binding set can have great influence on the outcome, as will be demonstrated in subsequent examples.
 As written above, the call to \stt{\$reduce} on Line 18 creates a nested structure for the first binding element and then inserts a second structure into it at the second \stt{?id} key, as shown above.
-Were Line 18 replaced with \stt{\$map(\$bSet, \$eFn)}, the result would be two independent nested maps:
+Were Line 18 replaced with \stt{\$map(\$bSet, \$eFn)}, the result would be two independent nested maps, one for each binding set in the call to \stt{\$map}:
 
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numbers=none]
 [{"bob@example.com" : {"name" : "Bob",   "aData" : "Bob-A-data",  "bData" : "Bob-B-data"  }},
@@ -460,7 +460,8 @@ The goal of the example is to swap the nesting of \stt{owners} and \stt{systems}
 \end{lstlisting}
 \end{figure}
 
-Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having them\footnote{For example, several devices are associated with an owner, but instead of arrays, the developer used meaningful names as keys, "device1","device2" etc. Perhaps these structures only seems unusual if your perspective involves the object/attribute/value patterns that are typical of messaging structures.}) this is not relevant to the discussion.
+%Though these structures, rendered as JSON, may look odd (for example, there are no arrays used despite apparent value in having %them\footnote{For example, several devices are associated with an owner, but instead of arrays, the developer used meaningful names as keys, %"device1","device2" etc. Perhaps these structures seems unusual because they don't allow you to write code to get data using fixed names.
+%  Except for ``owners'', and ``systems'', the rest are enumerating things; it requires a sort of ``positional semantics''. }) this is not %relevant to the discussion.
 Typical of a restructuring task, the goal data on Lines 13--21 does not contradict any of the facts evident in the original data on Lines 1--9.
 For example, there is an owner called \stt{owner1}, and \stt{owner1} still has the same devices associated.
 The idea that mapping is about how facts are viewed is a key concept in RADmapper.
@@ -721,32 +722,35 @@ with \stt{express} you either \stt{\$map} or \stt{\$reduce} the individual threa
 Separating the collection of source information from the expression of target information makes the task easier to perform.
 Further, even these two mostly-independent steps can be approached in smaller sub-steps.
 For example, one could start with a \stt{query} that binds just one or two query variables along a path.
-When it is clear that that works (verified in the RADmapper exerciser, for example) one could progressively add more path steps until the complete, coherent thread of ``business'' relationships is captured.
+When it is clear that that works (verified in the RADmapper exerciser, for example) one could progressively add more path steps until the complete, coherent thread of domain relationships is captured.
 
 Likewise, you can create binding sets by hand and approach programming the \stt{express} structure in small steps.
 You can evaluate \stt{express} with a single binding set to see the result, combine binding sets (even from calls to different \stt{query} definitions) and experiment with \stt{\$reduce}-ing on the \stt{express}.
 
 The motivation for RADmapper, however, is more encompassing than what discussion thus far might suggest.
 Though you can use RADmapper's web-based exerciser to define and validate mappings,
-and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and Javascript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you don't need to read it if your primary goal is to learn how to use RADmapper Java or JavaScript tools.
+and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and Javascript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you don't need to read it if your primary goal is to learn how to use RADmapper in Java or JavaScript software.
 
 \section{Interoperable Specification of Mapping Requirements}
 
-RADmapper seeks to describe mapping requirements in ways that are useful to various tools.
+RADmapper seeks to describe mapping requirements in ways that are useful to various stakeholders and tools.
 Unfortunately, the usual process for this, defining a useful \textit{standard} interoperable exchange form for mapping appears to be an unreasonable goal.
 Standards encode industry consensus on best practice.
 It would be presumptuous of us to suggest that we have captured the essence of ``mapping'', or ``data restructuring'' -- much less industry consensus on the best practice for it.
-Mapping is a vague term and the tasks it represents often can be accomplished with general-purpose programming languages.
-Additionally, the usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint Language (OCL), ISO 10303 Express, and Modelica.
+Mapping is a vague term and the tasks it represents often can be accomplished best with general-purpose programming languages.
+
+Something different is needed.
+The usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint Language (OCL), ISO 10303 Express, and Modelica.
   Each of these are implemented in various open-source and commercial tools capable of processing the corresponding DSL language.
   A DSL is a feasible strategy in each of those cases because the DSL specification defines the required behavior of the DSL-aware tools.
   We argue that the situation is different  with ``mapping tools''.
   Mapping specifications might, for example, only be used to guide implementation in a general-purpose language.
   Though the reference implementation of RADmapper might be used like the reference implementation of JSONata (e.g.\@ in JavaScript applications), developing interoperable ``RADmapper-aware'' processors is unlikely to be economical.}
-The RADmapper language presented above (a DSL) is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
+The RADmapper language presented above, a DSL, is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
 \textit{Requirements} are specifications of what an engineered system must do, not how they do it.
 The experience of working a problem with the RADmapper language verifies and documents the relationships among data in formal terms.
 Thus RADmapper language \textit{does} specify (and verify) requirements for mapping, but something similar could be said about \textit{any} programming language!
+% Fix this the following isn't the key difference. Bridging the business and technical viewpoint is. (But they won't see that yet.)
 The difference is that with RADmapper we take the process one more step: having defined detailed requirements in RADmapper code, we then use RADmapper ``a second time'' to map its own code to abstractions expressing the intent of the mapping.
 We call this process the \textit{AST strategy}.
 It is discussed in the next section.
