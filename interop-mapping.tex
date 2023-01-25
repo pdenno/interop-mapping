@@ -714,7 +714,7 @@ in the target form.
 \stt{query} and \stt{express} are two principal constructs of the RADmapper language that together provide powerful, flexible, means to restructure data.
 They enable mapping from multiple sources, in-place updating, and effective methods of abstraction and composition such as templating and higher-order functions.
 It may look like a lot to learn, and in fact there is more to the language yet to be discussed.
-That notwithstanding, we believe that many tasks can be programmed with RADmapper more easily than with pure JSONata. 
+That notwithstanding, we believe that many tasks can be programmed with RADmapper more easily than with pure JSONata.
 For example, consider  the running example of restructuring we discussed above.
 The pure JSONata solution uses lots of syntax and juggling operations (see Figure~\ref{code:jsonata-sTPDRs}) to do something that is conceptually very simple.
 The RADmapper solution, on the other hand, reflects those simple observations: with \stt{query} you pull out threads of data that conceptually hang together;
@@ -733,35 +733,147 @@ and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper
 
 \section{Interoperable Specification of Mapping Requirements}
 
-RADmapper seeks to describe mapping requirements in ways that are useful to various stakeholders and tools.
-Unfortunately, the usual process for this, defining a useful \textit{standard} interoperable exchange form for mapping appears to be an unreasonable goal.
-Standards encode industry consensus on best practice.
-It would be presumptuous of us to suggest that we have captured the essence of ``mapping'', or ``data restructuring'' -- much less industry consensus on the best practice for it.
-Mapping is a vague term and the tasks it represents often can be accomplished best with general-purpose programming languages.
+RADmapper seeks to describe mapping requirements in ways that are useful to the various stakeholder and tools used in integration efforts.
+Describing mapping requirements is but one of the tasks of an integration effort.
+By ``integration effort'' we mean work spent to make separate things work jointly towards some goal.
+The goals of integration efforts are various including, for example, automating the regular purchase of items under a contract, or implementing new sensing capability in automated production.
+%A goal of RADmapper is to allow stakeholders in integration efforts to work together in an effort to establish the required communication.
+The stakeholders in integration efforts typically include at least
+(1) domain experts, the people who can describe what the entities (e.g. business entities, machines) need to do in the joint work,
+(2) back-end system administrators, that manage the databases involved in the kinds of transactions of interest, and
+(3) API programmers, who implement the code that achieves the goals of the integration.
+In small enterprises, of course, many of these roles are played by a single person.
 
-Something different is needed.
-The usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint Language (OCL), ISO 10303 Express, and Modelica.
-  Each of these are implemented in various open-source and commercial tools capable of processing the corresponding DSL language.
-  A DSL is a feasible strategy in each of those cases because the DSL specification defines the required behavior of the DSL-aware tools.
-  We argue that the situation is different  with ``mapping tools''.
-  Mapping specifications might, for example, only be used to guide implementation in a general-purpose language.
-  Though the reference implementation of RADmapper might be used like the reference implementation of JSONata (e.g.\@ in JavaScript applications), developing interoperable ``RADmapper-aware'' processors is unlikely to be economical.}
-The RADmapper language presented above, a DSL, is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
-\textit{Requirements} are specifications of what an engineered system must do, not how they do it.
-The experience of working a problem with the RADmapper language verifies and documents the relationships among data in formal terms.
-Thus RADmapper language \textit{does} specify (and verify) requirements for mapping, but something similar could be said about \textit{any} programming language!
-% Fix this the following isn't the key difference. Bridging the business and technical viewpoint is. (But they won't see that yet.)
-The difference is that with RADmapper we take the process one more step: having defined detailed requirements in RADmapper code, we then use RADmapper ``a second time'' to map its own code to abstractions expressing the intent of the mapping.
-We call this process the \textit{AST strategy}.
-It is discussed in the next section.
+%this, defining a useful \textit{standard} interoperable exchange form of the content appears to be an unreasonable goal in the context of mapping.
+%Standards encode industry consensus on best practice.
+%It would be presumptuous of us to suggest that we have captured the essence of ``mapping'', or ``data restructuring'' -- much less industry consensus on the best practice for it.
+%%Mapping is a vague term and the tasks it represents often can be accomplished best with general-purpose programming languages.
+%
+%Something different is needed.
+%The usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint %Language (OCL), ISO 10303 Express, and Modelica.
+%  Each of these are implemented in various open-source and commercial tools capable of processing the corresponding DSL language.
+%  A DSL is a feasible strategy in each of those cases because the DSL specification defines the required behavior of the DSL-aware tools.
+%  We argue that the situation is different  with ``mapping tools''.
+%  Mapping specifications might, for example, only be used to guide implementation in a general-purpose language.
+%  Though the reference implementation of RADmapper might be used like the reference implementation of JSONata (e.g.\@ in JavaScript applications), developing interoperable ``RADmapper-aware'' processors is unlikely to be economical.}
 
-\subsection{An Example}
+%Each of the three roles, domain experts, back-end system administrators, and API programmers have an interest in \textit{some} notion of mapping.
+%For example
+%\begin{itemize}
+%\item{Domain experts are interested in how each party involved in a transaction understands and distinguishes the things transacted similarly.
+%    For example, that ``my'' notions of the units of measure maps to ``yours''.}
+%\item{Back-end system administrators want to be ensured that the transaction results...} 
+%\end{itemize}
+
+%The RADmapper language presented above, a DSL, is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
+%\textit{Requirements} are specifications of what an engineered system must do, not how they do it.
+%The experience of working a problem with the RADmapper language verifies and documents the relationships among data in formal terms.
+%Thus RADmapper language \textit{does} specify (and verify) requirements for mapping, but something similar could be said about \textit{any} programming language!
+%%% Fix this the following isn't the key difference. Bridging the business and technical viewpoint is. (But they won't see that yet.)
+%The difference is that with RADmapper we take the process one more step: having defined detailed requirements in RADmapper code, we then use RADmapper ``a second time'' to map its own code to abstractions expressing the intent of the %mapping.
+%%We call this process the \textit{AST strategy}.
+%It is discussed in the next section.
+
+\subsection{Mapping Specifications as Data}
+
+In this section, we illustrate the RADmapper approach to interoperable mapping with the discussion of three approaches to a simple mapping task.
+The mapping task is simply to iterate through a collection of objects in source data and, where necessary, map the source \stt{name} key of the object to \stt{customer} in the target data.
+We illustrate interoperability in the task by showing how various RADmapper implementation of the task ``map to'' a Mulesoft Dataweave implementation of the task.
+Note that in the last two sentences we used two notions of mapping:
+(1) mapping \stt{name} in the source data to \stt{customer} in target data, and
+(2) mapping a RADmapper implementation of the task to a Dataweave implementation.
+The first of these ``mappings'' concerns the domain requirements of a task, the second concerns describing those requirements from different viewpoints.
+These two notions of mapping correspond to two uses of RADmapper, one of which does the usual work of mapping as we have been doing throughout this document, the second uses the RADmapper code of the first as data.
+We will walk through the example now to make the above clearer.
+
+To begin, we look at the task of mapping \stt{name} to \stt{customer} in a single object (say, representing orders).
+In RADmapper we can do this with \stt{\$reduceKV}, which is like \stt{\$reduce} but is called with a function that accepts key/value pairs of the argument object.
+In Figure~\ref{code:reduceKV}, we call \stt{\$reduceKV} on Line 9 with the argument function \stt{\$name2CustomerFn}, which is defined on Line 6.
+In Line 7, the body of the function, a conditional expression checks whether the key is equal to ``name'', and if so adds a key/value pair ``customer''/\stt{\$v} to the object being reduced, \stt{\$res},
+otherwise the key/value pair \stt{\$k}/\stt{\$v} is added.
+In each of these expression \stt{\$k} is a key of the argument object and \stt{\$v} the corresponding value.
+Note on Line 9 that \stt{\$reduceKV} is called with an empty object as its second argument.
+
+\begin{figure}[H]
+  \caption{One implementation of changing ``name'' to ``customer'' in RADmapper.}
+ \label{code:reduceKV}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+( $order := {'name'             : 'Example Customer',
+             'shippingAddress'  : '123 Mockingbird Lane...',
+             'item part no.'    : 'p12345',
+             'qty'              : {'amt' : 4, 'uom' : 'unit'}};
+
+  $name2CustomerFn := function($res, $k, $v)
+                          { ($k = 'name') ? $assoc($res, 'customer', $v) : $assoc($res, $k, $v) };
+
+  $reduceKV($name2CustomerFn, {}, $order)
+ )
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
+
+Corresponding Dataweave to Figure~\ref{code:reduceKV} is shown in Figure~\ref{code:dataweave-1}.
+The key work of mapping, which corresponds to \stt{\$reduceKV} in the above RADmapper code is Dataweave's \stt{mapObject} on Line 6 of Figure~\ref{code:dataweave-1}.
+
+ \begin{figure}[H]
+  \caption{One implementation of changing ``name'' to ``customer'' in Dataweave.}
+ \label{code:dataweave-1}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+  %dw 2.0
+  output application/json
+  ---
+  items: payload.item ->
+      {
+        item: mapObject (value, key) -> { if (key == "name")
+                                                 {"customer" : value }
+                                                else
+                                                 { key : value}
+                                         }
+      }
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
+
+The relation between the RADmapper and Dataweave viewpoints on this task is achieved by serializing the RADmapper source, Lines 1--10, of Figure~\ref{code:reduceKV} to a syntax tree
+(see Figure~\ref{tree:example-1}) and then mapping that data as source, to corresponding Dataweave operators and structure.
+
+ \begin{figure}[H]
+  \caption{The code of Figure~\ref{code:reduceKV} as a syntax tree serialized as JSON.}
+ \label{tree:example-1}
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
+{"Block"
+     [{"VarDecl"
+          {"VarName" "$order",
+           "VarValue" {"Obj": {"name": "Example Customer",
+                                 "shippingAddress": "123 Mockingbird Lane...",
+                                 "item part no.": "p12345",
+                                 "qty": {"Obj": {"amt" "4",
+                                                 "uom" "unit"}}}}}},
+      {"VarDecl":
+         {"VarName": "$name2CustomerFn",
+          "VarValue":
+             {"FnDef":
+                {"Params": ["$res", "$k", "$v"]},
+                 "Body": {"IfExp":
+                               {"Predicate":
+                                  {"Block": [{"BinaryExpression": ["$k", "op/eq", "name"]}]},
+                                "Then":
+                                  {"FnCall": {"Args": ["$res", "customer", "$v"], "FnName": "$assoc"}},
+                                "Else":
+                                  {"FnCall": {"Args": ["$res", "$k", "$v"], "FnName": "$assoc"}}}}}}}
+      {"FnCall":
+          {"Args": ["$name2CustomerFn", {"Obj": {}}, "$order"],
+           "FnName": "$reduceKV"}}]}
+\end{lstlisting}
+\end{figure}  \vspace{-2em}
+
 
 \begin{figure}[H]
   \caption{The strategy for interoperation involves a second use of RADmapper. Whereas the first use produces a mapping specification (orange arrows) and domain-specific target data, the second (blue arrows) uses that specification as data to generate an abstraction of the original mapping task useful to other mapping tools.}
   \label{fig:ast-strategy}
-   \includegraphics[scale=0.28]{ast-strategy.jpg}  
-\end{figure}
+   \includegraphics[scale=0.28]{ast-strategy.jpg}
+ \end{figure}
+
+
+
 
 
 % Nonetheless, we might be able to chip away at the walls of task and discipline isolation through other means.
@@ -1634,7 +1746,7 @@ This section is apt to be rewritten several times as the features of the languag
 %Returning a substring               & substring()
 %\end{tabular}
 %\end{table}
-\bibliography{/home/pdenno/Documents/bibtex/library}
+\bibliography{/users/pdenno/Documents/bibtex/BBT}
 
 \end{document}
 %%% Local Variables:
