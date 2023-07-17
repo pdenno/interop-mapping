@@ -7,24 +7,30 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{outline}
-\usepackage{dsfont}
+%\usepackage{dsfont} % pendant
 \usepackage{comment}
 \usepackage{lmodern}
 \usepackage{cite}
 \usepackage{float}
 \usepackage{appendix}
 \usepackage{fancyvrb}
-\usepackage{hyperref} % for href
+%\usepackage{hyperref} % for href
 \usepackage{textcomp} % has bullet, copyright symbols, etc.
 
-\usepackage{inconsolata} % https://tex.stackexchange.com/questions/50810/good-monospace-font-for-code-in-latex
-%\usepackage{courier}    % Alternative monospace. Inconsolata is a bit rougher, but distinguishes ( from { better.
+%\usepackage{inconsolata} % https://tex.stackexchange.com/questions/50810/good-monospace-font-for-code-in-latex    % pendant
+% Currently I can't download inconsolate. Try later: https://ctan.org/tex-archive/fonts/inconsolata/?lang=en
+% 2023-07-17 Ubuntu apparently doesn't have a full texlive distribution. I was
+\usepackage{courier}    % Alternative monospace. Inconsolata is a bit rougher, but distinguishes ( from { better.  % pendant (uncomment)
 
 \usepackage{listings,xcolor} % See https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings about minted rather than this.
 
 \usepackage{graphicx}
 \graphicspath{{./figures/}}
 \graphicspath{{figures/}}
+
+\usepackage{helvet} % like FY24 project
+\renewcommand{\familydefault}{\sfdefault}
+
 
 \bibliographystyle{unsrt}
 \usepackage{fancyhdr}
@@ -121,16 +127,17 @@ As an interoperable exchange form, it is intended that the language can be trans
 For example, it should be possible to translate statements in the exchange form into mapping specifications used by commercial mapping tools.
 %OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
-RADmapper, the mapping language, integrates JSONata expression language~\cite{Jsonata.org2021} with Datalog~\cite{Abiteboul1995a} capabilities. It currently supports mapping to/from JSON, XML, tables (e.g. Excel), and knowledge graphs (RDF).
-Use cases for the RADmapper language including in-place updating of target data sources, and mapping from multiple sources.
+RADmapper, the mapping language, integrates JSONata expression language~\cite{Jsonata.org2021} with Datalog~\cite{Abiteboul1995a} and large language model (LLM) capabilities.
+It currently supports mapping to/from JSON, XML, tables (e.g. Excel), and knowledge graphs (RDF).
+Use cases for the RADmapper language including in-place updating of target data sources, mapping from multiple sources, and LLM-based matching and extraction tasks.
 
 %The document describes the RADmapper language and its strategy for serving as an interoperable exchange form mapping specifications.
 As of this writing, a strategy for interoperable exchange of mapping specifications is under development. % ; these are discussed.
 There is also on-going exploratory work for RADmapper to support streaming data.
 These two topic are currently not discussed.
-The reference implementation of the RADmapper language can be found in the Github repository \href{https://github.com/pdenno/RADmapper}{https://github.com/pdenno/RADmapper}.
-An web-based ``exerciser'' tool to explore the language is available as a Docker image
-\href{https://hub.docker.com/r/podenno/rm-exerciser}{https://hub.docker.com/r/podenno/rm-exerciser}.
+The reference implementation of the RADmapper language can be found in the Github repository https://github.com/pdenno/RADmapper. %\href{https://github.com/pdenno/RADmapper}{https://github.com/pdenno/RADmapper}.
+An web-based ``exerciser'' tool to explore the language is available as a Docker image https://hub.docker.com/r/podenno/rm-exerciser.
+%\href{https://hub.docker.com/r/podenno/rm-exerciser}{https://hub.docker.com/r/podenno/rm-exerciser}.
 The document is a draft and, as of this writing (\today), is likely to be updated often, as will the language implementation and exerciser.
 %Whether or not the tool is useful for transforming information in real-world settings remains to be seen;
 %we'll generate an OpenAPI Specification for the tool to test that idea.
@@ -149,16 +156,41 @@ The document is a draft and, as of this writing (\today), is likely to be update
 
 This section uses examples to describe the basic features of the RADmapper language.
 RADmapper provides the complete expression language and all the built-in functions of JSONata.
-Examples of JSONata can be found in the \href{https://jsonata.org/}{JSONata specification}.
+Examples of JSONata can be found in the JSONata specification. %\href{https://jsonata.org/}{JSONata specification}.
 This section only goes into detail about the capabilities of RADmapper not found in JSONata.
 The principal concepts to discuss are
 
 \begin{itemize}
+  \item{an end-to-end mapping task,}
   \item{the relational and graph forms of data,}
   \item{RADmapper's \stt{query} declaration, used to query relational data, and }
   \item{RADmapper's \stt{express} declaration, used to reorganize (``map'') data from its original form to the form in which it is needed.}
 %  \item{RADmapper's strategy for interoperability.}
-\end{itemize}
+  \end{itemize}
+
+\subsection{End-to-end preview}
+
+Without going into detailed description of how the parts work, this section describes a mapping task end-to-end.
+The example is typical of ``mapping'' problem: we have data encoded in one structure (the ``source'' form) and we'd like to express that data as another structure (the ``target'' form).
+The example uses many of the capabilities of the RADmapper language and server capabilities of the exerciser\footnote{The exerciser can be viewed as a reference implementation for cases where you need executable to interact with a server.}, including
+\begin{itemize}
+  \item{fetching data,}
+  \item{fetching stored functions,}
+  \item{calling an LLM for matching and extraction,}
+  \item{uses of datalog,}
+  \item{general asynchronous execution, and}
+  \item{human validation of an AI-generated mapping function.}
+  \end{itemize}
+
+The last bullet above is in keeping with basic goals of RADmapper: we aim to produce functions that expresses the essence of a mapping task in terms that aren't so technical that business-oriented analysts can't read them.
+Our guess is that, emerging AI capabililties notwithstanding, business-oriented validation is going to continue to be a requirement for the foreseeable future.
+A light rewrite of the RADmapper function here (as, say, JSON) can be shared and mapped to commercial tools to execute the essential activity in technology other than RADmapper.
+
+\textbf{[Now details of the example.]}
+
+This example is currently executable from the exerciser https://hub.docker.com/r/podenno/rm-exerciser as the default example, if you'd like to try it yourself.
+%RADmapper is available for NodeJS library and Java. The exerciser has a OpenAPI interface.
+
 
 %  The original form of data is called a \textit{source} form; the needed form is called the \textit{target} form.
 
@@ -762,7 +794,7 @@ In small enterprises, of course, many of these roles are played by a single pers
 %\begin{itemize}
 %\item{Domain experts are interested in how each party involved in a transaction understands and distinguishes the things transacted similarly.
 %    For example, that ``my'' notions of the units of measure maps to ``yours''.}
-%\item{Back-end system administrators want to be ensured that the transaction results...} 
+%\item{Back-end system administrators want to be ensured that the transaction results...}
 %\end{itemize}
 
 %The RADmapper language presented above, a DSL, is not intended to be a standard exchange form, rather we view the RADmapper DSL as a means to describe detailed requirements for mapping.
@@ -1746,7 +1778,7 @@ This section is apt to be rewritten several times as the features of the languag
 %Returning a substring               & substring()
 %\end{tabular}
 %\end{table}
-\bibliography{/users/pdenno/Documents/bibtex/BBT}
+\bibliography{/home/msid/pdenno/Documents/bibtex/BBT}
 
 \end{document}
 %%% Local Variables:
