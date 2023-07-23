@@ -102,7 +102,7 @@ title=\lstname                   % show the filename of files included with \lst
 
 %define Javascript language (modified for  RADmapper)
 \lstdefinelanguage{JavaScript}{
-  keywords={\$abs, \$append, \$assert, \$assoc, \$average, \$base64decode, \$base64encode, \$boolean, \$ceil, \$contains, \$count, \$decodeUrl, \$decodeUrlComponent, \$distinct, \$each, \$encodeUrl, \$encodeUrlComponent, \$error, \$eval, \$exists, \$filter, \$floor, \$formatBase, \$formatInteger, \$formatNumber, \$fromMillis, \$get, \$join, \$keys, \$length, \$lookup, \$lowercase, \$map, \$match, \$max, \$merge, \$millis, \$min, \$not, \$now, \$number, \$pad, \$parseInteger, \$power, \$put, \$random,,\$read, \$reduce, \$replace, \$reverse, \$round, \$shuffle, \$sift, \$single, \$sort, \$split, \$spread, \$sqrt, \$string, \$substring, \$substringAfter, \$substringBefore, \$sum, \$toMillis, \$update, \$trim, \$type,,\$uppercase, \$zip},
+  keywords={\$abs, \$append, \$assert, \$assoc, \$average, \$base64decode, \$base64encode, \$boolean, \$ceil, \$contains, \$count, \$decodeUrl, \$decodeUrlComponent, \$distinct, \$each, \$encodeUrl, \$encodeUrlComponent, \$error, \$eval, \$exists, \$filter, \$floor, \$formatBase, \$formatInteger, \$formatNumber, \$fromMillis, \$get, \$join, \$keys, \$length, \$llmExtract, \$llmMatch, \$lookup, \$lowercase, \$map, \$match, \$max, \$merge, \$millis, \$min, \$not, \$now, \$number, \$pad, \$parseInteger, \$power, \$put, \$random,,\$read, \$reduce, \$replace, \$reverse, \$round, \$shuffle, \$sift, \$single, \$sort, \$split, \$spread, \$sqrt, \$string, \$substring, \$substringAfter, \$substringBefore, \$sum, \$toMillis, \$update, \$trim, \$type,,\$uppercase, \$zip},
 keywordstyle=\color{darkblue}\bfseries,            % for \bfseries to be useful for Inconsolata, you may have to download the font: https://tex.stackexchange.com/questions/145833/inconsolata-bold-on-old-ubuntu-precise-texlive
 ndkeywords={false, function, express, key, query, true} % You'll find it at https://www.ctan.org/tex-archive/fonts/inconsolata/
 ndkeywordstyle=\color{darkgray}\bfseries,          % https://tex.stackexchange.com/questions/7669/bfseries-is-to-textbf-as-what-is-to-textsf explains names like 'bfseries'.
@@ -271,7 +271,7 @@ the following string value is returned:
   \caption{The function return by the call to \$shape}
   \label{fig:function-returned-from-shape-call}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-'// Here we assume that we validated the $llmMatch result, and stored it as this.
+// Here we assume that we validated the $llmMatch result, and stored it as this.
 
 function($d){
  {'Invoice':
@@ -305,7 +305,7 @@ function($d){
           'PurchaseOrderReference':
               {'ID': $d.Invoice.DataArea.Invoice.InvoiceHeader.PurchaseOrderReference.ID}},
         'Process' : $d.Invoice.DataArea.Process}}}}
-  }'
+  }
 \end{lstlisting}
 \end{figure}
 
@@ -436,7 +436,7 @@ Of course, not all mappings are this simple; for the harder cases there is a fun
   $schema1Roots := $rootQuery($schema1);   // Get root elements of each schema.
   $schema2Roots := $rootQuery($schema2);
 
-  $llmMatch($shape($schema1Roots.?name[0], $schema1PC), // [0] here is cheating a bit; there could be multiple roots.
+  $llmMatch($shape($schema1Roots.?name[0], $schema1PC), // [0] is cheating a bit; there could be multiple roots.
             $shape($schema2Roots.?name[0], $schema2PC), // Call $llmMatch to do shape matching
             {'asFn?' : true})
 )
@@ -558,7 +558,7 @@ If there is only one database being queried, as we've been doing earlier, you do
 Let's look at a complete \stt{query} example that uses two databases.
 
 \begin{figure}[H]
-    \caption{A query that looks into two databases}
+    \caption{A query that joins information from two databases}
     \label{code:two-database-query}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 ( $DBa := [{'email' : 'bob@example.com', 'aAttr' : 'Bob-A-data',   'name' : 'Bob'},
