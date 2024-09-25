@@ -120,7 +120,7 @@ morestring=[b]"
 \begin{document}
 \title{OAGi Interoperable Mapping Specification}
 \author{Peter Denno \&  OAGi Members}
-\date{\today \@ Draft}
+%\date{\today \@ Draft}
 \maketitle{}
 
 \section{Introduction}
@@ -144,7 +144,7 @@ A web app to explore the language is available as a Docker image https://hub.doc
 
 This section uses examples to describe the basic features of the RADmapper language.
 RADmapper provides the complete expression language and all the built-in functions of JSONata.
-Like JSONata (and JavaScript) RADmapper is a functional language: functions can be passed to functions as values; the value returned be can be a newly created function.
+Like JSONata (and JavaScript) RADmapper is a functional language: functions can be passed to functions as values; the value returned from a function call can be a newly created function.
 Examples of JSONata can be found in the JSONata specification. %\href{https://jsonata.org/}{JSONata specification}.
 This section only goes into detail about the capabilities of RADmapper not found in JSONata.
 The principal concepts to discuss are
@@ -152,12 +152,14 @@ The principal concepts to discuss are
 \begin{itemize}
   \item{an end-to-end mapping task using Datalog, large language models, and the interoperable exchange form,}
   \item{the relational and graph forms of data,}
-  \item{RADmapper's \stt{query} declaration, used to query relational data, and }
-  \item{RADmapper's \stt{express} declaration, used to reorganize (``map'') data from its original form to the form in which it is needed.}
-  \item{RADmapper's strategy for interoperability.}
+  \item{RADmapper's \stt{query} declaration, used to query relational data,}
+  \item{RADmapper's \stt{express} declaration, used to reorganize (``map'') data from its original form to the form in which it is needed, and}
+  \item{RADmapper's strategy for interoperable exchange of mapping specifications.}
 \end{itemize}
 
 \subsection{An End-to-end Example}
+
+\subsubsection{Typical requirements}
 
 Without going into detailed discussion about how things work, this section describes a mapping task end-to-end.
 The example is typical of ``mapping'' problems: we have information encoded in one structure (the ``source'' form) and we'd like to express that information as another structure (the ``target'' form).
@@ -166,12 +168,11 @@ The example uses many of the capabilities of the RADmapper language and server c
   \item{fetching data,}
   \item{fetching stored functions,}
   \item{calling an LLM for matching and extraction,}
-  \item{uses of datalog,}
-  \item{general asynchronous execution, and}
+  \item{use of Datalog to query for data conforming to given patterns,}
   \item{human validation of AI-generated mapping functions.}
   \end{itemize}
 
-The last bullet above, about validation, is in keeping with basic goals of RADmapper: we aim to produce results that expresses the essence of a mapping task in terms that aren't so procedural looking that business-oriented analysts can't read them.\footnote{Or if we fall a little short of that goal, at least provide data for GUI tools that could illustrate what relationships are being asserted.}
+The last bullet above, about validation, is in keeping with basic goals of RADmapper: we aim to produce results that express the essence of a mapping task in terms that are not so procedural looking that business-oriented analysts can't read them.\footnote{Or if we fall a little short of that goal, at least provide data for GUI tools that could illustrate what relationships are being asserted.}
 Our guess is that, emerging AI capabililties notwithstanding, business-oriented validation is going to continue to be a requirement for the foreseeable future.
 Thus we aim for a result that is readable and easily serialized (as, say, JSON) so that it might be translated into code for use with a commercial tool.
 
@@ -224,55 +225,25 @@ Suppose the business partner's data are structured as suggested by the example b
 
 Two differences between the customer's form and yours are that:
 \begin{enumerate}
-\item{the customer's 'AddressLine' (Lines 12 and 12) is decomposed into its constituent details, BuildingNumber, CityName, (Lines 28--31) etc. in your target form and,}
+\item{the customer's 'AddressLine' (Lines 12 and 13) is decomposed into its constituent details, BuildingNumber, CityName, (Lines 28--31) etc. in your target form and,}
 \item{the customer's structure places the purchase order reference in a structure called InvoiceHeader (Line 8), whereas in your form a purchase order is associated with
 each InvoiceLine, as shown by the nesting of Line 34 in the target structure.}
 \end{enumerate}
 
-To get from these requirements to working code we will
-(1) provide the abstract "shape" of the two structures above to an LLM function, \stt{\$llmMatch}, to reconcile differences in the structures,
-(2) have \stt{\$llmMatch} return a "mapping function" in RADmapper language that we can study for correctness to our business requirements, and
-(3) document and store the verified function for use whenever it is needed.
+\subsubsection{The function to do it}
 
-We can demonstrate use of the stored function with the exerciser web app, in which case we'd use the RADmapper function \stt{\$get} to get both data and the function.
-In your tooling, you might access the data and function much differently.
-In the exerciser, it looks like the following.\footnote{This example is currently executable from the exerciser https://hub.docker.com/r/podenno/rm-exerciser as the default example, if you'd like to try it yourself.
-  Note that the exerciser has an OpenAPI interface.
-  In the exerciser docker image, it is documented at http://localhost:3000; the app itself is http://localhost:3000/app.}
-
-\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-(
-  $data := $get(['library_fn', 'bie-1-data'], ['fn_exe']).fn_exe;
-  $mappingFn := $get(['library_fn', 'invoice-match-1->2-fn'], ['fn_exe']).fn_exe;
-  $mappingFn($data)
-)
-\end{lstlisting} \vspace{-2em}
-
-Line 2 of this example calls \stt{\$get} to get the example data.
-\stt{\$get} works something like GraphQL, in this case just specifying one property of the argument object, \stt{['library\_fn', 'bie-1-data']}, to retrieve.
-Running from the exerciser, \stt{\$get} is an async call to the server serving the app.
-Line 3 similarly gets the mapping function. Note that both lines (and indeed the whole example and most RADmapper syntax) conforms to JSONata syntax.
-\stt{\$get} returns an object with the attributes listed in its second argument.
-Both Line 2 and Line 3, use JSONata syntax, \stt{.fn\_exe}, to get the one property retrieved from the object, its executable.\footnote{You are probably wondering what ``getting the executable'' means with respect to  data.
-  These \stt{'library\_fn'} objects have three attributes, \stt{fn\_exe}, \stt{fn\_src}, and \stt{fn\_doc}.
-  \stt{fn\_src} is a string.
-  In the case of data, \stt{fn\_exe} returns the structure represented by that string, just as you might do with a string representing JSON.
-  Note also that there is a \stt{\$put} function in the exerciser, so that you can play with these kinds of tasks.
-  RADmapper is available as libraries for Node.js and Java.}
-Line 4 applies the \stt{\$mappingFn} to the \stt{\$data} resulting in an object like shown in Lines of 20--35 of Figure~\ref{fig:data-for-end-to-end}.
-None of the above explains what \stt{\$mappingFn} does nor how it was created.
-We will now work backwards from this ending point (the data mapped) to see how the mapping code is generated.
-
-In the exerciser, if you execute the expression\\ \stt{\$get(['library\_fn', 'invoice-match-1->2-fn'], ['fn\_src']).fn\_src}\\
-(rather than \stt{fn\_exe} as used above)
-the following string value is returned:
+Given examples of the data source and target in Figure~\ref{fig:data-for-end-to-end} it is not hard to see that the function in Figure~\ref{fig:function-returned-from-shape-call} would get the job done;
+it returns a structure that mirrors the target structure, and where it needs information from the source, it  describes paths into it.
+Sometimes the paths are used directly, for example in Lines 5, 27, 29, 31, and 32.
+Sometimes the data at the end of the path needs further processing.
+On Lines 12, 16, 20 and 24 the paths are used in calls to  \stt{\$llmExtract} for such processing.
+\stt{\$llmExtract} takes two arguments: a string (provided here by a path in the source data) and a term that describes a substring sought from the string.
+As you probably guessed from the name of the function, this function uses a large language model (LLM) to do the work.
 
 \begin{figure}[H]
   \caption{The function returned by the call to \$shape}
   \label{fig:function-returned-from-shape-call}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
-// Here we assume that we validated the $llmMatch result, and stored it as this.
-
 function($d){
  {'Invoice':
   {'DataArea':
@@ -309,17 +280,62 @@ function($d){
 \end{lstlisting}
 \end{figure}
 
-This string is the value returned from a call to \stt{\$llmMatch} with the ``shapes'' of the source and target data.
-You could get the corresponding executable by either \stt{\$get}-ing the \stt{fn\_exe} or calling the function \stt{\$eval} as you would in JSONata.
-Note the following about this string:
-\begin{itemize}
-   \item{The string defines a function of one argument, \stt{\$d} which should be bound to the source data, the data in Lines 3--16 of Figure\ref{fig:data-for-end-to-end}}.
-   \item{Lines 14, 18, 22, and 26 call the function \stt{\$llmExtract}, which is an LLM call to extract the information describe by the second argument string from the first argument string.}
-   \item{The long expressions beginning with \stt{\$d....} are navigations into the source data, and are associated with target data properties.}
-   \end{itemize}
+We could just leave things like this; it isn't hard (in this case) for a human to specify the paths shown above.
+Further, were a human analyst to verify that the function above is what they need, then it is just a matter of turning the function into something easily exchanged (like JSON) to enable interoperable mapping.
 
-So what are these ``shape'' structures that are the arguments to \stt{\$llmMatch}?
-They are simply nested objects typical of example data where the non-object content is replaced by the string \stt{'<data>'}.
+Of course, it isn't hard to identify the mapping requirements using LLM tools either.
+You could imagine, for example, LLM-based functions that recognize that CityName could be part of an AddressLine.
+RADmapper contains such a function; it is called \stt{\$llmMatch}.
+Below we show how it can be used to automatically generate functions like in Figure~\ref{fig:function-returned-from-shape-call}.
+
+\subsubsection{A methodology around ``the function to do it''}
+
+A methodology deployable at enterprise scale might use a three-step process for generating and using
+mapping functions like the one in Figure~\ref{fig:function-returned-from-shape-call}:
+\begin{description}
+  \item[Step A] Compute the abstract ``shape'' of the source and target structures in Figure~\ref{fig:data-for-end-to-end}
+  \item[Step B] Provide these shapes to an LLM function, \stt{\$llmMatch}, to reconcile differences in the source and target structures, producing functions for mapping between them.
+\item[Step C] Verify, document, and store the function for use whenever it is needed.
+\end{description}
+
+We will start by discussing Step C because it is a more basic capability used in Step A.
+The key RADmapper functionality of Step C is to store the function (\stt{\$put});
+the converse is, of course, retrieving it (\stt{\$get}).
+We can demonstrate use of the stored function with the exerciser web app, in which case we'd use \stt{\$get} to get both data and the function.
+In your tooling, you might access the data and function much differently.
+In the exerciser, it looks like Figure\ref{fig:run-a-map-fn} below.\footnote{This example is currently executable from the exerciser https://hub.docker.com/r/podenno/rm-exerciser as the default example, if you'd like to try it yourself.
+  Note that the exerciser has an OpenAPI (swagger) interface.
+  In the exerciser docker image, it is documented at http://localhost:3000; the app itself is http://localhost:3000/app.}
+
+\begin{figure}[H]
+  \caption{In the three-step process, \stt{invoice-match-1->2-fn}, a mapping function,
+    was created in Step B, and stored in Step C.
+    In this code we are \stt{\$get}-ing and using it.}
+  \label{fig:run-a-map-fn}
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+(
+  $data := $get(['library_fn', 'bie-1-data'], ['fn_exe']).fn_exe;
+  $mappingFn := $get(['library_fn', 'invoice-match-1->2-fn'], ['fn_exe']).fn_exe;
+  $mappingFn($data)
+)
+\end{lstlisting} \vspace{-2em}
+\end{figure}
+
+Line 2 of this example calls \stt{\$get} to get the example data.
+\stt{\$get} works something like GraphQL, in this case just specifying one property of the argument object, \stt{['library\_fn', 'bie-1-data']}, to retrieve.
+Running from the exerciser, \stt{\$get} is an async call to the server serving the app.
+Line 3 similarly gets the mapping function. Note that both lines (and indeed the whole example and most RADmapper syntax) conforms to JSONata syntax.
+\stt{\$get} returns an object with the attributes listed in its second argument.
+Both Line 2 and Line 3, use JSONata syntax, \stt{.fn\_exe}, to get the one property retrieved from the object, its executable.\footnote{You are probably wondering what ``getting the executable'' means with respect to  data.
+  These \stt{'library\_fn'} objects have three attributes, \stt{fn\_exe}, \stt{fn\_src}, and \stt{fn\_doc}.
+  \stt{fn\_src} is a string.
+  In the case of data, \stt{fn\_exe} returns the structure represented by that string, just as you might do with a string representing JSON.
+  Note also that there is a \stt{\$put} function in the exerciser, so that you can play with these kinds of tasks.
+  RADmapper is available as libraries for Node.js and Java.}
+Line 4 applies the \stt{\$mappingFn} to the \stt{\$data} resulting in an object like shown in Lines of 20--35 of Figure~\ref{fig:data-for-end-to-end}.
+
+Now let's talk about about Step A, creating the shape structures.
+The shape structures are simply nested objects typical of example data where the non-object content is replaced by the string \stt{'<data>'}.
 For example,
 
 \begin{lstlisting}[language=JavaScript,numbers=none,basicstyle=\ttfamily\scriptsize]
@@ -333,11 +349,13 @@ For example,
                              {'ManufacturingParty': {'Name': '<data>'}
                               'ItemDescription'   : '<data>'}}}.
 \end{lstlisting} \vspace{-2em}
-Of course, you could create things like this by typing them in, but so as to illustrate the use of a RADmapper function-like construct \stt{query}, we will assume there are schema defining these structures; we'll use \stt{query} to create the structures. The code to do this is a bit involved; it could be saved as a function and applied, but for the sake of exposition we'll discuss the whole thing, shown below.
+Of course, you could create things like this by typing them in, but so as to illustrate the use of a RADmapper function-like construct \stt{query}, we will assume there are schema defining these structures; we'll use \stt{query} to create the structures. The code to do this is a bit involved; it would be saved as a function and applied, but for the sake of exposition we'll discuss the whole thing, shown below.
+Just keep in mind that this is part of the much simpler process of doing the three steps.
+Here we are looking behind the curtain.
 
-%\pagebreak
 \begin{figure}[H]
-  \caption{Creating shape data from schema}
+  \caption{Details of the process of creating shape data from source and target schema for invoices.
+    In practice you would make a function from this and not worry about it.}
   \label{fig:def-of-shape-fn}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 ( // This code shows all the detail of creating shapes for $llmMatch.
@@ -393,7 +411,7 @@ We'll walk through this code line by line:
   Lines 6--10 define the query function for finding parent/child relationships in the schema data, and
   Lines 12--14 define the query function for finding the root elements in the schema data.
 \item[Line 17, parent/child function] Defines a small function to return the children of a parent.
-\item[Lines 20-17, shape function] Defines a function to create the shape structures.
+\item[Lines 20--27, shape function] Defines a function to create the shape structures.
   This uses two RADmapper functions not found in JSONata.
   \stt{\$assoc} takes an object, an attribute and a value and installs the value at that attribute in the object.
   \stt{\$update} is similar but calls the 3rd argument function on the value in the attribute to update it.\footnote{
@@ -407,18 +425,8 @@ As will be in the next section, \stt{query} offers means to treat object structu
 \stt{query} offers an alternative means to manipulate data, an alternative to the Xpath-like languages such as JSONata.
 The \textit{binding sets} that are the returned value of query function calls are especially useful when calling \stt{\$reduce} on a \stt{express} function/structure, as will be demonstrated in later examples.
 
-To complete this example, we need only replace Lines 34 and 35 from the code above with a call \stt{\$shape}.
-A more modular approach to this, where the functions defined above were \stt{\$put} on the server, is depicted in Figure~\ref{fig:call-to-shape} below.
-Note that Line 18 below, \stt{\{'asFn?' : true\}}, is to specify that \stt{\$llmMatch} is to return a function, the function that was shown above, in Figure~\ref{fig:function-returned-from-shape-call}.
-Were we not to specify  \stt{\{'asFn?' : true\}} in the call, what would be returned would be an object that provided all the data needed to make the calls to \stt{\$llmExtract} discussed above.
-In this case, that object would be the form for exchange in the sense that
-(1) RADmapper aims is to support interoperable exchange, and
-(2) the object contains no complex RADmapper code, just use of .~(dot) for navigation, expressed in strings.
-Of course, not all mappings are this simple; for the harder cases there is a function \stt{\$toAST} discussed below that will allow any RADmapper code to be serialized as a JSON object.
-
-
 \begin{figure}[H]
-  \caption{Calling the shape function, completing the end-to-end example}
+  \caption{Step A, calling the shape function, and Step B, using the shapes to create a mapping function.}
   \label{fig:call-to-shape}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 
@@ -442,6 +450,17 @@ Of course, not all mappings are this simple; for the harder cases there is a fun
 )
 \end{lstlisting}
 \end{figure} \vspace{-3em}
+
+% THIS NEEDS WORK. I THINK I SHOULD BE TALKING ABOUT VALIDATION (Step C). <=============================
+To complete this example, we need only replace Lines 34 and 35 from the code above with a call \stt{\$shape}.
+A more modular approach to this, where the functions defined above were \stt{\$put} on the server, is depicted in Figure~\ref{fig:call-to-shape} below.
+Note that Line 18 below, \stt{\{'asFn?' : true\}}, is to specify that \stt{\$llmMatch} is to return a function, the function that was shown above, in Figure~\ref{fig:function-returned-from-shape-call}.
+Were we not to specify  \stt{\{'asFn?' : true\}} in the call, what would be returned would be an object that provided all the data needed to make the calls to \stt{\$llmExtract} discussed above.
+In this case, that object would be the form for exchange in the sense that
+(1) RADmapper aims is to support interoperable exchange, and
+(2) the object contains no complex RADmapper code, just use of .~(dot) for navigation, expressed in strings.
+Of course, not all mappings are this simple; for the harder cases there is a function \stt{\$toAST} discussed below that will allow any RADmapper code to be serialized as a JSON object.
+
 
 
 \subsection{Data Organized as Triples and the query Construct}
@@ -515,7 +534,7 @@ binding object for each of them.
 
 Amazing as that query might seem, running against a database with one entity in it and all, it didn't tell us \textit{what person} is age 42.
 All we got was a binding set for every entity that has an age attribute equal to 42.
-Entity IDs are internal to the database and not of much value to RADmapper users.\footnote{In fact, I sort of told a fib for ease of exposition; by default the binding of variables in the entity position, entity IDs, aren't provided in a binding object.
+Entity IDs are internal to the database and not of much value to RADmapper users.\footnote{In fact, I sort of told a fib for ease of exposition; by default the binding of variables in the entity position, entity IDs, are not provided in a binding object.
   Using default settings, what this example returns is \stt{[\{\}]} meaning ``one match was found.''
 The binding sets depicted in most examples won't include bindings for entity IDs.}
 In order to make any use of this information, we need to join the \stt{[?e :age 42]} pattern with a pattern that grabs the name attribute in the data, \stt{[?e :name ?name]}.
@@ -554,7 +573,7 @@ For example,
 
 You may have noticed that the query above, and one used earlier have four elements in their pattern whereas most of the examples have only three (entity, attribute, and value).
 If four elements are provided, the first is the database to which the pattern is applied.
-If there is only one database being queried, as we've been doing earlier, you don't need to use four-place patterns.
+If there is only one database being queried, as we've been doing earlier, you do not need to use four-place patterns.
 Let's look at a complete \stt{query} example that uses two databases.
 
 \begin{figure}[H]
@@ -579,7 +598,7 @@ Let's look at a complete \stt{query} example that uses two databases.
   In Figure~\ref{code:two-database-query} Lines 1--4 we define two small databases and assign them to variables \stt{\$DBa} and \stt{\$DBb} respectively. On Lines 6--10 we define the query.
 Since both databases use email addresses for customer identification, we can use the \stt{:email} and \stt{:id} attributes to join together information about a customer from the two databases.
 That is the purpose of the patterns on Lines 6 and 7; the two patterns use different variables for the entities, \stt{?e1} and \stt{?e2},
-because the information is coming from different databases and we don't control entity IDs, but both use \stt{?id} to force
+because the information is coming from different databases and we do not control entity IDs, but both use \stt{?id} to force
 matches on email address.
 The remainder of the patterns in the query, Lines 8--10, pick up various information from the two databases.
 Line 12 calls the query function bound to \stt{\$bSet} to get the binding sets against the two databases.
@@ -687,7 +706,7 @@ Assuming that we'd just like to present the target data as nested objects indexe
 
 \stt{express} is a function-defining construct that, like \stt{query}, is capable of returning express functions when supplied with parameters.
 In that sense it is capable of being a higher-order function.
-But here on Line 14 we aren't using parameter; the declaration is simply \stt{express()\{...\}}; no parameters imply it isn't a template and can be used directly.
+But here on Line 14 we are not using parameter; the declaration is simply \stt{express()\{...\}}; no parameters imply it isn't a template and can be used directly.
 The body of the \stt{express} declaration, the text inside the outer curly brackets, defines the pattern of JSONata-like object structure.
 The target data is produced by iterating over the express function bound to \stt{\$eFn} using the elements of the binding set.
 Two of the most common ways to iterate over a function in functional languages such as JSONata and RADmapper are map and reduce.
@@ -1011,7 +1030,7 @@ You can evaluate \stt{express} with a single binding set to see the result, comb
 
 The motivation for RADmapper, however, is more encompassing than what discussion thus far might suggest.
 Though you can use RADmapper's web-based exerciser to define and validate mappings,
-and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and JavaScript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you don't need to read it if your primary goal is to learn how to use RADmapper in Java or JavaScript software.
+and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and JavaScript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you do not need to read it if your primary goal is to learn how to use RADmapper in Java or JavaScript software.
 
 \section{Interoperable Specification of Mapping Requirements, \$toAST}
 
@@ -2031,7 +2050,7 @@ from the logical relationship defined by the mapping specification.
 %Returning a substring               & substring()
 %\end{tabular}
 %\end{table}
-\bibliography{/home/msid/pdenno/Documents/bibtex/BBT}
+\bibliography{/home/pdenno/Documents/bibtex/MainCollection}
 
 \end{document}
 %%% Local Variables:
