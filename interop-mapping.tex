@@ -140,8 +140,19 @@ Use cases for the RADmapper language including in-place updating of target data 
 %This document describes the RADmapper language and its strategy for exchange of mapping specifications.
 The reference implementation of the RADmapper language can be found in the Github repository https://github.com/pdenno/RADmapper.
 A web app to explore the language is available as a Docker image https://hub.docker.com/r/podenno/rm-exerciser.
+See Figure~\ref{fig:RM-screenshot}.
 %The document is a draft and, as of this writing, \today, is likely to be updated often, as will the %language implementation and exerciser.
 \end{sloppypar}
+
+\begin{figure}[H]
+  \caption{The RADmapper web app. The upper right pane contains RADmapper executable.
+    The lower right pane contains output from the execution.
+    The pull-down on the left showing ``(5): LLM match 1->2'' allows the user to select some pre-defined demos.}
+   \includegraphics[scale=0.25]{RADmapperScreenshot.jpg}
+\label{fig:RM-screenshot}
+  \centering
+\end{figure}
+
 
 \section{Quick Start: Example Mapping Tasks}
 
@@ -508,7 +519,7 @@ A complete RADmapper program for querying the Bob database for people age 42 is 
    $ageQuery := query(){[?e :age 42]};
    $result := $ageQuery($myDB); )
 \end{lstlisting}
-\end{figure} \vspace{-2em}
+\end{figure} \vspace{-3em}
 
 % ToDo: I think I made a mistake by calling the thing returned by query a binding set. It is a collection of binding sets.
 %       Or maybe binding element was the problem. But element and set are wrong. I should call the each one a binding object
@@ -547,7 +558,7 @@ This is shown in Figure~\ref{code:bob-age-more} below.
                         [?e :name ?name]}
    $result := $ageQuery($myDB); )
 \end{lstlisting}
-\end{figure} \vspace{-2em}
+\end{figure} \vspace{-3em}
 
 The pattern on Line 3, by virtue of its reuse of \stt{?e}, imposes an additional constraint on the graph match: the entity bound to \stt{?e} must have a \stt{:name} attribute.
 The value of the name attribute is bound to \stt{?name}.
@@ -633,7 +644,7 @@ For this reason, the \stt{query} declaration can serve to produce a \textit{high
 
    $append($ageQ42($myDB) , $ageQ33($myDB))  )
 \end{lstlisting}
-\end{figure} \vspace{-2em}
+\end{figure} \vspace{-3em}
 
 The key difference is that on Line 4, the \stt{query} construct, defines a parameter, \stt{\$age}, using ordinary JSONata-like syntax.
 You can define as many parameters as you'd like and they can be used to substitute into any of the pattern positions, entity, attribute, or value.
@@ -700,7 +711,7 @@ Assuming that we'd just like to present the target data as nested objects indexe
 
   $reduce($bSet, $eFn) )
 \end{lstlisting}
-\end{figure} \vspace{-2em}
+\end{figure} \vspace{-3em}
 
 \stt{express} is a function-defining construct that, like \stt{query}, is capable of returning express functions when supplied with parameters.
 In that sense, it is capable of being a higher-order function.
@@ -780,7 +791,7 @@ The restructuring task can be achieved using only JSONata functions and operator
     } `$\sim$'> $merge()
 }
 \end{lstlisting}
-\end{figure} \vspace{-2em}
+\end{figure} \vspace{-3em}
 
 Though the RADmapper solution to this problems involves more lines of code (see Figure~\ref{code:restruct} below), it is arguably easier to understand.
 The RADmapper solution is also arguably a better candidate for \textit{interoperable} exchange of mappings, as will be discussed later.
@@ -929,7 +940,7 @@ $ex1 := express{{'owners' : {'type'   : 'OWNER',
                                                        'status': ?status}]}]}}
                }
 \end{lstlisting}
-\end{figure}  \vspace{-2em}
+\end{figure}  \vspace{-3em}
 
 If we were to map over that \stt{express} body, that is \stt{\$map(\$bsets,\$ex1)}, the result would be (logically correct, of course but) even more verbose and %-----also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
 A better alternative might be to \stt{\$reduce} over the \stt{express}, that is, \stt{\$reduce(\$bsets,\$ex1)};
@@ -1049,7 +1060,8 @@ In small enterprises, of course, many of these roles are played by a single pers
 %%Mapping is a vague term and the tasks it represents often can be accomplished best with general-purpose programming languages.
 %
 %Something different is needed.
-%The usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and Object Constraint %Language (OCL), ISO 10303 Express, and Modelica.
+%  The usual methods of promulgating standardization through a domain-specific language (DSL) might not work here.\footnote{Examples of DSLs used in standards include the OMG's Query's, Views and Transformation (QVT), and
+%  Object Constraint %Language (OCL), ISO 10303 Express, and Modelica.
 %  Each of these are implemented in various open-source and commercial tools capable of processing the corresponding DSL language.
 %  A DSL is a feasible strategy in each of those cases because the DSL specification defines the required behavior of the DSL-aware tools.
 %  We argue that the situation is different  with ``mapping tools''.
@@ -1108,7 +1120,7 @@ Note on Line 9 that \stt{\$reduceKV} is called with an empty object as its secon
   $reduceKV($name2CustomerFn, {}, $order)
  )
 \end{lstlisting}
-\end{figure}  \vspace{-2em}
+\end{figure}  \vspace{-3em}
 
 Corresponding Dataweave to Figure~\ref{code:reduceKV} is shown in Figure~\ref{code:dataweave-1}.
 The key work of mapping, which corresponds to \stt{\$reduceKV} in the above RADmapper code is Dataweave's \stt{mapObject} on Line 6 of Figure~\ref{code:dataweave-1}.
@@ -1129,7 +1141,7 @@ The key work of mapping, which corresponds to \stt{\$reduceKV} in the above RADm
                                          }
       }
 \end{lstlisting}
-\end{figure}  \vspace{-2em}
+\end{figure}  \vspace{-3em}
 
 The relation between the RADmapper and Dataweave viewpoints on this task is achieved by serializing the RADmapper source, Lines 1--10, of Figure~\ref{code:reduceKV} to a syntax tree
 (see Figure~\ref{tree:example-1}) and then mapping that data as source, to corresponding Dataweave operators and structure.
@@ -1207,7 +1219,7 @@ An OWL class and property is depicted in Figure~\ref{code:endurant}.
  'rdfs/domain'        : 'dol/perdurant',
  'rdfs/range'         : 'dol/endurant'}
 \end{lstlisting}
-\end{figure}
+\end{figure} \vspace{-3em}
 
 The target data we'll be creating consists of three kinds of things: schema, tables, and columns.
 Even with this simple data, there are a few options for designing the relational schema.
@@ -1333,7 +1345,7 @@ specification that will be described below.
                     {'colName' : 'role2',
                      'dtype'   : {'type' : 'varchar', 'size' : 300, 'ref' : 'ObjectDefinition'}}]}
 \end{lstlisting}
-\end{figure}
+\end{figure} \vspace{-3em}
 
 %Schema for the target data (the table definitions, etc.) is depicted in Figure ~\ref{code:example-schema-1}.
 %The object types define attributes (\stt{db/attrs}) and keys (\stt{db/key}).
