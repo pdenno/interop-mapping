@@ -119,7 +119,8 @@ morestring=[b]"
 
 \begin{document}
 \title{OAGi Interoperable Mapping Specification}
-\author{Peter Denno \&  OAGi Members}
+\author{Peter Denno, NIST}
+%\author{Peter Denno \&  OAGi Members}
 %\date{\today \@ Draft}
 \maketitle{}
 
@@ -232,7 +233,7 @@ each InvoiceLine, as shown by the nesting of Line 34 in the target structure.}
 
 \subsubsection{The function to do it}
 
-Given examples of the data source and target in Figure~\ref{fig:data-for-end-to-end} it is not hard to see that the function in Figure~\ref{fig:function-returned-from-shape-call} would get the job done;
+Given examples of the data source and target in Figure~\ref{fig:data-for-end-to-end} it is not hard to see that the function in Figure~\ref{fig:mapping-src2tar} would get the job done;
 it returns a structure that mirrors the target structure, and where it needs information from the source, it  describes paths into it.
 Sometimes the paths are used directly, for example in Lines 5, 27, 29, 31, and 32.
 Sometimes the data at the end of the path needs further processing.
@@ -241,8 +242,8 @@ On Lines 12, 16, 20 and 24 the paths are used in calls to  \stt{\$llmExtract} fo
 As you probably guessed from the name of the function, this function uses a large language model (LLM) to do the work.
 
 \begin{figure}[H]
-  \caption{The function returned by the call to \$shape}
-  \label{fig:function-returned-from-shape-call}
+  \caption{A function that maps the source to target of Figure~\ref{fig:data-for-end-to-end}}
+  \label{fig:mapping-src2tar}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 function($d){
  {'Invoice':
@@ -283,33 +284,31 @@ function($d){
 We could just leave things like this; it isn't hard (in this case) for a human to specify the paths shown above.
 Further, were a human analyst to verify that the function above is what they need, then it is just a matter of turning the function into something easily exchanged (like JSON) to enable interoperable mapping.
 
-Of course, it isn't hard to identify the mapping requirements using LLM tools either.
+Of course, it isn't hard to identify the mapping requirements expressed in Figure~\ref{fig:mapping-src2tar} using LLM tools either.
 You could imagine, for example, LLM-based functions that recognize that CityName could be part of an AddressLine.
 RADmapper contains such a function; it is called \stt{\$llmMatch}.
-Below we show how it can be used to automatically generate functions like in Figure~\ref{fig:function-returned-from-shape-call}.
+Below we show how it can be used to automatically generate functions like in Figure~\ref{fig:mapping-src2tar}.
 
 \subsubsection{A methodology around ``the function to do it''}
 
 A methodology deployable at enterprise scale might use a three-step process for generating and using
-mapping functions like the one in Figure~\ref{fig:function-returned-from-shape-call}:
+mapping functions like the one in Figure~\ref{fig:mapping-src2tar}:
 \begin{description}
-  \item[Step A] Compute the abstract ``shape'' of the source and target structures in Figure~\ref{fig:data-for-end-to-end}
-  \item[Step B] Provide these shapes to an LLM function, \stt{\$llmMatch}, to reconcile differences in the source and target structures, producing functions for mapping between them.
-\item[Step C] Verify, document, and store the function for use whenever it is needed.
+  \item[Step A] Compute the abstract ``shape'' of the source and target structures in Figure~\ref{fig:data-for-end-to-end}.
+  \item[Step B] Provide these shapes to an LLM function, \stt{\$llmMatch}, to reconcile differences in the source and target structures, generating functions for mapping between them.
+\item[Step C] Verify, document, and store the generated function for use whenever this type of mapping is needed.
 \end{description}
 
-We will start by discussing Step C because it is a more basic capability used in Step A.
-The key RADmapper functionality of Step C is to store the function (\stt{\$put});
-the converse is, of course, retrieving it (\stt{\$get}).
-We can demonstrate use of the stored function with the exerciser web app, in which case we'd use \stt{\$get} to get both data and the function.
+We will start by discussing the ``store the function'' part of Step C because it is a more basic capability used in Step A.
+RADmapper has store and retrieve functions \stt{\$put}, and \stt{\$get} that work the same on data and functions.
+We can demonstrate use of the stored function with the exerciser web app.
 In your tooling, you might access the data and function much differently.
 In the exerciser, it looks like Figure\ref{fig:run-a-map-fn} below.\footnote{This example is currently executable from the exerciser https://hub.docker.com/r/podenno/rm-exerciser as the default example, if you'd like to try it yourself.
   Note that the exerciser has an OpenAPI (swagger) interface.
   In the exerciser docker image, it is documented at http://localhost:3000; the app itself is http://localhost:3000/app.}
 
 \begin{figure}[H]
-  \caption{In the three-step process, \stt{invoice-match-1->2-fn}, a mapping function,
-    was created in Step B, and stored in Step C.
+  \caption{Suppose that using the three-step process, \stt{invoice-match-1->2-fn}, a mapping function for data taking the form of the running example was created in Step B and stored in Step C.
     In this code we are \stt{\$get}-ing and using it.}
   \label{fig:run-a-map-fn}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
@@ -326,11 +325,10 @@ Line 2 of this example calls \stt{\$get} to get the example data.
 Running from the exerciser, \stt{\$get} is an async call to the server serving the app.
 Line 3 similarly gets the mapping function. Note that both lines (and indeed the whole example and most RADmapper syntax) conforms to JSONata syntax.
 \stt{\$get} returns an object with the attributes listed in its second argument.
-Both Line 2 and Line 3, use JSONata syntax, \stt{.fn\_exe}, to get the one property retrieved from the object, its executable.\footnote{You are probably wondering what ``getting the executable'' means with respect to  data.
+Both Line 2 and Line 3, use JSONata syntax, \stt{.fn\_exe}, to get the one property retrieved from the object, its executable.\footnote{You are probably wondering what ``getting the executable'' means with respect to  data such as Line 2 in Figure~\ref{fig:run-a-map-fn}.
   These \stt{'library\_fn'} objects have three attributes, \stt{fn\_exe}, \stt{fn\_src}, and \stt{fn\_doc}.
   \stt{fn\_src} is a string.
   In the case of data, \stt{fn\_exe} returns the structure represented by that string, just as you might do with a string representing JSON.
-  Note also that there is a \stt{\$put} function in the exerciser, so that you can play with these kinds of tasks.
   RADmapper is available as libraries for Node.js and Java.}
 Line 4 applies the \stt{\$mappingFn} to the \stt{\$data} resulting in an object like shown in Lines of 20--35 of Figure~\ref{fig:data-for-end-to-end}.
 
@@ -349,13 +347,13 @@ For example,
                              {'ManufacturingParty': {'Name': '<data>'}
                               'ItemDescription'   : '<data>'}}}.
 \end{lstlisting} \vspace{-2em}
-Of course, you could create things like this by typing them in, but so as to illustrate the use of a RADmapper function-like construct \stt{query}, we will assume there are schema defining these structures; we'll use \stt{query} to create the structures. The code to do this is a bit involved; it would be saved as a function and applied, but for the sake of exposition we'll discuss the whole thing, shown below.
-Just keep in mind that this is part of the much simpler process of doing the three steps.
+Of course, you could create things like this by typing them in, but, so as to illustrate the use of a RADmapper function-like construct \stt{query}, we will assume there are schema defining these structures; we'll use a Datalog-like \stt{query} to create the structures. The code to do this is a bit involved; it would be saved as a function and applied, but for the sake of exposition we'll discuss the whole thing, shown below.
+Just keep in mind that this is not part of the much simpler process of doing the three steps.
 Here we are looking behind the curtain.
 
 \begin{figure}[H]
   \caption{Details of the process of creating shape data from source and target schema for invoices.
-    In practice you would make a function from this and not worry about it.}
+    In practice, you would make a function from this and not worry about it.}
   \label{fig:def-of-shape-fn}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 ( // This code shows all the detail of creating shapes for $llmMatch.
@@ -400,10 +398,10 @@ Here we are looking behind the curtain.
 We'll walk through this code line by line:
 \begin{description}
 \item[Lines 3 and 4, \$get]
-  These lines get the schema objects, which are big, contain lots of information superfluous to our goals, and are ugly.
+  These lines get the schema objects, which are big, contain lots of information superfluous to our goals.
   So we won't discuss them further here.
 \item[Lines 6-14, query]
-  These are definitions of query constructs;
+  These are definitions of query constructs described further in Section~\ref{sec:query};
   they define functions that provide Datalog-like capabilities.
   Corresponding to the \textit{role definitions} like \stt{:element\_name} on Line 6, there is somewhere in the structures assigned to \stt{\$schema1} and \stt{\$schema1}
   object attributes \stt{'element\_name'} which, when this query is applied to that schema will produce a structure that binds \stt{?parent} to the element name (and so on for other object attributes).
@@ -415,18 +413,19 @@ We'll walk through this code line by line:
   This uses two RADmapper functions not found in JSONata.
   \stt{\$assoc} takes an object, an attribute and a value and installs the value at that attribute in the object.
   \stt{\$update} is similar but calls the 3rd argument function on the value in the attribute to update it.\footnote{
-    Though the names  \stt{\$assoc} and  \stt{\$update} might sound like they modify data, they are pure functions, creating a new object.}
+    Though the names  \stt{\$assoc} and  \stt{\$update} might sound like they modify data, they are pure functions, creating a new object.} This is the behind the curtain kind of thing we were warning you about.
 \item[Lines 29--32, function calls] These call the parent/child and root functions to get arguments for the call to the \stt{\$shape} function.
 \item[Lines 34--35, function calls] Presentation of the results of calling the \stt{\$shape} function on the two schema are (in either order)
   source and target shapes for calls to \stt{\$llmMatch}.
 \end{description}
 
-As will be in the next section, \stt{query} offers means to treat object structures as though they were were databases.
+As will be discussed in the next section, \stt{query} offers means to treat object structures as though they were were databases.
 \stt{query} offers an alternative means to manipulate data, an alternative to the Xpath-like languages such as JSONata.
 The \textit{binding sets} that are the returned value of query function calls are especially useful when calling \stt{\$reduce} on a \stt{express} function/structure, as will be demonstrated in later examples.
 
 \begin{figure}[H]
-  \caption{Step A, calling the shape function, and Step B, using the shapes to create a mapping function.}
+  \caption{Code to perform Step A, calling the shape function, and Step B, using the shapes to create a mapping function.
+  Note that Lines 7--9 suggests that functions such as defined in Figure~\ref{fig:def-of-shape-fn} were stored as library functions.}
   \label{fig:call-to-shape}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
 
@@ -451,21 +450,16 @@ The \textit{binding sets} that are the returned value of query function calls ar
 \end{lstlisting}
 \end{figure} \vspace{-3em}
 
-% THIS NEEDS WORK. I THINK I SHOULD BE TALKING ABOUT VALIDATION (Step C). <=============================
-To complete this example, we need only replace Lines 34 and 35 from the code above with a call \stt{\$shape}.
-A more modular approach to this, where the functions defined above were \stt{\$put} on the server, is depicted in Figure~\ref{fig:call-to-shape} below.
-Note that Line 18 below, \stt{\{'asFn?' : true\}}, is to specify that \stt{\$llmMatch} is to return a function, the function that was shown above, in Figure~\ref{fig:function-returned-from-shape-call}.
-Were we not to specify  \stt{\{'asFn?' : true\}} in the call, what would be returned would be an object that provided all the data needed to make the calls to \stt{\$llmExtract} discussed above.
-In this case, that object would be the form for exchange in the sense that
-(1) RADmapper aims is to support interoperable exchange, and
-(2) the object contains no complex RADmapper code, just use of .~(dot) for navigation, expressed in strings.
-Of course, not all mappings are this simple; for the harder cases there is a function \stt{\$toAST} discussed below that will allow any RADmapper code to be serialized as a JSON object.
+Note that in Line 18 of Figure~\ref{fig:call-to-shape} the call to \stt{\$llmMatch} specifies the options \stt{\{'asFn?' : true\}}. This is used to specify that \stt{\$llmMatch} is to return a structure containing function source.
+That source is what is depicted in Figure~\ref{fig:mapping-src2tar}.
+If in testing (Step C verification) the function proves fit for purpose, it can be documented and stored.
+It could also be communicated to others in interoperable form using the function \stt{\$toAST}, which is discussed in Section~\ref{sec:toAST}.
 
-
-
-\subsection{Data Organized as Triples and the query Construct}
+\section{Data Organized as Triples,  the \stt{query} Construct}
+\label{sec:query}
 
 \stt{query} is the principal construct of RADmapper providing Datalog-like functionality to the language.
+You first saw it in Figure~\ref{fig:def-of-shape-fn}.
 \stt{query} declarations are used like JSONata or JavaScript function declaration in the sense that the value of the declaration (a function) can be assigned to variables and used directly.
 For example,
 \begin{lstlisting}[language=JavaScript,numbers=none,basicstyle=\ttfamily\scriptsize]
@@ -651,7 +645,7 @@ The result of running this example is the binding set
    {?name : 'Alice', ?age : 33}].
 \end{lstlisting} \vspace{-2em}
 
-\subsection{Constructing  Target Data with express}
+\subsection{Constructing  Target Data with \stt{express}}
 
 Binding sets produced by \stt{query} provide ordinary JSONata-like objects\footnote{Two differences: (1) the keys of binding sets are query variables, and (2) binding sets are flat objects; the values at the keys are not objects themselves though they may be entity IDs (integers). These differences notwithstanding, you can use binding sets as though they are ordinary JSONata-like objects.} that could be used with JSONata built-in functions and operators to produce target structures.
 However, the \stt{express} construct provides capabilities beyond those of the JSONata expression language.
@@ -1010,7 +1004,7 @@ in the target form.
 % Right here you might want to show the previous example with namespaced keys and talk about
 % how that reduces the cognitive load and dovetails with serialization to namespaced XML.
 
-\subsection{Summary so far}
+\subsection{Concluding thoughts on \stt{query} and \stt{express}}
 
 \stt{query} and \stt{express} are two principal constructs of the RADmapper language that together provide powerful, flexible, means to restructure data.
 They enable mapping from multiple sources, in-place updating, and effective methods of abstraction and composition such as templating and higher-order functions.
@@ -1032,7 +1026,8 @@ The motivation for RADmapper, however, is more encompassing than what discussion
 Though you can use RADmapper's web-based exerciser to define and validate mappings,
 and you can include RADmapper in Java and JavaScript programs\footnote{RADmapper is available for use in Java and JavaScript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you do not need to read it if your primary goal is to learn how to use RADmapper in Java or JavaScript software.
 
-\section{Interoperable Specification of Mapping Requirements, \$toAST}
+\section{Interoperable Specification of Mapping Requirements, \stt{\$toAST}}
+\label{sec:toAST}
 
 RADmapper seeks to describe mapping requirements in ways that are useful to the various stakeholder and tools used in integration efforts.
 Describing mapping requirements is but one of the tasks of an integration effort.
@@ -1187,44 +1182,44 @@ The relation between the RADmapper and Dataweave viewpoints on this task is achi
 
 \textbf{[Discuss simple examples of using ASTs and mapping to "mapping tables". 90 percent of use cases don't need this.]}
 
-\subsection{Don't bother to read past here.}
-
-\subsection{Section Summary and Additional Thoughts}
-
-RADmapper's \stt{query} is based on Datalog, a language which was studied extensively in the 1980s \cite{Abiteboul1995a}
-and has influenced languages such as SPARQL and the Shapes Constraint Language (SHACL) \cite{?}.
-\stt{query} has the power of SQL's  query but does operates fact-at-a-time versus SQL's entity-at-a-time.
-That distinction entails, for example concerning the previous example, that in Datalog the facts (1) "\stt{device1} \stt{id} is \stt{100}." and (2) "\stt{device1} \stt{status} is \stt{Ok}." are independent assertions that happen to be about the same entity, \stt{device1}.
-In contrast, SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary key \stt{device1} has information about both \stt{id} and \stt{status}.
-There are advantages and disadvantages to both Datalog and SQL.\@
-For example, it should be apparent that pulling together all the information about an entity with Datalog queries requires relational joins, one each for each fact.
-On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in milliseconds, and adding new attributes (columns in SQL) does not require data migration in Datalog.
-
-The order of the patterns in a \stt{query} statement does not matter at all; it does not matter with respect to the execution speed nor the result produced.
-However, in order to illustrate the chaining of joins being performed, it is useful to the readers of your code to keep joined things together.
-This is illustrated, for example, by the curvy red line in Figure~\ref{fig:hairpin}(a).
-
-
-%\footnote{What  additional atomic data
-%  types shall we provide? Dates? URIs? UUIDs? etc.}%~\footnote{Triples provide 5th-normal form relational data. Recomposing a concept from 5-th normal form typically requires as many joins as
-%  there are attributes to recompose.
-%  The upside of using triples are that
-%  (1) substantial amounts of data are already in triples (e.g. RDF etc.),
-%  (2) some query engines helpfully index triples in multiple ways entity-attribute-value, attribute-entity-value, and attribute-value-entity, and
-%  (3) mapping engines can use triples effectively.
-%  The challenge in using triples with this language is in preserving the abstraction of a functional pipeline owed to JSONata-like language features.}
-
-%%The graph-based viewpoint on such data is that $x$ and $y$ are vertices, and $rel$ is an edge.
-%%$rel$ might be implemented as a string.
-%%
-%%
-%%
-%%Thus, the translation of structured data such as JSON objects into such triples is relatively straightforward:
-%%\begin{enumerate}
-%%\item A unique entity identifier is associated with each object; this identifier serves as the first element of triples about that object.
-%%      In JSON, for example, an object is a collection of name-value pairs delimited by curly brackets.
-%%    \item Each object attribute is represented by the string naming it;%\footnote{I suppose we'll only support strings, though namespaced %%symbols would be nice!}
-%%      these supply the second element of the triple, the $rel$.
+%--\subsection{Don't bother to read past here.}
+%--
+%--\subsection{Section Summary and Additional Thoughts}
+%--
+%--RADmapper's \stt{query} is based on Datalog, a language which was studied extensively in the 1980s %--\cite{Abiteboul1995a}
+%--and has influenced languages such as SPARQL and the Shapes Constraint Language (SHACL) \cite{?}.
+%--\stt{query} has the power of SQL's  query but does operates fact-at-a-time versus SQL's entity-at-a-time.
+%--That distinction entails, for example concerning the previous example, that in Datalog the facts (1) "\stt{device1} %--\stt{id} is \stt{100}." and (2) "\stt{device1} \stt{status} is \stt{Ok}." are independent assertions that happen to %--be about the same entity, \stt{device1}.
+%--In contrast, SQL's entity-at-a-time design entails that there is a table about devices and the table row at primary %--key \stt{device1} has information about both \stt{id} and \stt{status}.
+%--There are advantages and disadvantages to both Datalog and SQL.\@
+%--For example, it should be apparent that pulling together all the information about an entity with Datalog queries %--requires relational joins, one each for each fact.
+%--On the other hand, RADmapper can learn Datalog-like schema by studying the data, it can create databases in %--milliseconds, and adding new attributes (columns in SQL) does not require data migration in Datalog.
+%--
+%--The order of the patterns in a \stt{query} statement does not matter at all; it does not matter with respect to the %--execution speed nor the result produced.
+%--However, in order to illustrate the chaining of joins being performed, it is useful to the readers of your code to %--keep joined things together.
+%--This is illustrated, for example, by the curvy red line in Figure~\ref{fig:hairpin}(a).
+%--
+%--
+%--%\footnote{What  additional atomic data
+%--%  types shall we provide? Dates? URIs? UUIDs? etc.}%~\footnote{Triples provide 5th-normal form relational data. %--Recomposing a concept from 5-th normal form typically requires as many joins as
+%--%  there are attributes to recompose.
+%--%  The upside of using triples are that
+%--%  (1) substantial amounts of data are already in triples (e.g. RDF etc.),
+%--%  (2) some query engines helpfully index triples in multiple ways entity-attribute-value, attribute-entity-value, %--and attribute-value-entity, and
+%--%  (3) mapping engines can use triples effectively.
+%--%  The challenge in using triples with this language is in preserving the abstraction of a functional pipeline owed %--to JSONata-like language features.}
+%--
+%--%%The graph-based viewpoint on such data is that $x$ and $y$ are vertices, and $rel$ is an edge.
+%--%%$rel$ might be implemented as a string.
+%--%%
+%--%%
+%--%%
+%--%%Thus, the translation of structured data such as JSON objects into such triples is relatively straightforward:
+%--%%\begin{enumerate}
+%--%%\item A unique entity identifier is associated with each object; this identifier serves as the first element of %--triples about that object.
+%--%%      In JSON, for example, an object is a collection of name-value pairs delimited by curly brackets.
+%--%%    \item Each object attribute is represented by the string naming it;%\footnote{I suppose we'll only support %--strings, though namespaced %%symbols would be nice!}
+%--%%      these supply the second element of the triple, the $rel$.
 %%\item The third element of the triple provides an atomic datum (string, number, entity identifier, etc.) associated with the subject attribute %%of the subject object.
 %%\end{enumerate}
 %%
@@ -1488,53 +1483,54 @@ This is illustrated, for example, by the curvy red line in Figure~\ref{fig:hairp
 %  Functions in the language do not have names.
 %  If you need to use a function in multiple places, assign it to a variable as shown in the figure, (use of \stt{\$Codes2OurCodes}).}
 
-\section{Guide to RADmapper Functions}
 
-\subsection{\$readSpreadsheet}
-
-Being able to read  and write spreadsheet information is a very handy capability in mapping.
-Of course, Excel-like spreadsheets can have multiple sheets and the content can be non-uniform, including merged cells and formula.
-The language currently does not provide means to deal with these complexities.
-However simple tables with no surprises and a header row naming columns (and common-separated value (CSV) files that conform to these requirements) can easily be viewed as an array of map structures.
-For example, Table~\ref{table:simple} can be viewed as the structure shown in Figure~\ref{code:simple}.
-
-\begin{table}[H]
-  \caption{A simple table oriented such that columns name properties.}
-\label{table:simple}
-\begin{tabular}{r | l | c | l}
-
-\textbf{ShipDate}& \textbf{Item}& \textbf{Qty}& \textbf{UnitPrice} \\ \hhline{=|=|=|=}
-        6/15/21	      & Widget 123   &	1	   &  \$10.50 \\
-        6/15/21	      & Gadget 234   &	2	   &  \$12.80 \\
-        6/15/21	      & Foobar 344   &	1	   &  \$100.00
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \caption{Table~\ref{table:simple} viewed as an array of map structures.}
-    \label{code:simple}
-\begin{lstlisting}[language=JavaScript]
-
-[{"ShipDate":  "2021-06-15", "Item":  "Widget 123", "Qty": 1.0, "UnitPrice": 10.5},
- {"ShipDate":  "2021-06-15", "Item":  "Gadget 234", "Qty": 2.0, "UnitPrice": 12.8},
- {"ShipDate":  "2021-06-15", "Item":  "Foobar 344", "Qty": 1.0, "UnitPrice": 100.0}]
-\end{lstlisting}
-\end{figure}
-
-The built-in function \stt{\$readSpreadsheet} reads spreadsheets.
-An example usage is:\\
-\vspace{3mm}
-\stt{\$readSpreadsheet("data/spreadsheets/ExampleInvoiceInfo.xlsx", "Sales Info")} \\
-\vspace{3mm}
-where the first argument names an Excel file and the second names a sheet in that spreadsheet.
-If the table is transposed (so that all the properties are in its first column, and each row concerns a different object), a third argument with value \stt{true} can be specified to access the data in the more useful orientation.
-
-
-\section{Appendix} % Formerly titled "Working with Data Having Complex Interrelations."
-%[This section will introduce provisions for expressing maps to/from relational DBs, where schema are assumed.]
-
-%Some situations call for more complex query and restructuring functionality than what has been illustrated above.
-%Everything to this point in the discussion could be performed easily with JSONata~\cite{Jsonata.org2021}, a language for querying and restructuring JSON-like data.
+%--\section{Guide to RADmapper Functions}
+%--
+%--\subsection{\$readSpreadsheet}
+%--
+%--Being able to read  and write spreadsheet information is a very handy capability in mapping.
+%--Of course, Excel-like spreadsheets can have multiple sheets and the content can be non-uniform, including merged %--cells and formula.
+%--The language currently does not provide means to deal with these complexities.
+%--However simple tables with no surprises and a header row naming columns (and common-separated value (CSV) files %--that conform to these requirements) can easily be viewed as an array of map structures.
+%--For example, Table~\ref{table:simple} can be viewed as the structure shown in Figure~\ref{code:simple}.
+%--
+%--\begin{table}[H]
+%--  \caption{A simple table oriented such that columns name properties.}
+%--\label{table:simple}
+%--\begin{tabular}{r | l | c | l}
+%--
+%--\textbf{ShipDate}& \textbf{Item}& \textbf{Qty}& \textbf{UnitPrice} \\ \hhline{=|=|=|=}
+%--        6/15/21	      & Widget 123   &	1	   &  \$10.50 \\
+%--        6/15/21	      & Gadget 234   &	2	   &  \$12.80 \\
+%--        6/15/21	      & Foobar 344   &	1	   &  \$100.00
+%--\end{tabular}
+%--\end{table}
+%--
+%--\begin{figure}[H]
+%--    \caption{Table~\ref{table:simple} viewed as an array of map structures.}
+%--    \label{code:simple}
+%--\begin{lstlisting}[language=JavaScript]
+%--
+%--[{"ShipDate":  "2021-06-15", "Item":  "Widget 123", "Qty": 1.0, "UnitPrice": 10.5},
+%-- {"ShipDate":  "2021-06-15", "Item":  "Gadget 234", "Qty": 2.0, "UnitPrice": 12.8},
+%-- {"ShipDate":  "2021-06-15", "Item":  "Foobar 344", "Qty": 1.0, "UnitPrice": 100.0}]
+%--\end{lstlisting}
+%--\end{figure}
+%--
+%--The built-in function \stt{\$readSpreadsheet} reads spreadsheets.
+%--An example usage is:\\
+%--\vspace{3mm}
+%--\stt{\$readSpreadsheet("data/spreadsheets/ExampleInvoiceInfo.xlsx", "Sales Info")} \\
+%--\vspace{3mm}
+%--where the first argument names an Excel file and the second names a sheet in that spreadsheet.
+%--If the table is transposed (so that all the properties are in its first column, and each row concerns a different %--object), a third argument with value \stt{true} can be specified to access the data in the more useful orientation.
+%--
+%--
+%--\section{Appendix} % Formerly titled "Working with Data Having Complex Interrelations."
+%--%[This section will introduce provisions for expressing maps to/from relational DBs, where schema are assumed.]
+%--
+%--%Some situations call for more complex query and restructuring functionality than what has been illustrated above.
+%--%Everything to this point in the discussion could be performed easily with JSONata~\cite{Jsonata.org2021}, a language for querying and restructuring JSON-like data.
 %JSONata is used, for example, in the Open Integration Hub~\cite{OIH2021}, an open software platform that received its initial funding in 2017 from the German Federal Government,
 %Federal Ministry for Economic Affairs and Energy. % https://www.elastic.io/pressroom/open-integration-hub-data-synchronisation/
 %JSONata is also used in Node-RED~\cite{Node-Red2021}.
