@@ -3,10 +3,10 @@
 %DIF DEL old.tex               Fri Oct 18 12:56:44 2024
 %DIF ADD interop-mapping.tex   Fri Oct 18 13:10:59 2024
 %DIF 2a2-5
- %DIF > 
-% latexdiff old.tex interop-mapping.tex > diff.tex %DIF > 
-% latexmk -pdf diff  %DIF > 
- %DIF > 
+ %DIF >
+% latexdiff old.tex interop-mapping.tex > diff.tex %DIF >
+% latexmk -pdf diff  %DIF >
+ %DIF >
 %DIF -------
 % Some useful packages for including images, colored font, etc.
 \usepackage{url}
@@ -196,10 +196,10 @@ morestring=[b]"
   moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
 } %DIF PREAMBLE
 \lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
-	language=DIFcode, %DIF PREAMBLE
-	basicstyle=\ttfamily, %DIF PREAMBLE
-	columns=fullflexible, %DIF PREAMBLE
-	keepspaces=true %DIF PREAMBLE
+        language=DIFcode, %DIF PREAMBLE
+        basicstyle=\ttfamily, %DIF PREAMBLE
+        columns=fullflexible, %DIF PREAMBLE
+        keepspaces=true %DIF PREAMBLE
 } %DIF PREAMBLE
 \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
 \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
@@ -344,7 +344,7 @@ Sometimes the paths are used directly, for example in Lines 5, 27, 29, 31, and 3
 Sometimes the data at the end of the path needs further processing.
 On Lines 12, 16, 20 and 24, the paths are used in calls to  \stt{\$llmExtract} for such processing.
 \stt{\$llmExtract} takes two arguments: a string (provided here by a path in the source data) and a term that describes a substring to be extracted from the string.\DIFaddbegin \footnote{\DIFadd{A few words about RADmapper syntax: (1) consistent with JSONata, RADmapper variables begin with a \$ and can be camelCase or use underscore, like \stt{\$my\_var}.
-  Ordinary functions, including those that are defined by JSONata or RADmapper are bound to variables. 
+  Ordinary functions, including those that are defined by JSONata or RADmapper are bound to variables.
   (2) The assignment operator is \stt{:=}.
   (3) The \stt{query} construct borrows syntactic features from Datalog-like languages.
   Specifically, \stt{query} variables begin with a question mark, \stt{?likeThis}, and role constants,
@@ -1065,7 +1065,7 @@ $ex1 := express{{'owners' : {'type'   : 'OWNER',
 If we were to map over that \stt{express} body, that is \stt{\$map(\$bsets,\$ex1)}, the result would be \DIFdelbegin \DIFdel{(logically correct , of course but ) }\DIFdelend \DIFaddbegin \DIFadd{logically correct but }\DIFaddend even more verbose and %DIF < -----also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
 \DIFaddbegin \DIFadd{also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
 }\DIFaddend A better alternative might be to \stt{\$reduce} over the \stt{express}, that is, \stt{\$reduce(\$bsets,\$ex1)}\DIFdelbegin \DIFdel{;
-}\DIFdelend \DIFaddbegin \DIFadd{. 
+}\DIFdelend \DIFaddbegin \DIFadd{.
 }\DIFaddend \stt{\$reduce} can have the effect of ``summarizing'' data, in this case by squeezing out the repetition.
 However, there is a problem with reducing over the \stt{express} body as written;
 it would produce the following:
