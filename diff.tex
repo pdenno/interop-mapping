@@ -1,8 +1,13 @@
 \documentclass[10pt,letterpaper]{article} % Font sizes smaller than 10pt are ignored here. Use scaled= in helvet.
-
-% latexdiff old.tex interop-mapping.tex > diff.tex
-% latexmk -pdf diff
-
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL old.tex               Fri Oct 18 12:56:44 2024
+%DIF ADD interop-mapping.tex   Fri Oct 18 13:10:59 2024
+%DIF 2a2-5
+ %DIF > 
+% latexdiff old.tex interop-mapping.tex > diff.tex %DIF > 
+% latexmk -pdf diff  %DIF > 
+ %DIF > 
+%DIF -------
 % Some useful packages for including images, colored font, etc.
 \usepackage{url}
 %\usepackage[yyyymmdd,hhmmss]{datetime}
@@ -121,7 +126,84 @@ morestring=[b]',
 morestring=[b]"
 }
 % End JavaScript listinglst -------------------------------
-
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
 
 \begin{document}
 \title{RADmapper: An Interoperable Mapping Specification}
@@ -133,7 +215,7 @@ morestring=[b]"
 
 \section{Introduction}
 This report describes a data mapping language, RADmapper, designed to provide an \textit{interoperable exchange form} for expressing the intent of typical mapping and data restructuring needs.
-The exchange form of RADmapper code is intended to be translatable (by humans and machine agents) into mapping specification in other languages.
+The exchange form of RADmapper code is intended to be \DIFdelbegin \DIFdel{translateable }\DIFdelend \DIFaddbegin \DIFadd{translatable }\DIFaddend (by humans and machine agents) into mapping specification in other languages.
 For example, it should be possible to translate statements in the exchange form into mapping specifications used by commercial mapping tools.
 %OAGi members can find the most recent version of this document in the \textit{OAGi Mapping Specification Working Group} Confluence pages (under ``Mapping Doc'').
 
@@ -261,14 +343,14 @@ it returns a structure that mirrors the target structure, and where it needs inf
 Sometimes the paths are used directly, for example in Lines 5, 27, 29, 31, and 32.
 Sometimes the data at the end of the path needs further processing.
 On Lines 12, 16, 20 and 24, the paths are used in calls to  \stt{\$llmExtract} for such processing.
-\stt{\$llmExtract} takes two arguments: a string (provided here by a path in the source data) and a term that describes a substring to be extracted from the string.\footnote{A few words about RADmapper syntax: (1) consistent with JSONata, RADmapper variables begin with a \$ and can be camelCase or use underscore, like \stt{\$my\_var}.
-  Ordinary functions, including those that are defined by JSONata or RADmapper are bound to variables.
+\stt{\$llmExtract} takes two arguments: a string (provided here by a path in the source data) and a term that describes a substring to be extracted from the string.\DIFaddbegin \footnote{\DIFadd{A few words about RADmapper syntax: (1) consistent with JSONata, RADmapper variables begin with a \$ and can be camelCase or use underscore, like \stt{\$my\_var}.
+  Ordinary functions, including those that are defined by JSONata or RADmapper are bound to variables. 
   (2) The assignment operator is \stt{:=}.
   (3) The \stt{query} construct borrows syntactic features from Datalog-like languages.
   Specifically, \stt{query} variables begin with a question mark, \stt{?likeThis}, and role constants,
   which name attributes, begin with a colon and can contain underscore, for example, \stt{:element\_name}.
-  (4) Note also that examples often depict strings delimited with single quote in JSON-like structures; legal JSON can also be generated.}
-As you probably guessed from the name of the function, this function uses a large language model (LLM) to do the work.
+  (4) Note also that examples often depict strings delimited with single quote in JSON-like structures; legal JSON can also be generated.}}
+\DIFaddend As you probably guessed from the name of the function, this function uses a large language model (LLM) to do the work.
 
 \begin{figure}[H]
   \caption{A function that maps the source to target of Figure~\ref{fig:data-for-end-to-end}}
@@ -358,7 +440,7 @@ Both Line 2 and Line 3, use JSONata syntax, \stt{.fn\_exe}, to get the one prope
   These \stt{'library\_fn'} objects have three attributes, \stt{fn\_exe}, \stt{fn\_src}, and \stt{fn\_doc},
   each of which are strings.
   In the case of data, \stt{fn\_exe} returns the structure represented by that string, just as you might do with a string representing JSON.}
-Line 4 applies the \stt{\$mappingFn} to the \stt{\$data} resulting in an object like shown in Lines 20--35 of Figure~\ref{fig:data-for-end-to-end}.
+Line 4 applies the \stt{\$mappingFn} to the \stt{\$data} resulting in an object like shown in Lines \DIFdelbegin \DIFdel{of }\DIFdelend 20--35 of Figure~\ref{fig:data-for-end-to-end}.
 
 Now let's talk about about Step A, creating the shape structures.
 The shape structures are simply nested objects typical of example data where the non-object content is replaced by the string \stt{'<data>'}.
@@ -375,7 +457,7 @@ For example,
                              {'ManufacturingParty': {'Name': '<data>'}
                               'ItemDescription'   : '<data>'}}}.
 \end{lstlisting} \vspace{-2em}
-Of course, you could create things like this by typing them in, but, so as to illustrate the use of a RADmapper function-like construct like \stt{query}, we will assume there are schema defining these structures; we'll use a Datalog-like \stt{query} to create the structures. The code to do this is a bit involved; it would be saved as a function and applied, but for the sake of exposition we'll discuss the whole thing, shown below.
+Of course, you could create things like this by typing them in, but, so as to illustrate the use of a RADmapper function-like construct \DIFaddbegin \DIFadd{like }\DIFaddend \stt{query}, we will assume there are schema defining these structures; we'll use a Datalog-like \stt{query} to create the structures. The code to do this is a bit involved; it would be saved as a function and applied, but for the sake of exposition we'll discuss the whole thing, shown below.
 Just keep in mind that this is not part of the much simpler process of doing the three steps.
 Here we are looking behind the curtain.
 
@@ -428,19 +510,27 @@ We'll walk through this code line by line:
 \item[Lines 3 and 4, \$get:]
   These lines get the schema objects, which are big and contain lots of information superfluous to our goals.
   So we won't discuss them further here.
-\item[Lines 6--10, parent/child query:]
-  The query construct, described further in Section~\ref{sec:query}, defines a function that provide Datalog-like capabilities.
-  This code binds \stt{\$pcQuery} to a function that collects a certain kind of parent/child relationships in the schema data,
-  specifically, those that relate an entity bound to \stt{?parent} to an entity bound to \stt{?child} through
+\DIFdelbegin %DIFDELCMD < \item[Lines 6-14, query:]
+\item[\DIFdel{Lines 6-14, query:}]%DIFAUXCMD
+%DIFDELCMD <   %%%
+\DIFdel{These are definitions of query constructs }\DIFdelend \DIFaddbegin \item[\DIFadd{Lines 6--10, parent/child query:}]
+  \DIFadd{The query construct, }\DIFaddend described further in Section~\ref{sec:query}\DIFdelbegin \DIFdel{;
+  they define functions }\DIFdelend \DIFaddbegin \DIFadd{, defines a function }\DIFaddend that provide Datalog-like capabilities.
+  \DIFdelbegin \DIFdel{Corresponding to the \bdef{role definitions} like \stt{:element\_name} on Line 6,
+  there is somewhere in the structures assigned to \stt{\$schema1} and \stt{\$schema1}
+  object attributes \stt{'element\_name'} which, when this query is applied to that schema will produce a structure that binds \stt{?parent} to the element name (and so on for other object attributes).
+  \stt{query} will be discussed in detail in later examples.
+  Lines 6--10 define the query functionfor finding parent}\DIFdelend \DIFaddbegin \DIFadd{This code binds \stt{\$pcQuery} to a function that collects a certain kind of parent}\DIFaddend /child relationships in the schema data,
+  \DIFaddbegin \DIFadd{specifically, those that relate an entity bound to \stt{?parent} to an entity bound to \stt{?child} through
   the navigation of roles shown(from the entity bound to \stt{?x} through its \stt{element\_complexType} attribute, to a \stt{model\_sequence}, to \stt{model\_elementDef}
-  Note that the function is then used on Lines 29 and 30.
-%  Corresponding to \bdef{role definitions} like \stt{:element\_name} on Line 6, there is somewhere in the structures assigned to \stt{\$schema1} and \stt{\$schema1}
-%  object attributes \stt{'element\_name'} which, when this query is applied to that schema will produce a structure that binds \stt{?parent} to the element name (and so on for other object attributes).
-%  \stt{query} will be discussed in detail in later examples.
-\item [Lines 12--14, root query:]  Similar to Lines 6--10 this code define a query function.
-  Owing to the structure of the data, there is only one object, \stt{?c}, with a \stt{schema\_content} attribute.
+  Note that the function is then used on Lines 29 }\DIFaddend and \DIFaddbegin \DIFadd{30.
+%DIF >   Corresponding to \bdef{role definitions} like \stt{:element\_name} on Line 6, there is somewhere in the structures assigned to \stt{\$schema1} and \stt{\$schema1}
+%DIF >   object attributes \stt{'element\_name'} which, when this query is applied to that schema will produce a structure that binds \stt{?parent} to the element name (and so on for other object attributes).
+%DIF >   \stt{query} will be discussed in detail in later examples.
+}\item [\DIFaddend Lines 12--14\DIFdelbegin \DIFdel{define the query function for finding the root elements in the schema}\DIFdelend \DIFaddbegin \DIFadd{, root query:}]  \DIFadd{Similar to Lines 6--10 this code define a query function.
+  Owing to the structure of the }\DIFaddend data\DIFaddbegin \DIFadd{, there is only one object, \stt{?c}, with a \stt{schema\_content} attribute.
   That object binds the values of \stt{schema\_content} to \stt{?e} and Lines 13 and 14 follow a navigation
-  resulting in a binding in the element names of root elements of the schema.
+  resulting in a binding in the element names of root elements of the schema}\DIFaddend .
 \item[Line 17, parent/child function:] Defines a small function to return the children of a parent.
 \item[Lines 20--27, shape function:] Defines a function to create the shape structures.
   This uses two RADmapper functions not found in JSONata.
@@ -517,7 +607,7 @@ As triples, we represent Bob being 42 years old with two triples, for example, \
 As a graph, this would look like the following:
 
 \begin{figure}[H]
-  \caption{Information about Bob in graph form.}
+  \caption{Information about Bob in graph form\DIFaddbeginFL \DIFaddFL{.}\DIFaddendFL }
   \label{fig:bob-as-a-graph}
      \includegraphics[scale=0.15]{bob-age-42.jpg}
   \centering
@@ -551,7 +641,7 @@ A complete RADmapper program for querying the Bob database for people age 42 is 
 
 
 The above needs some explanation.
-On Line 1 we put a JSON-like object in a JavaScript-like array by wrapping it in square brackets; this is the literal form of a very small database.
+On Line 1 we put a JSON-like object in \DIFdelbegin \DIFdel{an }\DIFdelend \DIFaddbegin \DIFadd{a }\DIFaddend JavaScript-like array by wrapping it in square brackets; this is the literal form of a very small database.
 On Line 2 we defined the query function; here note the use of a \bdef{query variable} \stt{?e}.
 Also note that whereas we used the string \stt{'age'} for the relation, we used \stt{:age} --- syntax we call an \bdef{attribute} --- to represent that same relation in the pattern.
 On Line 3 we apply the query function \stt{\$ageQuery} to the database \stt{\$myDB} defined on Line 1.
@@ -560,7 +650,7 @@ Alternatively, you could have defined data through other means, such as referenc
 The result of this query, assigned to \stt{\$result} is a collection of \bdef{binding objects}, where each
 object associates values to pattern variables (object keys) from the \stt{query} consistent with the database.
 In this example, with the data in Figure~\ref{fig:bob-as-a-graph}, the result consists of just one binding object and that object binds one variable;
-thus, the \bdef{binding  set} is the one-element set \stt{[\{?e : 152\}]}.\footnote{Binding sets are mathematical sets. Binding objects binding the same variables to the same objects are values describe the same navigation of the database.}
+thus, the \bdef{binding  set} is the one-element set \stt{[\{?e : 152\}]}.\footnote{Binding sets are mathematical sets. Binding objects binding the same variables to the same objects are values \DIFdelbegin \DIFdel{; they }\DIFdelend describe the same navigation of the database.}
 This indicates that the entity indexed at 152 has an attribute \stt{:age} with value 42.
 If there were more entities in the database possessing an \stt{:age} attribute, the query would have returned a set consisting of one such \stt{\{?e : <whatever>\}} binding object for each of them.
 
@@ -699,15 +789,19 @@ The binding set assigned to \stt{\$bSet} is
 
 Assuming that we'd just like to present the target data as nested objects indexed by the customer's email address, for example:
 
-\begin{lstlisting}[language=JavaScript,numbers=none,basicstyle=\ttfamily\scriptsize]
-{"alice@alice.org" : {"name"  : "Alice",
+\DIFmodbegin
+\begin{lstlisting}[language=JavaScript,numbers=none,basicstyle=\ttfamily\scriptsize,alsolanguage=DIFcode]
+%DIF < {"alice@alice.org" {"name"  : "Alice",
+%DIF > {"alice@alice.org" : {"name"  : "Alice",
                       "aData" : "Alice-A-data",
                       "bData" : "Alice-B-data" },
 
- "bob@example.com" : {"name"  : "Bob",
+%DIF <  "bob@example.com" {"name"  : "Bob",
+%DIF >  "bob@example.com" : {"name"  : "Bob",
                       "aData" : "Bob-A-data",
                       "bData" : "Bob-B-data"   }}
-\end{lstlisting} \vspace{-2em}
+\end{lstlisting}
+\DIFmodend \vspace{-2em}
 
 \hspace{-2em} we could use the \stt{express} declaration that begins on Line 14 of Figure~\ref{code:two-database-query-express} to do this.
 
@@ -809,8 +903,8 @@ The restructuring task can be achieved using only JSONata functions and operator
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize,escapeinside=`']
 {
     "owners": $distinct(systems.*.owners.$each(function($d, $ownerName) {$ownerName}))@$o.{
-      $o: $each($$.systems, function($sys, $sysName) {{$sysName: $lookup($$.systems, $sysName).owners `$\sim$'> $lookup($o)
-      }}) `$\sim$'> $merge()
+      $o: $each($$.systems, function($sys, $sysName) {{$sysName: $lookup(}.systems, $sysName).owners `$\sim$'> $lookup($o)
+      }$$) `$\sim$'> $merge()
     } `$\sim$'> $merge()
 }
 \end{lstlisting}
@@ -888,8 +982,8 @@ The following paragraph provides a line-by-line summary of how the query in Line
 \item[Line 4 \stt{[?x :owners ?y]}:] Here we see \stt{?x}, which was introduced in Line 2, reused in the entity position.
   We know that \stt{?x} is bound to an entity by looking at the data.
   (See Line 2 in the data for example, \stt{ ``owners'': \{\ldots}. The ``\stt{: \{}'' means the thing keyed by ``owners'' here is a JSON object (an ``entity'' in the database).
-  This triple pattern ensures that \stt{?x} refers to entities for which "owners" occupies the attribute position.
-\item[Line 5 \stt{[?y ?ownerName ?z]}:]  Like Line 2, this is used to introduce a new variable, \stt{?ownerName} in this case, which will be used in the a \stt{\$match} predicate similar to Line 3.
+  This triple pattern ensures that \stt{?x} refers to entities for \DIFdelbegin \DIFdel{with the }\DIFdelend \DIFaddbegin \DIFadd{which }\DIFaddend "owners" occupies the attribute position.
+\item[Line 5 \stt{[?y ?ownerName ?z]}:]  Like Line 2, this is used to introduce \DIFdelbegin \DIFdel{an }\DIFdelend \DIFaddbegin \DIFadd{a }\DIFaddend new variable, \stt{?ownerName} in this case, which will be used in the a \stt{\$match} predicate similar to Line 3.
   One difference here, however, is that the value of \stt{?y} is constrained by the triple pattern on Line 4.
 \item[Line 6 \stt{[(\$match(?ownerName, /owner\textbackslash d/))]}:] This serves a similar purpose Line 3, but for owner keys.
 \item[Line 7 \stt{[?z ?deviceName ?d]}:] This is like Lines 1 and 5, introducing a new variable for use in the \stt{\$match}.
@@ -900,11 +994,12 @@ The following paragraph provides a line-by-line summary of how the query in Line
 \end{description}
 
 % Discuss use of key() and vector syntax to create more conventional output.
-It was suggested earlier that the encoding of the source data in Figure\ref{data:restruct} is a bit unusual.
-Specifically, object key values such as \stt{owner1}, \stt{system1} and \stt{device1} are being used both to indicate a unique entity type (i.e.\~respectively owners, systems, and devices) and to identify specific instances of those types.
+It was suggested earlier that the encoding of the source data \DIFdelbegin \DIFdel{was }\DIFdelend \DIFaddbegin \DIFadd{in Figure\ref{data:restruct} is }\DIFaddend a bit unusual.
+\DIFdelbegin \DIFdel{For example}\DIFdelend \DIFaddbegin \DIFadd{Specifically}\DIFaddend , object key values such as \stt{owner1}, \stt{system1} and \stt{device1} are being used \DIFdelbegin \DIFdel{, apparently, }\DIFdelend both to indicate a unique entity \DIFaddbegin \DIFadd{type (i.e.\~respectively owners, systems, and devices) }\DIFaddend and to identify %DIF < -----the kind of entity being described, presumably an owner, system and device respectively.
+\DIFaddbegin \DIFadd{specific instances of those types.
 This is bad practice.
 Imagine how hard it would be to understand what is going on were the identifiers in Figure\ref{data:restruct} replaced with arbitrary strings such as UUIDs.
-We might seek target data that explicitly declares the type and identifier separated, for example using attributes \stt{type} and \stt{id} respectively.
+}\DIFaddend We might seek target data that explicitly declares the type and identifier separated, for example using attributes \stt{type} and \stt{id} respectively.
 The target data sought, for example, might be as depicted in Figure~\ref{data:slack-with-keys}.
 
 \begin{figure}[H]
@@ -967,15 +1062,17 @@ $ex1 := express{{'owners' : {'type'   : 'OWNER',
 \end{lstlisting}
 \end{figure}  \vspace{-3em}
 
-If we were to map over that \stt{express} body, that is \stt{\$map(\$bsets,\$ex1)}, the result would be logically correct but even more verbose and also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
-A better alternative might be to \stt{\$reduce} over the \stt{express}, that is, \stt{\$reduce(\$bsets,\$ex1)}.
-\stt{\$reduce} can have the effect of ``summarizing'' data, in this case by squeezing out the repetition.
+If we were to map over that \stt{express} body, that is \stt{\$map(\$bsets,\$ex1)}, the result would be \DIFdelbegin \DIFdel{(logically correct , of course but ) }\DIFdelend \DIFaddbegin \DIFadd{logically correct but }\DIFaddend even more verbose and %DIF < -----also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
+\DIFaddbegin \DIFadd{also repetitive because there will be one full structure like the \stt{express} body for each of the 8 binding sets.
+}\DIFaddend A better alternative might be to \stt{\$reduce} over the \stt{express}, that is, \stt{\$reduce(\$bsets,\$ex1)}\DIFdelbegin \DIFdel{;
+}\DIFdelend \DIFaddbegin \DIFadd{. 
+}\DIFaddend \stt{\$reduce} can have the effect of ``summarizing'' data, in this case by squeezing out the repetition.
 However, there is a problem with reducing over the \stt{express} body as written;
 it would produce the following:
 
 \begin{figure}[H]
   \caption{Reducing over the \stt{express} body here results in iteratively overwriting data; the result is
-    the same as applying \stt{express} body to just the last binding object. Data is lost!}
+    the same as applying \stt{express} body to just the last binding object. \DIFaddbeginFL \DIFaddFL{Data is lost!}\DIFaddendFL }
  \label{code:slack-result-wo-keys}
 \begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
 {"type"    : "OWNER",
@@ -1065,32 +1162,35 @@ You can evaluate \stt{express} with a single binding object to see the result, c
 %Though you can use RADmapper's web-based exerciser to define and validate mappings,
 %and you can include RADmapper in Java and JavaScript programs \footnote{RADmapper is available for use in Java and JavaScript programs as a \stt{.jar} file and NPM library respectively. A Docker version of the exerciser is available [URL] and hosted at [URL].} a principal goal of RADmapper is to support \textit{interoperable} mapping. The next section discusses interoperability; you do not need to read it if your primary goal is to learn how to use RADmapper in Java or JavaScript software.
 
-\section{Communicating Mapping Requirements to Others, \stt{\$toAST}}
+\section{\DIFdelbegin \DIFdel{Exchanging }\DIFdelend \DIFaddbegin \DIFadd{Communicating }\DIFaddend Mapping Requirements \DIFaddbegin \DIFadd{to Others}\DIFaddend , \stt{\$toAST}}
 \label{sec:toAST}
 
 RADmapper seeks to describe mapping requirements in ways that are useful to the various stakeholder and tools used in integration efforts.
-Describing mapping requirements is but one of the tasks of an integration effort.\footnote{By ``integration effort'' we mean work spent to make separate things work jointly towards a shared goal.}
-The goals of integration efforts vary, including, for example, automating the regular purchase of items under a contract, or implementing new sensing capability in automated production.
+Describing mapping requirements is but one of the tasks of an integration effort.\DIFdelbegin \DIFdel{By ``integration effort'' we mean work spent to make separate things work jointly towards some goal.
+}\DIFdelend \DIFaddbegin \footnote{\DIFadd{By ``integration effort'' we mean work spent to make separate things work jointly towards a shared goal.}}
+\DIFaddend The goals of integration efforts \DIFdelbegin \DIFdel{are various }\DIFdelend \DIFaddbegin \DIFadd{vary, }\DIFaddend including, for example, automating the regular purchase of items under a contract, or implementing new sensing capability in automated production.
 The stakeholders in integration efforts typically include at least
-(1) domain experts, the people who can describe what the entities (e.g.~business entities, machines) need to do in the joint work,
+(1) domain experts, the people who can describe what the entities (e.g.\DIFaddbegin \DIFadd{~}\DIFaddend business entities, machines) need to do in the joint work,
 (2) back-end system administrators, that manage the databases involved in the kinds of transactions of interest, and
 (3) API programmers, who implement the code that achieves the goals of the integration.
 In small enterprises, of course, many of these roles are played by a single person.
 
-The RADmapper language presented in Section~\ref{sec:quick-start} is a human-oriented domain-specific language (DSL).
-The exchange format, however, should not be a human-oriented DSL because such a requirement would force users of RADmapper to parse the syntax.
+The RADmapper language presented in Section~\ref{sec:quick-start} \DIFdelbegin \DIFdel{, }\DIFdelend \DIFaddbegin \DIFadd{is }\DIFaddend a human-oriented domain-specific language (DSL).
+The exchange format\DIFaddbegin \DIFadd{, however, }\DIFaddend should not be a human-oriented DSL because such a requirement would force users of RADmapper to parse the \DIFdelbegin \DIFdel{language}\DIFdelend \DIFaddbegin \DIFadd{syntax}\DIFaddend .
 Because the DSL language is mostly declarative and functional, however, the syntax avoids procedural constructs like loops and indexing.
 Consequently, it is reasonable to express RADmapper DSL as an easily navigable tree structure;
 the \textit{abstract syntax tree} (AST) of the language provides such trees.
-We implemented this idea as a RADmapper DSL function called \stt{\$toAST}, which takes a string of any valid RADmapper DSL expression, and returns a tree parsable as JavaScript Object Notation (JSON).
+We implemented this idea as a RADmapper DSL function called \stt{\$toAST}, which takes a string of any valid RADmapper DSL expression, and returns a tree parsable as \DIFdelbegin \DIFdel{Javascript }\DIFdelend \DIFaddbegin \DIFadd{JavaScript }\DIFaddend Object Notation (JSON).
 Figure~\ref{fig:mapping-src2tar-toAST} below depicts the result of applying to the RADmapper code of Figure~\ref{fig:mapping-src2tar} taken as a string.
 
 \begin{figure}[H]
   \caption{Canonical serialization of the mapping function from Figure~\ref{fig:mapping-src2tar} as JSON.
     Alternatives of the canonical exchange form are easily implemented as other mapping tasks.}
  \label{fig:mapping-src2tar-toAST}
-\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize]
-{"FnDef" : {"Params" : ["$d"]}, //  $d is a source data structure.
+\DIFmodbegin
+\begin{lstlisting}[language=JavaScript,basicstyle=\ttfamily\scriptsize,numberstyle=\scriptsize,alsolanguage=DIFcode]
+%DIF < {"FnDef" : {"Params" : ["$d"]}, //  $d is a source data structure
+%DIF > {"FnDef" : {"Params" : ["$d"]}, //  $d is a source data structure.
  "Body" :
  {"Object" :
   {"Invoice" :
@@ -1154,6 +1254,7 @@ Figure~\ref{fig:mapping-src2tar-toAST} below depicts the result of applying to t
                                                             "get","ID"]}}}}},
          "Process" : {"BinaryExpression" : ["$d","get","Invoice","get","DataArea","get","Process"]}}}}}}}}}}
 \end{lstlisting}
+\DIFmodend
 \end{figure}  \vspace{-3em}
 
  \appendix
@@ -1174,13 +1275,15 @@ An OWL class and property is depicted in Figure~\ref{code:endurant}.
   \caption{An object (owl/Class) and a relation (owl/ObjectProperty) in the source population.
     These are somewhat simplified from realistic OWL data.}
   \label{code:endurant}
-\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+\DIFmodbegin
+\begin{lstlisting}[numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true,alsolanguage=DIFcode]
 {'resource/iri'       : 'dol/endurant',
  'resource/name'      : 'endurant',
  'resource/namespace' : 'dol',
  'rdf/type'           : 'owl/Class',
  'rdfs/comment'       : ['The main characteristic of endurants is...'],
- 'rdfs/subClassOf     : 'dol/spatio-temporal-particular',
+%DIF <  'rdfs/subClassOf     : :dol/spatio-temporal-particular,
+%DIF >  'rdfs/subClassOf     : 'dol/spatio-temporal-particular',
  'owl/disjointWith'   : ['dol/abstract', 'dol/quality', 'dol/perdurant']}
 
 {'resource/iri'       : 'dol/participant',
@@ -1192,6 +1295,7 @@ An OWL class and property is depicted in Figure~\ref{code:endurant}.
  'rdfs/domain'        : 'dol/perdurant',
  'rdfs/range'         : 'dol/endurant'}
 \end{lstlisting}
+\DIFmodend
 \end{figure} \vspace{-3em}
 
 The target data we'll be creating consists of three kinds of things: schema, tables, and columns.
@@ -1378,13 +1482,15 @@ the \stt{query} and \stt{express}.
 The \stt{query} produces a binding set for the source data.
 The \stt{express} defines how values from each binding object in the binding set are used in the target population.
 
-% ToDo: Check out the URL about better listing JavaScript
+%DIF <  ToDo: Check out the URL about better listing javascript
+%DIF >  ToDo: Check out the URL about better listing JavaScript
 % https://mysnippets443.wordpress.com/2015/11/28/latex-insert-javascript-code-with-lstlisting-package/
 
 \begin{figure}[H]
   \caption{Mapping the example OWL to the relational database schema}
   \label{code:mapping-owl-to-rdbms}
-\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
+\DIFmodbegin
+\begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true,alsolanguage=DIFcode]
   (   $data := $read('data/testing/owl-example.edn');
 
   $qtype  := query($rdfType, $extraTrips)
@@ -1395,13 +1501,15 @@ The \stt{express} defines how values from each binding object in the binding set
                  /* ToDo: $extraTrips */
                };  /* Defines a higher-order function, a template of sorts. */
 
-  $etype  := express($tableType)
+%DIF <   $etype  := enforce($tableType)
+%DIF >   $etype  := express($tableType)
               {  {'instance-of'  : 'insert-row',
                   'table'        : $tableType,
                   'content'      : {'resourceIRI'       : ?class-iri,
                                     'resourceNamespace' : ?class-ns,
                                     'resourceLabel'     : ?class-name}}
-                           }; /* Likewise, for an express template. */
+%DIF <                            }; /* Likewise, for an enforce template. */
+%DIF >                            }; /* Likewise, for an express template. */
                               /* The target tables for objects and relations a very similar. */
 
   $quClass := $qtype('owl/Class');     /* Use the template, here and the next three assignments. */
@@ -1424,6 +1532,7 @@ The \stt{express} defines how values from each binding object in the binding set
   $reduce($propBsets, $enPropTable, $tar_data) /* The code block returns the target data. */
 )
 \end{lstlisting}
+\DIFmodend
 \end{figure} \vspace{-3em}
 
 % ToDo: This needs work.
