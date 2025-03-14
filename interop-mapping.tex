@@ -139,7 +139,7 @@ For example, it should be possible to translate statements in the exchange form 
 
 RADmapper, the mapping language, integrates JSONata expression language~\cite{Jsonata.org2021} with Datalog~\cite{Abiteboul1995a} and large language model (LLM) capabilities.
 A goal of the language is to emphasize declarative and functional characteristics to simplify the exchange form relative to procedural code.
-The language currently supports mapping to/from JSON, XML, tables (e.g. Excel), and knowledge graphs (RDF).
+The language currently supports mapping to/from JavaScript Object Notation (JSON), XML, tables (e.g. Excel), and knowledge graphs (RDF).
 Use cases for the RADmapper language including in-place updating of target data sources, mapping from multiple sources, and LLM-based matching and extraction tasks.
 
 \begin{sloppypar} % Remember, LaTeX is faultless; if it can't typeset your text it is your fault, sloppy person!
@@ -160,6 +160,11 @@ See Figure~\ref{fig:RM-screenshot}.
   \centering
 \end{figure}
 
+The remainder of the paper is comprised of three sections and an appendix.
+Section 2 provides ``quick start'' examples to illustrate the features and power of the RADmapper language.
+Section 3 discusses query and expression of information from single source and multiple databases.
+Section 4 describes the strategy and provisions for interoperable exchange of RADmapper mappings.
+An appendix describes a mapping of RDF data.
 
 \section{Quick Start: Example Mapping Tasks}
 \label{sec:quick-start}
@@ -319,7 +324,7 @@ RADmapper contains such a function; it is called \stt{\$llmMatch}.
 Below we show how it can be used to automatically generate functions like the one in Figure~\ref{fig:mapping-src2tar}.
 
 \subsubsection{A methodology around ``the function to do it''}
-
+\label{methodology-of-fn}
 A mapping methodology deployable at enterprise scale might use a three-step process for generating and using
 mapping functions like the one in Figure~\ref{fig:mapping-src2tar}:
 \begin{description}
@@ -457,7 +462,7 @@ it thereby offers an alternative to Xpath-like JSONata for manipulating data.
 The \textit{binding set} that is the returned value of \stt{query} calls are especially useful when calling \stt{\$reduce} on a \stt{express} function/structure, as will be demonstrated in later examples.
 
 \begin{figure}[H]
-  \caption{Code to perform Step A, calling the shape function, and Step B, using the shapes to create a mapping function.
+  \caption{Code to perform Step A (of Section~\ref{methodology-of-fn}), calling the shape function, and Step B, using the shapes to create a mapping function.
   Note that Lines 6--8 suggests that functions such as the one in Figure~\ref{fig:def-of-shape-fn} were stored as library functions.}
   \label{fig:call-to-shape}
 \begin{lstlisting}[language=JavaScript,numberstyle=\scriptsize,basicstyle=\ttfamily\scriptsize,numbers=left,stepnumber=1,breaklines=true]
@@ -528,7 +533,7 @@ simply be represented by the single triple \stt{['Bob' 'age' 42]}.
 The answer is that you could represent this fact with that one triple, but in doing so you are using \stt{'Bob'} as a key
 which might not be that good if your database has more than one Bob in it.
 So instead, to prepare for the more general case, Datalog-like graph databases use integers to refer to entities.
-152 here is like a primary key in relational DB, or an IRI for a particular entity defined in RDF.
+152 here is like a primary key in relational DB, or an internationalized resource identifier (IRI) for a particular entity defined in RDF.
 A complete RADmapper program for querying the Bob database for people age 42 is as follows:
 
 \begin{figure}[H]
@@ -738,13 +743,13 @@ Assuming that we'd just like to present the target data as nested objects indexe
 
 \stt{express} is a function-defining construct that, like \stt{query}, is capable of returning express functions when supplied with parameters.
 In that sense, it is capable of being a higher-order function.
-But here on Line 14 we are not using parameter; the declaration is simply \stt{express()\{...\}}; no parameters imply it isn't a template and can be used directly.
+But here on Line 14 we are not using parameters; the declaration is simply \stt{express()\{...\}}; no parameters imply it isn't a template and can be used directly.
 The body of the \stt{express} declaration, the text inside the outer curly brackets, defines the pattern of JSONata-like object structure.
 The target data is produced by iterating over the express function bound to \stt{\$eFn} using the elements of the binding set.
-Two of the most common ways to iterate over a function in functional languages such as JSONata and RADmapper are map and reduce.
-Map and reduce differ in how they process the collection of arguments:
-map applies a given function to each element independently;
-reduce ``summarizes'' results by allowing each element to replace an on-going structure with an updated one.\footnote{Examples to help you recall how these work:
+Two of the most common ways to iterate over a function in functional languages such as JSONata and RADmapper are \stt{map} and \stt{reduce}.
+Map and reduce differ from each other in how they process the collection of arguments:
+\stt{map} applies a given function to each element independently;
+\stt{reduce} ``summarizes'' results by allowing each element to replace an on-going structure with an updated one.\footnote{Examples to help you recall how these work:
   \\ \stt{\$map([1,2,3,4], function(\$x)\{\$x * 2\})} returns [2,4,6,8]; it multiplies each argument by 2.
   \\ \stt{\$reduce([1,2,3,4], function(\$x, \$y)\{\$x + \$y\})} returns 10; it applies \stt{+} to 1 and 2, then to 3 and that sum,
   then to 4 and that sum.}
@@ -759,8 +764,12 @@ Were Line 18 replaced with \stt{\$map(\$bSet, \$eFn)}, the result would be two i
 
 \subsection{Example use of  \stt{query}  and  \stt{express} }
 
-This example illustrates (1) simple restructuring of a data structure, (2) use of predicates as query patterns, (3) extensive joining
-to navigate deeply nested structures, and (4) use of query variable in the attribute position of patterns.
+This example illustrates
+(1) simple restructuring of a data structure,
+(2) use of predicates as query patterns,
+(3) extensive joining to navigate deeply nested structures,
+(4) use of query variable in the attribute position of patterns, and
+(5) avoidance of overwriting by declaring keys.
 The example is based on a discussion on the JSONata Slack channel.
 The goal of the example is to swap the nesting of \stt{owners} and \stt{systems} as shown in Figure~\ref{data:restruct}.
 
@@ -1082,7 +1091,7 @@ The exchange format, however, should not be a human-oriented DSL because such a 
 Because the DSL language is mostly declarative and functional, however, the syntax avoids procedural constructs like loops and indexing.
 Consequently, it is reasonable to express RADmapper DSL as an easily navigable tree structure;
 the \textit{abstract syntax tree} (AST) of the language provides such trees.
-We implemented this idea as a RADmapper DSL function called \stt{\$toAST}, which takes a string of any valid RADmapper DSL expression, and returns a tree parsable as JavaScript Object Notation (JSON).
+We implemented this idea as a RADmapper DSL function called \stt{\$toAST}, which takes a string of any valid RADmapper DSL expression, and returns a tree parsable as JSON.
 Figure~\ref{fig:mapping-src2tar-toAST} below depicts the result of applying to the RADmapper code of Figure~\ref{fig:mapping-src2tar} taken as a string.
 
 \begin{figure}[H]
